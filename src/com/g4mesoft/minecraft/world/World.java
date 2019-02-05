@@ -3,7 +3,9 @@ package com.g4mesoft.minecraft.world;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.g4mesoft.math.Vec3f;
 import com.g4mesoft.minecraft.world.block.BlockPosition;
+import com.g4mesoft.minecraft.world.block.IBlockPosition;
 import com.g4mesoft.minecraft.world.entity.PlayerEntity;
 import com.g4mesoft.world.phys.AABB3;
 
@@ -21,6 +23,7 @@ public class World {
 	
 	private final int[] blocks;
 	
+	private BlockRay blockRay;
 	private PlayerEntity player;
 	
 	public World(int width, int depth) {
@@ -29,24 +32,30 @@ public class World {
 	
 		blocks = new int[width * depth * WORLD_HEIGHT];
 		
-		for (int z = 0; z < depth; z++) {
-			for (int y = 0; y < WORLD_HEIGHT; y++) {
-				for (int x = 0; x < width; x++) {
-					setBlock(new BlockPosition(x, y, z), y > 64 ? BLOCK_AIR : BLOCK_SOLID);
+		BlockPosition pos = new BlockPosition();
+		for (pos.z = 0; pos.z < depth; pos.z++) {
+			for (pos.x = 0; pos.x < width; pos.x++) {
+				for (pos.y = 0; pos.y < WORLD_HEIGHT; pos.y++) {
+					setBlock(pos, pos.y > 5 ? BLOCK_AIR : BLOCK_SOLID);
 				}
 			}
 		}
 		
+		blockRay = new BlockRay(this);
 		player = new PlayerEntity(this);
 	}
 	
-	public int getBlock(BlockPosition blockPos) {
+	public BlockHitResult castBlockRay(float x, float y, float z, Vec3f dir) {
+		return blockRay.castRay(x, y, z, dir);
+	}
+	
+	public int getBlock(IBlockPosition blockPos) {
 		if (!isInBounds(blockPos))
 			return BLOCK_AIR;
 		return blocks[getBlockIndex(blockPos)];
 	}
 	
-	public void setBlock(BlockPosition blockPos, int block) {
+	public void setBlock(IBlockPosition blockPos, int block) {
 		if (isInBounds(blockPos)) {
 			int index = getBlockIndex(blockPos);
 			
@@ -57,11 +66,11 @@ public class World {
 		}
 	}
 	
-	private void markDirty(BlockPosition blockPos) {
+	private void markDirty(IBlockPosition blockPos) {
 		dirty = true;
 	}
 	
-	private boolean isInBounds(BlockPosition blockPos) {
+	private boolean isInBounds(IBlockPosition blockPos) {
 		if (blockPos.getX() < 0 || blockPos.getX() >= width)
 			return false;
 		if (blockPos.getY() < 0 || blockPos.getY() >= WORLD_HEIGHT)
@@ -72,7 +81,7 @@ public class World {
 		return true;
 	}
 	
-	private int getBlockIndex(BlockPosition blockPos) {
+	private int getBlockIndex(IBlockPosition blockPos) {
 		return blockPos.getX() + width * (blockPos.getY() + blockPos.getZ() * WORLD_HEIGHT);
 	}
 	

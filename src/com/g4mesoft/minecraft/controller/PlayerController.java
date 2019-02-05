@@ -8,6 +8,7 @@ import com.g4mesoft.input.key.KeySingleInput;
 import com.g4mesoft.math.Mat3f;
 import com.g4mesoft.math.MathUtils;
 import com.g4mesoft.math.Vec3f;
+import com.g4mesoft.minecraft.world.entity.PlayerEntity;
 
 public class PlayerController {
 
@@ -48,7 +49,7 @@ public class PlayerController {
 		KeyInputListener.getInstance().addKey(sneak);
 	}
 	
-	public void update(float pitch) {
+	public void update(PlayerEntity player) {
 		moveVec.set(0.0f);
 		if (forward.isPressed())
 			moveVec.z--;
@@ -64,16 +65,14 @@ public class PlayerController {
 			if (!MathUtils.nearZero(1.0f - distSqr))
 				moveVec.div(MathUtils.sqrt(distSqr));
 			
-			rotMat.setRotation(pitch, 0.0f, 1.0f, 0.0f);
+			rotMat.setRotation(player.pitch, 0.0f, 1.0f, 0.0f);
 			rotMat.mul(moveVec, moveVec);
 
 			moved = true;
 		}
 		
-		if (jump.isActive())
-			moveVec.y = 1.0f;
-		if (sneaking = sneak.isActive())
-			moveVec.y = -1.0f;
+		if (player.onGround && jump.isActive())
+			moveVec.y = 2.0f;
 	}
 
 	public boolean hasMoved() {

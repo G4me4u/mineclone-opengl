@@ -139,9 +139,9 @@ public class WorldRenderer {
 		
 		PlayerEntity player = world.getPlayer();
 
-		float x = player.px + (player.x - player.px) * dt;
-		float y = player.py + (player.y - player.py) * dt;
-		float z = player.pz + (player.z - player.pz) * dt;
+		float x = player.prevEyeX + (player.eyeX - player.prevEyeX) * dt;
+		float y = player.prevEyeY + (player.eyeY - player.prevEyeY) * dt;
+		float z = player.prevEyeZ + (player.eyeZ - player.prevEyeZ) * dt;
 		camera.setPosition(-x, -y, -z);
 
 		float yaw = player.prevYaw + (player.yaw - player.prevYaw) * dt;

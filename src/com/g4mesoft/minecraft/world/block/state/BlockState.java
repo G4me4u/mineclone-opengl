@@ -28,21 +28,53 @@ public class BlockState {
 		return block;
 	}
 	
-	public <T> T getValue(IBlockProperty<T> property) {
-		PropertyInfo propertyInfo = propertyLookup.get(property);
-		if (propertyInfo == null)
-			throw new IllegalArgumentException(property + " is not part of this BlockState!");
-
-		return property.getPropertyValue(values[propertyInfo.getIndex()]);
-	}
-
-	public <T> BlockState withProperty(IBlockProperty<T> property, T value) {
+	private <T> PropertyInfo getPropertyInfo(IBlockProperty<T> property) {
 		PropertyInfo propertyInfo = propertyLookup.get(property);
 		if (propertyInfo == null)
 			throw new IllegalArgumentException(property + " is not part of this BlockState!");
 		
+		return propertyInfo;
+	}
+	
+	public <T> T getValue(IBlockProperty<T> property) {
+		int index = getPropertyInfo(property).getIndex();
+		return property.getPropertyValue(values[index]);
+	}
+
+	public <T> BlockState withProperty(IBlockProperty<T> property, T value) {
+		PropertyInfo propertyInfo = getPropertyInfo(property);
 		int diff = property.getPropertyValueIndex(value) - values[propertyInfo.getIndex()];
 		return states[stateIndex + diff * propertyInfo.stride];
+	}
+	
+	public <T> BlockState incrementProperty(IBlockProperty<T> property) {
+		int index = stateIndex + getPropertyInfo(property).stride;
+		if (index >= states.length)
+			index -= states.length;
+		
+		return states[index];
+	}
+
+	public <T> BlockState decrementProperty(IBlockProperty<T> property) {
+		int index = stateIndex - getPropertyInfo(property).stride;
+		if (index < 0)
+			index += states.length;
+		
+		return states[index];
+	}
+	
+	public BlockState incrementState() {
+		int index = stateIndex + 1;
+		if (index >= states.length)
+			return states[0];
+		return states[index];
+	}
+
+	public BlockState decrementState() {
+		int index = stateIndex - 1;
+		if (index < 0)
+			return states[states.length - 1];
+		return states[index];
 	}
 	
 	public static BlockState createStateTree(Block block, IBlockProperty<?>[] properties) {
@@ -128,7 +160,7 @@ public class BlockState {
 
 		return sb.toString();
 	}
-	
+
 	private static class PropertyInfo {
 		
 		private final int index;

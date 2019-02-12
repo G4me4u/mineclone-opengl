@@ -3,7 +3,7 @@ package com.g4mesoft.minecraft.renderer;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.g4mesoft.graphics3d.PixelRenderer3D;
+import com.g4mesoft.graphics3d.AbstractPixelRenderer3D;
 import com.g4mesoft.graphics3d.Vertex3D;
 import com.g4mesoft.math.Vec3f;
 import com.g4mesoft.minecraft.world.World;
@@ -131,7 +131,7 @@ public class WorldRenderer {
 		worldShader.setPerspective(FOV, aspect, NEAR, FAR);
 	}
 	
-	public void render(PixelRenderer3D renderer, float dt) {
+	public void render(AbstractPixelRenderer3D renderer3d, float dt) {
 		if (world.isDirty()) {
 			tesselateWorld();
 			world.noLongerDirty();
@@ -150,7 +150,7 @@ public class WorldRenderer {
 		
 		worldShader.viewMat.set(camera.getViewMatrix());
 		
-		renderer.setShader(worldShader);
-		renderer.drawVertices(vertices);
+		renderer3d.setShader(worldShader);
+		renderer3d.drawVertices(vertices);
 	}
 }

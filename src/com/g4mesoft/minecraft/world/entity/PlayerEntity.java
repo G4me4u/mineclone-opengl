@@ -6,6 +6,7 @@ import com.g4mesoft.math.Vec3f;
 import com.g4mesoft.minecraft.controller.PlayerCamera;
 import com.g4mesoft.minecraft.controller.PlayerController;
 import com.g4mesoft.minecraft.world.BlockHitResult;
+import com.g4mesoft.minecraft.world.Blocks;
 import com.g4mesoft.minecraft.world.World;
 import com.g4mesoft.minecraft.world.block.BlockPosition;
 
@@ -52,10 +53,10 @@ public class PlayerEntity extends Entity {
 			
 			if (hitResult != null) {
 				if (remove) {
-					world.setBlock(hitResult.blockPos, World.BLOCK_AIR);
+					world.setBlock(hitResult.blockPos, Blocks.AIR_BLOCK);
 				} else {
 					BlockPosition placePos = hitResult.blockPos.getOffset(hitResult.face);
-					world.setBlock(placePos, World.BLOCK_SOLID);
+					world.setBlock(placePos, Blocks.STONE_BLOCK);
 				}
 			}
 		}

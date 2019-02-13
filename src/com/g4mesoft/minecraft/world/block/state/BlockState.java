@@ -24,11 +24,24 @@ public class BlockState {
 		this.values = new int[propertyLookup.size()];
 	}
 	
+	private BlockState(Block block) {
+		this.block = block;
+
+		states = null;
+		stateIndex = 0;
+		propertyLookup = null;
+		
+		values = null;
+	}
+
 	public Block getBlock() {
 		return block;
 	}
 	
 	private <T> PropertyInfo getPropertyInfo(IBlockProperty<T> property) {
+		if (propertyLookup == null)
+			throw new IllegalStateException("BlockState has no properties!");
+
 		PropertyInfo propertyInfo = propertyLookup.get(property);
 		if (propertyInfo == null)
 			throw new IllegalArgumentException(property + " is not part of this BlockState!");
@@ -64,6 +77,14 @@ public class BlockState {
 	}
 	
 	public BlockState incrementState() {
+		// Just like the index would wrap 
+		// around to zero when going above 
+		// states.length, we wrap around 
+		// and return ourselves, if state
+		// is empty.
+		if (states == null)
+			return this;
+
 		int index = stateIndex + 1;
 		if (index >= states.length)
 			return states[0];
@@ -71,20 +92,23 @@ public class BlockState {
 	}
 
 	public BlockState decrementState() {
+		if (states == null)
+			return this;
+		
 		int index = stateIndex - 1;
 		if (index < 0)
 			return states[states.length - 1];
 		return states[index];
 	}
 	
-	public static BlockState createStateTree(Block block, IBlockProperty<?>[] properties) {
+	public static BlockState createStateTree(Block block, IBlockProperty<?>... properties) {
 		int numProperties = properties.length;
 		if (numProperties == 0)
-			throw new IllegalArgumentException("Property arrays is of length 0");
-			
+			return new BlockState(block);
+
 		Map<IBlockProperty<?>, PropertyInfo> propertyLookup;
 		propertyLookup = new HashMap<IBlockProperty<?>, PropertyInfo>(numProperties);
-		
+
 		// Make sure properties of the
 		// same name don't exist.
 		HashSet<String> nameTable = new HashSet<String>();
@@ -148,14 +172,18 @@ public class BlockState {
 		} else {
 			sb.append(block.getName());
 		}
-		for (Map.Entry<IBlockProperty<?>, PropertyInfo> entry : propertyLookup.entrySet()) {
-			sb.append(',').append(' ');
-			
-			IBlockProperty<?> property = entry.getKey();
-			PropertyInfo info = entry.getValue();
-			sb.append(property.toString()).append('=');
-			sb.append(property.getPropertyValue(values[info.index]));
+
+		if (propertyLookup != null) {
+			for (Map.Entry<IBlockProperty<?>, PropertyInfo> entry : propertyLookup.entrySet()) {
+				sb.append(',').append(' ');
+				
+				IBlockProperty<?> property = entry.getKey();
+				PropertyInfo info = entry.getValue();
+				sb.append(property.toString()).append('=');
+				sb.append(property.getPropertyValue(values[info.index]));
+			}
 		}
+		
 		sb.append(']');
 
 		return sb.toString();

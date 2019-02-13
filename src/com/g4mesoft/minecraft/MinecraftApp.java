@@ -4,15 +4,13 @@ import com.g4mesoft.Application;
 import com.g4mesoft.graphic.Display;
 import com.g4mesoft.graphic.IRenderer2D;
 import com.g4mesoft.graphics3d.AbstractPixelRenderer3D;
-import com.g4mesoft.graphics3d.ParallelPixelRenderer3D;
 import com.g4mesoft.graphics3d.PixelRenderer3D;
 import com.g4mesoft.minecraft.renderer.WorldRenderer;
 import com.g4mesoft.minecraft.world.World;
+import com.g4mesoft.minecraft.world.block.Block;
 
 public class MinecraftApp extends Application {
 
-	private static final int NUM_RENDERING_THREADS = 4;
-	
 	private static final int WORLD_WIDTH = 16 * 8;
 	private static final int WORLD_DEPTH = 16 * 8;
 	
@@ -24,6 +22,8 @@ public class MinecraftApp extends Application {
 		super.init();
 	
 		setMouseGrabbed(true);
+		
+		Block.registerBlocks();
 		
 		world = new World(WORLD_WIDTH, WORLD_DEPTH);
 		worldRenderer = new WorldRenderer(world);
@@ -39,7 +39,7 @@ public class MinecraftApp extends Application {
 		if (renderer instanceof PixelRenderer3D) {
 			((PixelRenderer3D)renderer).setSize(newWidth, newHeight);
 		} else {
-			display.setRenderer(new ParallelPixelRenderer3D(display, newWidth, newHeight, NUM_RENDERING_THREADS));
+			display.setRenderer(new PixelRenderer3D(display, newWidth, newHeight));
 		}
 		
 		worldRenderer.displayResized(newWidth, newHeight);

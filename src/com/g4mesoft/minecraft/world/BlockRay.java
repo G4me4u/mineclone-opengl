@@ -1,8 +1,10 @@
 package com.g4mesoft.minecraft.world;
 
+import com.g4mesoft.math.Mat4f;
 import com.g4mesoft.math.MathUtils;
 import com.g4mesoft.math.Vec3f;
 import com.g4mesoft.minecraft.world.block.BlockPosition;
+import com.g4mesoft.minecraft.world.block.state.BlockState;
 
 public class BlockRay {
 
@@ -18,6 +20,10 @@ public class BlockRay {
 		this(world, DEFAULT_STEP_SIZE, DEFAULT_MAX_DIST);
 	}
 
+	public BlockRay(World world, float stepSize) {
+		this(world, stepSize, DEFAULT_MAX_DIST);
+	}
+
 	public BlockRay(World world, float stepSize, float maxDist) {
 		if (stepSize < MathUtils.EPSILON)
 			throw new IllegalArgumentException("Step-size must be positive and larger than " + MathUtils.EPSILON);
@@ -30,6 +36,11 @@ public class BlockRay {
 	
 	public BlockHitResult castRay(Vec3f pos, Vec3f dir) {
 		return castRay(pos.x, pos.y, pos.z, dir);
+	}
+
+	public BlockHitResult castRay(Mat4f viewMatrix) {
+		Vec3f forward = new Vec3f(viewMatrix.m20, viewMatrix.m21, viewMatrix.m22);
+		return castRay(viewMatrix.m30, viewMatrix.m31, viewMatrix.m32, forward);
 	}
 
 	public BlockHitResult castRay(float x, float y, float z, Vec3f dir) {
@@ -52,8 +63,8 @@ public class BlockRay {
 				blockPos.y = yy;
 				blockPos.z = zz;
 				
-				int block = world.getBlock(blockPos);
-				if (block != World.BLOCK_AIR) {
+				BlockState block = world.getBlockState(blockPos);
+				if (block.getBlock() != Blocks.AIR_BLOCK) {
 					Vec3f hitOffset = new Vec3f(x - xx - 0.5f, y - yy - 0.5f, z - zz - 0.5f);
 					Direction face = Direction.fromVector(hitOffset);
 					return new BlockHitResult(blockPos, x, y, z, face);

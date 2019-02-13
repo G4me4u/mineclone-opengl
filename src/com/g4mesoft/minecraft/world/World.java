@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.g4mesoft.math.Vec3f;
+import com.g4mesoft.minecraft.world.block.Block;
 import com.g4mesoft.minecraft.world.block.BlockPosition;
 import com.g4mesoft.minecraft.world.block.IBlockPosition;
+import com.g4mesoft.minecraft.world.block.state.BlockState;
 import com.g4mesoft.minecraft.world.entity.PlayerEntity;
 import com.g4mesoft.world.phys.AABB3;
 
@@ -13,15 +15,12 @@ public class World {
 	
 	private static final int WORLD_HEIGHT = 128;
 	
-	public static final int BLOCK_AIR = 0;
-	public static final int BLOCK_SOLID = 1;
-	
 	private final int width;
 	private final int depth;
 	
 	private boolean dirty;
 	
-	private final int[] blocks;
+	private final BlockState[] blocks;
 	
 	private BlockRay blockRay;
 	private PlayerEntity player;
@@ -30,18 +29,18 @@ public class World {
 		this.width = width;
 		this.depth = depth;
 	
-		blocks = new int[width * depth * WORLD_HEIGHT];
+		blocks = new BlockState[width * depth * WORLD_HEIGHT];
 		
 		BlockPosition pos = new BlockPosition();
-		for (pos.z = 0; pos.z < depth; pos.z++) {
-			for (pos.x = 0; pos.x < width; pos.x++) {
+		for (pos.x = 0; pos.x < width; pos.x++) {
+			for (pos.z = 0; pos.z < depth; pos.z++) {
 				for (pos.y = 0; pos.y < WORLD_HEIGHT; pos.y++) {
-					setBlock(pos, pos.y > 5 ? BLOCK_AIR : BLOCK_SOLID);
+					setBlock(pos, pos.y > 5 ? Blocks.AIR_BLOCK : Blocks.STONE_BLOCK);
 				}
 			}
 		}
 		
-		blockRay = new BlockRay(this);
+		blockRay = new BlockRay(this, 0.01f);
 		player = new PlayerEntity(this);
 	}
 	
@@ -49,18 +48,22 @@ public class World {
 		return blockRay.castRay(x, y, z, dir);
 	}
 	
-	public int getBlock(IBlockPosition blockPos) {
+	public BlockState getBlockState(IBlockPosition blockPos) {
 		if (!isInBounds(blockPos))
-			return BLOCK_AIR;
+			return Blocks.AIR_BLOCK.getDefaultState();
 		return blocks[getBlockIndex(blockPos)];
 	}
 	
-	public void setBlock(IBlockPosition blockPos, int block) {
+	public void setBlock(IBlockPosition blockPos, Block block) {
+		setBlockState(blockPos, block.getDefaultState());
+	}
+
+	public void setBlockState(IBlockPosition blockPos, BlockState state) {
 		if (isInBounds(blockPos)) {
 			int index = getBlockIndex(blockPos);
 			
-			if (block != blocks[index]) {
-				blocks[index] = block;
+			if (state != blocks[index]) {
+				blocks[index] = state;
 				markDirty(blockPos);
 			}
 		}
@@ -122,15 +125,11 @@ public class World {
 		int y1 = (int)hitbox.y1;
 		int z1 = (int)hitbox.z1;
 		
-		for (pos.z = (int)hitbox.z0; pos.z <= z1; pos.z++) {
+		for (pos.x = (int)hitbox.x0; pos.x <= x1; pos.x++) {
 			for (pos.y = (int)hitbox.y0; pos.y <= y1; pos.y++) {
-				for (pos.x = (int)hitbox.x0; pos.x <= x1; pos.x++) {
-					if (getBlock(pos) != BLOCK_AIR) {
-						float x = pos.x;
-						float y = pos.y;
-						float z = pos.z;
-						hitboxes.add(new AABB3(x, y, z, x + 1.0f, y + 1.0f, z + 1.0f));
-					}
+				for (pos.z = (int)hitbox.z0; pos.z <= z1; pos.z++) {
+					BlockState state = getBlockState(pos);
+					state.getBlock().getEntityHitboxes(this, pos, state, hitboxes);
 				}
 			}
 		}

@@ -4,13 +4,16 @@ import com.g4mesoft.graphics3d.IShader3D;
 import com.g4mesoft.graphics3d.Triangle3D;
 import com.g4mesoft.graphics3d.Vertex3D;
 import com.g4mesoft.math.Mat4f;
+import com.g4mesoft.minecraft.world.block.IBlockPosition;
 
-public class WorldShader3D implements IShader3D {
+public class BlockSelectionShader3D implements IShader3D {
 
 	private final WorldCamera camera;
 	private final Mat4f projViewMat;
 	
-	public WorldShader3D(WorldCamera camera) {
+	private IBlockPosition blockPos;
+	
+	public BlockSelectionShader3D(WorldCamera camera) {
 		this.camera = camera;
 		
 		projViewMat = new Mat4f();
@@ -19,6 +22,9 @@ public class WorldShader3D implements IShader3D {
 	@Override
 	public void prepareShader() {
 		camera.getProjViewMatrix().copy(projViewMat);
+		
+		if (blockPos != null)
+			projViewMat.translate(blockPos.getX(), blockPos.getY(), blockPos.getZ());
 	}
 
 	@Override
@@ -26,30 +32,19 @@ public class WorldShader3D implements IShader3D {
 		projViewMat.mul(v0.pos, result.v0.pos);
 		projViewMat.mul(v1.pos, result.v1.pos);
 		projViewMat.mul(v2.pos, result.v2.pos);
-		
-		result.v0.storeFloat(0, v0.loadFloat(0));
-		result.v0.storeFloat(1, v0.loadFloat(1));
-		result.v0.storeFloat(2, v0.loadFloat(2));
-
-		result.v1.storeFloat(0, v1.loadFloat(0));
-		result.v1.storeFloat(1, v1.loadFloat(1));
-		result.v1.storeFloat(2, v1.loadFloat(2));
-
-		result.v2.storeFloat(0, v2.loadFloat(0));
-		result.v2.storeFloat(1, v2.loadFloat(1));
-		result.v2.storeFloat(2, v2.loadFloat(2));
 	}
 
 	@Override
 	public int fragment(Vertex3D vert) {
-		int r = (int)(255.0f * vert.data[0]);
-		int g = (int)(255.0f * vert.data[1]);
-		int b = (int)(255.0f * vert.data[2]);
-		return (r << 16) | (g << 8) | b;
+		return 0xFFFFFF;
 	}
 
 	@Override
 	public int getOutputSize() {
-		return 3;
+		return 0;
+	}
+
+	public void setSelectionPosition(IBlockPosition blockPos) {
+		this.blockPos = blockPos;
 	}
 }

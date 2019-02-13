@@ -12,23 +12,49 @@ public class WorldCamera {
 	private float ry;
 	
 	private final Mat4f viewMatrix;
-	private boolean matrixNeedsRefresh;
+	private final Mat4f projMatrix;
+	private final Mat4f projViewMatrix;
+
+	private boolean viewMatrixNeedsRefresh;
+	private boolean finalMatrixNeedsRefresh;
 	
 	public WorldCamera() {
 		viewMatrix = new Mat4f();
-		matrixNeedsRefresh = false;
+		projMatrix = new Mat4f();
+		projViewMatrix = new Mat4f();
+		
+		finalMatrixNeedsRefresh = false;
+	}
+	
+	public void setPerspective(float fov, float aspect, float near, float far) {
+		projMatrix.toPerspective(fov, aspect, near, far);
+		finalMatrixNeedsRefresh = true;
 	}
 	
 	public synchronized Mat4f getViewMatrix() {
-		if (matrixNeedsRefresh) {
+		if (viewMatrixNeedsRefresh) {
 			viewMatrix.toIdentity();
 			viewMatrix.rotateX(rx).rotateY(ry);
 			viewMatrix.translate(x, y, z);
 			
-			matrixNeedsRefresh = false;
+			viewMatrixNeedsRefresh = false;
 		}
 		
 		return viewMatrix;
+	}
+	
+	public synchronized Mat4f getProjViewMatrix() {
+		if (finalMatrixNeedsRefresh) {
+			projMatrix.mul(getViewMatrix(), projViewMatrix);
+			
+			finalMatrixNeedsRefresh = false;
+		}
+		
+		return projViewMatrix;
+	}
+	
+	public Mat4f getProjectionMatrix() {
+		return projMatrix;
 	}
 	
 	public void setPosition(float x, float y, float z) {
@@ -36,13 +62,15 @@ public class WorldCamera {
 		this.y = y;
 		this.z = z;
 		
-		matrixNeedsRefresh = true;
+		viewMatrixNeedsRefresh = true;
+		finalMatrixNeedsRefresh = true;
 	}
 
 	public void setRotation(float rx, float ry) {
 		this.rx = rx;
 		this.ry = ry;
 		
-		matrixNeedsRefresh = true;
+		viewMatrixNeedsRefresh = true;
+		finalMatrixNeedsRefresh = true;
 	}
 }

@@ -15,20 +15,28 @@ public class WorldCamera {
 	private final Mat4f projMatrix;
 	private final Mat4f projViewMatrix;
 
+	private final ViewFrustum viewFrustum;
+	
 	private boolean viewMatrixNeedsRefresh;
 	private boolean finalMatrixNeedsRefresh;
+	private boolean viewFrustumNeedsRefresh;
 	
 	public WorldCamera() {
 		viewMatrix = new Mat4f();
 		projMatrix = new Mat4f();
 		projViewMatrix = new Mat4f();
 		
+		viewFrustum = new ViewFrustum();
+		
+		viewMatrixNeedsRefresh = false;
 		finalMatrixNeedsRefresh = false;
+		viewFrustumNeedsRefresh = false;
 	}
 	
 	public void setPerspective(float fov, float aspect, float near, float far) {
 		projMatrix.toPerspective(fov, aspect, near, far);
-		finalMatrixNeedsRefresh = true;
+
+		invalidateView();
 	}
 	
 	public synchronized Mat4f getViewMatrix() {
@@ -62,15 +70,28 @@ public class WorldCamera {
 		this.y = y;
 		this.z = z;
 		
-		viewMatrixNeedsRefresh = true;
-		finalMatrixNeedsRefresh = true;
+		invalidateView();
 	}
 
 	public void setRotation(float rx, float ry) {
 		this.rx = rx;
 		this.ry = ry;
 		
+		invalidateView();
+	}
+	
+	private void invalidateView() {
 		viewMatrixNeedsRefresh = true;
 		finalMatrixNeedsRefresh = true;
+		viewFrustumNeedsRefresh = true;
+	}
+	
+	public ViewFrustum getViewFrustum() {
+		if (viewFrustumNeedsRefresh) {
+			viewFrustum.initFrustum(getProjViewMatrix());
+			viewFrustumNeedsRefresh = false;
+		}
+		
+		return viewFrustum;
 	}
 }

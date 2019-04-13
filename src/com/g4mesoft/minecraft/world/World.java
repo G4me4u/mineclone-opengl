@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.g4mesoft.math.Vec3f;
+import com.g4mesoft.minecraft.MinecraftApp;
 import com.g4mesoft.minecraft.world.block.Block;
 import com.g4mesoft.minecraft.world.block.BlockPosition;
 import com.g4mesoft.minecraft.world.block.IBlockPosition;
@@ -13,30 +14,27 @@ import com.g4mesoft.world.phys.AABB3;
 
 public class World {
 	
-	private static final int WORLD_HEIGHT = 128;
+	public static final int WORLD_HEIGHT = WorldChunk.CHUNK_SIZE * 1;
 	
-	private final int width;
-	private final int depth;
+	public static final int CHUNKS_X = 2;
+	public static final int CHUNKS_Z = 2;
 	
-	private boolean dirty;
+	private final MinecraftApp app;
 	
-	private final BlockState[] blocks;
+	private final WorldChunk[] chunks;
 	
 	private BlockRay blockRay;
 	private PlayerEntity player;
 	
-	public World(int width, int depth) {
-		this.width = width;
-		this.depth = depth;
-	
-		blocks = new BlockState[width * depth * WORLD_HEIGHT];
+	public World(MinecraftApp app) {
+		this.app = app;
+
+		chunks = new WorldChunk[CHUNKS_X * CHUNKS_Z];
 		
-		BlockPosition pos = new BlockPosition();
-		for (pos.x = 0; pos.x < width; pos.x++) {
-			for (pos.z = 0; pos.z < depth; pos.z++) {
-				for (pos.y = 0; pos.y < WORLD_HEIGHT; pos.y++) {
-					setBlock(pos, pos.y > 5 ? Blocks.AIR_BLOCK : Blocks.STONE_BLOCK);
-				}
+		int i = 0;
+		for (int cz = 0; cz < CHUNKS_Z; cz++) {
+			for (int cx = 0; cx < CHUNKS_X; cx++) {
+				chunks[i++] = new WorldChunk(cx, cz);
 			}
 		}
 		
@@ -48,10 +46,30 @@ public class World {
 		return blockRay.castRay(x, y, z, dir);
 	}
 	
+	public WorldChunk getChunk(IBlockPosition blockPos) {
+		if (blockPos.getY() < 0 || blockPos.getY() >= WORLD_HEIGHT)
+			return null;
+		
+		int chunkX = blockPos.getX() / WorldChunk.CHUNK_SIZE;
+		int chunkZ = blockPos.getZ() / WorldChunk.CHUNK_SIZE;
+		
+		return getChunk(chunkX, chunkZ);
+	}
+
+	public WorldChunk getChunk(int chunkX, int chunkZ) {
+		if (chunkX < 0 || chunkX >= CHUNKS_X)
+			return null;
+		if (chunkZ < 0 || chunkZ >= CHUNKS_Z)
+			return null;
+		
+		return chunks[chunkX + chunkZ * CHUNKS_X];
+	}
+	
 	public BlockState getBlockState(IBlockPosition blockPos) {
-		if (!isInBounds(blockPos))
+		WorldChunk chunk = getChunk(blockPos);
+		if (chunk == null)
 			return Blocks.AIR_BLOCK.getDefaultState();
-		return blocks[getBlockIndex(blockPos)];
+		return chunk.getBlockState(blockPos);
 	}
 	
 	public void setBlock(IBlockPosition blockPos, Block block) {
@@ -59,57 +77,31 @@ public class World {
 	}
 
 	public void setBlockState(IBlockPosition blockPos, BlockState state) {
-		if (isInBounds(blockPos)) {
-			int index = getBlockIndex(blockPos);
-			
-			if (state != blocks[index]) {
-				blocks[index] = state;
+		WorldChunk chunk = getChunk(blockPos);
+		if (chunk != null) {
+			if (chunk.setBlockState(blockPos, state))
 				markDirty(blockPos);
-			}
 		}
 	}
 	
 	private void markDirty(IBlockPosition blockPos) {
-		dirty = true;
+		app.getWorldRenderer().markDirty(blockPos);
 	}
 	
-	private boolean isInBounds(IBlockPosition blockPos) {
-		if (blockPos.getX() < 0 || blockPos.getX() >= width)
-			return false;
-		if (blockPos.getY() < 0 || blockPos.getY() >= WORLD_HEIGHT)
-			return false;
-		if (blockPos.getZ() < 0 || blockPos.getZ() >= depth)
-			return false;
-		
-		return true;
+	public boolean isLoadedBlock(IBlockPosition blockPos) {
+		return getChunk(blockPos) != null;
 	}
-	
-	private int getBlockIndex(IBlockPosition blockPos) {
-		return blockPos.getX() + width * (blockPos.getY() + blockPos.getZ() * WORLD_HEIGHT);
+
+	public boolean isLoadedBlock(int chunkX, int chunkZ) {
+		return getChunk(chunkX, chunkZ) != null;
 	}
 	
 	public void update() {
 		player.update();
 	}
 
-	public int getWidth() {
-		return width;
-	}
-
 	public int getHeight() {
 		return WORLD_HEIGHT;
-	}
-
-	public int getDepth() {
-		return depth;
-	}
-	
-	public boolean isDirty() {
-		return dirty;
-	}
-
-	public void noLongerDirty() {
-		dirty = false;
 	}
 	
 	public PlayerEntity getPlayer() {

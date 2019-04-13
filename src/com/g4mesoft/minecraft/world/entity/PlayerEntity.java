@@ -8,6 +8,7 @@ import com.g4mesoft.minecraft.controller.PlayerController;
 import com.g4mesoft.minecraft.world.BlockHitResult;
 import com.g4mesoft.minecraft.world.Blocks;
 import com.g4mesoft.minecraft.world.World;
+import com.g4mesoft.minecraft.world.WorldChunk;
 import com.g4mesoft.minecraft.world.block.BlockPosition;
 
 public class PlayerEntity extends Entity {
@@ -27,9 +28,9 @@ public class PlayerEntity extends Entity {
 		camera = new PlayerCamera(0.1f);
 		controller = new PlayerController();
 		
-		float x = world.getWidth() / 2;
-		float y = world.getHeight();
-		float z = world.getDepth() / 2;
+		float x = World.CHUNKS_X * WorldChunk.CHUNK_SIZE / 2;
+		float y = World.WORLD_HEIGHT;
+		float z = World.CHUNKS_Z * WorldChunk.CHUNK_SIZE / 2;
 		moveHitboxTo(x, y, z);
 	}
 	

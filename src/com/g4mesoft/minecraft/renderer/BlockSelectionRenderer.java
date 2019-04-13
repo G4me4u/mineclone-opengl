@@ -12,7 +12,7 @@ import com.g4mesoft.minecraft.world.block.state.BlockState;
 
 public class BlockSelectionRenderer {
 
-	private static final Vertex3D[] SELECTION_POSITIONS = new Vertex3D[] {
+	private static final Vertex3D[] SELECTION_VERTICES = new Vertex3D[] {
 		// FRONT
 		new Vertex3D(new Vec4f( 1.01f, -0.01f,  1.01f,  1.0f)),
 		new Vertex3D(new Vec4f(-0.01f,  1.01f,  1.01f,  1.0f)),
@@ -92,7 +92,7 @@ public class BlockSelectionRenderer {
 				shader.setSelectionPosition(res.blockPos);
 				
 				renderer3d.setShader(shader);
-				renderer3d.drawVertices(SELECTION_POSITIONS);
+				renderer3d.drawVertices(SELECTION_VERTICES);
 			}
 		}
 	}

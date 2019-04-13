@@ -2,20 +2,24 @@ package com.g4mesoft.minecraft;
 
 import com.g4mesoft.Application;
 import com.g4mesoft.graphic.Display;
+import com.g4mesoft.graphic.DisplayMode;
 import com.g4mesoft.graphic.IRenderer2D;
 import com.g4mesoft.graphics3d.AbstractPixelRenderer3D;
 import com.g4mesoft.graphics3d.PixelRenderer3D;
+import com.g4mesoft.input.key.KeyInput;
+import com.g4mesoft.input.key.KeyInputListener;
+import com.g4mesoft.input.key.KeySingleInput;
 import com.g4mesoft.minecraft.renderer.WorldRenderer;
 import com.g4mesoft.minecraft.world.World;
 import com.g4mesoft.minecraft.world.block.Block;
+import com.sun.glass.events.KeyEvent;
 
 public class MinecraftApp extends Application {
 
-	private static final int WORLD_WIDTH = 16 * 8;
-	private static final int WORLD_DEPTH = 16 * 8;
-	
 	private World world;
 	private WorldRenderer worldRenderer;
+
+	private KeyInput fullscreenKey;
 	
 	@Override
 	public void init() {
@@ -25,8 +29,11 @@ public class MinecraftApp extends Application {
 		
 		Block.registerBlocks();
 		
-		world = new World(WORLD_WIDTH, WORLD_DEPTH);
+		world = new World(this);
 		worldRenderer = new WorldRenderer(world);
+	
+		fullscreenKey = new KeySingleInput("fullscreen", KeyEvent.VK_F11);
+		KeyInputListener.getInstance().addKey(fullscreenKey);
 	}
 
 	@Override
@@ -48,6 +55,15 @@ public class MinecraftApp extends Application {
 	@Override
 	protected void tick() {
 		world.update();
+		
+		if (fullscreenKey.isClicked()) {
+			Display display = getDisplay();
+			if (display.isFullscreen()) {
+				display.setDisplayMode(DisplayMode.NORMAL);
+			} else {
+				display.setDisplayMode(DisplayMode.FULLSCREEN_BORDERLESS);
+			}
+		}
 	}
 
 	@Override
@@ -58,6 +74,10 @@ public class MinecraftApp extends Application {
 		renderer3D.clear();
 		
 		worldRenderer.render(renderer3D, dt);
+	}
+
+	public WorldRenderer getWorldRenderer() {
+		return worldRenderer;
 	}
 	
 	public static void main(String[] args) throws Exception {

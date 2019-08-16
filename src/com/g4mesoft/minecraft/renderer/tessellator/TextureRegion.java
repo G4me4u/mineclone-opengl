@@ -1,4 +1,4 @@
-package com.g4mesoft.minecraft.renderer.graphics;
+package com.g4mesoft.minecraft.renderer.tessellator;
 
 import com.g4mesoft.graphics3d.Texture3D;
 

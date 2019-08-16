@@ -1,20 +1,28 @@
 package com.g4mesoft.minecraft.world.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.g4mesoft.input.mouse.MouseInputListener;
 import com.g4mesoft.math.Mat3f;
 import com.g4mesoft.math.Vec3f;
 import com.g4mesoft.minecraft.controller.PlayerCamera;
 import com.g4mesoft.minecraft.controller.PlayerController;
+import com.g4mesoft.minecraft.controller.PlayerHotbar;
 import com.g4mesoft.minecraft.world.BlockHitResult;
 import com.g4mesoft.minecraft.world.Blocks;
 import com.g4mesoft.minecraft.world.World;
 import com.g4mesoft.minecraft.world.WorldChunk;
+import com.g4mesoft.minecraft.world.block.Block;
 import com.g4mesoft.minecraft.world.block.BlockPosition;
+import com.g4mesoft.minecraft.world.block.state.BlockState;
+import com.g4mesoft.world.phys.AABB3;
 
 public class PlayerEntity extends Entity {
 
 	private final PlayerCamera camera;
 	private final PlayerController controller;
+	private final PlayerHotbar hotbar;
 	
 	public float yaw;
 	public float pitch;
@@ -27,6 +35,7 @@ public class PlayerEntity extends Entity {
 		
 		camera = new PlayerCamera(0.1f);
 		controller = new PlayerController();
+		hotbar = new PlayerHotbar();
 		
 		float x = World.CHUNKS_X * WorldChunk.CHUNK_SIZE / 2;
 		float y = World.WORLD_HEIGHT;
@@ -45,6 +54,8 @@ public class PlayerEntity extends Entity {
 			pitch = camera.pitch;
 		}
 		
+		hotbar.update();
+		
 		boolean remove = MouseInputListener.MOUSE_LEFT.isClicked();
 		boolean place = MouseInputListener.MOUSE_RIGHT.isClicked();
 		if (remove || place) {
@@ -57,7 +68,24 @@ public class PlayerEntity extends Entity {
 					world.setBlock(hitResult.blockPos, Blocks.AIR_BLOCK);
 				} else {
 					BlockPosition placePos = hitResult.blockPos.getOffset(hitResult.face);
-					world.setBlock(placePos, Blocks.STONE_BLOCK);
+					
+					BlockState placeState = hotbar.getHotbarBlock();
+					Block placeBlock = placeState.getBlock();
+					
+					List<AABB3> hitboxes = new ArrayList<AABB3>();
+					placeBlock.getEntityHitboxes(world, placePos, placeState, hitboxes);
+					
+					AABB3 playerHitbox = getHitbox();
+					boolean insidePlayer = false;
+					for (AABB3 hitbox : hitboxes) {
+						if (playerHitbox.collides(hitbox)) {
+							insidePlayer = true;
+							break;
+						}
+					}
+					
+					if (!insidePlayer)
+						world.setBlockState(placePos, placeState);
 				}
 			}
 		}

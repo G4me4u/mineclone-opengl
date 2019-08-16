@@ -2,6 +2,7 @@ package com.g4mesoft.minecraft.world;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import com.g4mesoft.math.Vec3f;
 import com.g4mesoft.minecraft.MinecraftApp;
@@ -14,10 +15,12 @@ import com.g4mesoft.world.phys.AABB3;
 
 public class World {
 	
-	public static final int WORLD_HEIGHT = WorldChunk.CHUNK_SIZE * 1;
+	public static final int WORLD_HEIGHT = WorldChunk.CHUNK_SIZE * 8;
 	
-	public static final int CHUNKS_X = 2;
-	public static final int CHUNKS_Z = 2;
+	public static final int CHUNKS_X = 8;
+	public static final int CHUNKS_Z = 8;
+	
+	private static final int RANDOM_TICK_SPEED = 2;
 	
 	private final MinecraftApp app;
 	
@@ -25,6 +28,8 @@ public class World {
 	
 	private BlockRay blockRay;
 	private PlayerEntity player;
+	
+	private final Random random;
 	
 	public World(MinecraftApp app) {
 		this.app = app;
@@ -40,6 +45,8 @@ public class World {
 		
 		blockRay = new BlockRay(this, 0.01f);
 		player = new PlayerEntity(this);
+	
+		random = new Random();
 	}
 	
 	public BlockHitResult castBlockRay(float x, float y, float z, Vec3f dir) {
@@ -79,11 +86,35 @@ public class World {
 	public void setBlockState(IBlockPosition blockPos, BlockState state) {
 		WorldChunk chunk = getChunk(blockPos);
 		if (chunk != null) {
-			if (chunk.setBlockState(blockPos, state))
-				markDirty(blockPos);
+			int oldHighestPoint = chunk.getHighestPoint(blockPos);
+			
+			if (chunk.setBlockState(blockPos, state)) {
+				int highestPoint = chunk.getHighestPoint(blockPos);
+				
+				if (oldHighestPoint != highestPoint) {
+					int x = blockPos.getX();
+					int z = blockPos.getZ();
+					
+					markRangeDirty(new BlockPosition(x, oldHighestPoint, z), 
+					               new BlockPosition(x,    highestPoint, z));
+				} else {
+					markDirty(blockPos);
+				}
+			}
 		}
 	}
 	
+	public int getHighestPoint(IBlockPosition blockPos) {
+		WorldChunk chunk = getChunk(blockPos);
+		if (chunk == null)
+			return 0;
+		return chunk.getHighestPoint(blockPos);
+	}
+	
+	private void markRangeDirty(IBlockPosition p0, IBlockPosition p1) {
+		app.getWorldRenderer().markRangeDirty(p0, p1);
+	}
+
 	private void markDirty(IBlockPosition blockPos) {
 		app.getWorldRenderer().markDirty(blockPos);
 	}
@@ -98,6 +129,30 @@ public class World {
 	
 	public void update() {
 		player.update();
+		
+		updateRandomTick();
+	}
+	
+	private void updateRandomTick() {
+		for (int chunkX = 0; chunkX < CHUNKS_X; chunkX++) {
+			for (int chunkZ = 0; chunkZ < CHUNKS_Z; chunkZ++) {
+				WorldChunk chunk = getChunk(chunkX, chunkZ);
+				if (chunk != null && chunk.isRandomTicked()) {
+					for (int i = 0; i < RANDOM_TICK_SPEED; i++) {
+						int x = random.nextInt(WorldChunk.CHUNK_SIZE) + chunkX * WorldChunk.CHUNK_SIZE;
+						int y = random.nextInt(WORLD_HEIGHT);
+						int z = random.nextInt(WorldChunk.CHUNK_SIZE) + chunkZ * WorldChunk.CHUNK_SIZE;
+
+						IBlockPosition pos = new BlockPosition(x, y, z);
+						BlockState state = chunk.getBlockState(pos);
+						Block block = state.getBlock();
+						
+						if (block != Blocks.AIR_BLOCK)
+							block.randomTick(this, pos, state, random);
+					}
+				}
+			}
+		}
 	}
 
 	public int getHeight() {

@@ -7,7 +7,6 @@ import com.g4mesoft.graphic.IRenderer2D;
 import com.g4mesoft.graphics3d.AbstractPixelRenderer3D;
 import com.g4mesoft.graphics3d.PixelRenderer3D;
 import com.g4mesoft.input.key.KeyInput;
-import com.g4mesoft.input.key.KeyInputListener;
 import com.g4mesoft.input.key.KeySingleInput;
 import com.g4mesoft.minecraft.renderer.WorldRenderer;
 import com.g4mesoft.minecraft.world.World;
@@ -33,12 +32,16 @@ public class MinecraftApp extends Application {
 		worldRenderer = new WorldRenderer(world);
 	
 		fullscreenKey = new KeySingleInput("fullscreen", KeyEvent.VK_F11);
-		KeyInputListener.getInstance().addKey(fullscreenKey);
+		addKey(fullscreenKey);
 	}
 
 	@Override
 	protected void displayResized(int newWidth, int newHeight) {
 		super.displayResized(newWidth, newHeight);
+		
+		int s = 0;
+		newWidth >>>= s;
+		newHeight >>>= s;
 		
 		Display display = getDisplay();
 		

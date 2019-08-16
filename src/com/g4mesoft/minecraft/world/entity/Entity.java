@@ -8,6 +8,8 @@ import com.g4mesoft.world.phys.AABB3;
 
 public abstract class Entity {
 
+	private static final float EYE_HEIGHT = 1.6f;
+	
 	protected final World world;
 	private final AABB3 hitbox;
 	
@@ -98,7 +100,7 @@ public abstract class Entity {
 	
 	private void updateEyePos() {
 		eyeX = hitbox.getCenterX();
-		eyeY = hitbox.y0 + 1.6f;
+		eyeY = hitbox.y0 + EYE_HEIGHT;
 		eyeZ = hitbox.getCenterZ();
 	}
 }

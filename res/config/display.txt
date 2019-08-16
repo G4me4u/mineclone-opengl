@@ -1,6 +1,6 @@
 title=G4mEngine - Minecraft
 
-preferredWidth=854
+preferredWidth=856
 preferredHeight=480
 
 minimumWidth=100

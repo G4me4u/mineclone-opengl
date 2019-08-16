@@ -1,17 +1,29 @@
 package com.g4mesoft.minecraft.renderer;
 
 import com.g4mesoft.graphics3d.IShader3D;
+import com.g4mesoft.graphics3d.Texture3D;
 import com.g4mesoft.graphics3d.Triangle3D;
 import com.g4mesoft.graphics3d.Vertex3D;
 import com.g4mesoft.math.Mat4f;
+import com.g4mesoft.math.MathUtils;
 
 public class WorldShader3D implements IShader3D {
 
+	private static final int VERTEX_OUT_SIZE = 4;
+	
+	private static final int FRAG_LOCATION_TEX_U = 0;
+	private static final int FRAG_LOCATION_TEX_V = 1;
+	private static final int FRAG_LOCATION_LIGHTNESS = 2;
+	private static final int FRAG_LOCATION_DEPTH = 3;
+	
 	private final WorldCamera camera;
 	private final Mat4f projViewMat;
 	
-	public WorldShader3D(WorldCamera camera) {
+	private final Texture3D texture;
+	
+	public WorldShader3D(WorldCamera camera, Texture3D texture) {
 		this.camera = camera;
+		this.texture = texture;
 		
 		projViewMat = new Mat4f();
 	}
@@ -23,33 +35,44 @@ public class WorldShader3D implements IShader3D {
 
 	@Override
 	public void projectVertices(Triangle3D result, Vertex3D v0, Vertex3D v1, Vertex3D v2) {
-		projViewMat.mul(v0.pos, result.v0.pos);
-		projViewMat.mul(v1.pos, result.v1.pos);
-		projViewMat.mul(v2.pos, result.v2.pos);
-		
-		result.v0.storeFloat(0, v0.loadFloat(0));
-		result.v0.storeFloat(1, v0.loadFloat(1));
-		result.v0.storeFloat(2, v0.loadFloat(2));
+		project(result.v0, v0);
+		project(result.v1, v1);
+		project(result.v2, v2);
+	}
+	
+	private void project(Vertex3D out, Vertex3D in) {
+		projViewMat.mul(in.pos, out.pos);
 
-		result.v1.storeFloat(0, v1.loadFloat(0));
-		result.v1.storeFloat(1, v1.loadFloat(1));
-		result.v1.storeFloat(2, v1.loadFloat(2));
-
-		result.v2.storeFloat(0, v2.loadFloat(0));
-		result.v2.storeFloat(1, v2.loadFloat(1));
-		result.v2.storeFloat(2, v2.loadFloat(2));
+		out.storeFloat(FRAG_LOCATION_TEX_U, in.loadFloat(WorldRenderer.LOCATION_TEX_U));
+		out.storeFloat(FRAG_LOCATION_TEX_V, in.loadFloat(WorldRenderer.LOCATION_TEX_V));
+		out.storeFloat(FRAG_LOCATION_LIGHTNESS, in.loadFloat(WorldRenderer.LOCATION_LIGHTNESS));
+		out.storeFloat(FRAG_LOCATION_DEPTH, out.pos.z);
 	}
 
 	@Override
 	public int fragment(Vertex3D vert) {
-		int r = (int)(255.0f * vert.data[0]);
-		int g = (int)(255.0f * vert.data[1]);
-		int b = (int)(255.0f * vert.data[2]);
-		return (r << 16) | (g << 8) | b;
+		float u = vert.loadFloat(FRAG_LOCATION_TEX_U);
+		float v = vert.loadFloat(FRAG_LOCATION_TEX_V);
+		
+		float lightness = vert.loadFloat(FRAG_LOCATION_LIGHTNESS);
+		
+		int rgb = texture.samplePixel(u, v);
+		
+		float r = ((rgb >>> 16) & 0xFF) * lightness;
+		float g = ((rgb >>>  8) & 0xFF) * lightness;
+		float b = ((rgb >>>  0) & 0xFF) * lightness;
+
+		float fd = vert.loadFloat(FRAG_LOCATION_DEPTH) * 0.05f;
+		float fog = 1.0f / MathUtils.exp(fd * fd);
+		r = r * fog + (1.0f - fog) * 0xFF;
+		g = g * fog + (1.0f - fog) * 0xFF;
+		b = b * fog + (1.0f - fog) * 0xFF;
+		
+		return (((int)r) << 16) | (((int)g) << 8) | ((int)b);
 	}
 
 	@Override
 	public int getOutputSize() {
-		return 3;
+		return VERTEX_OUT_SIZE;
 	}
 }

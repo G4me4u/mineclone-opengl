@@ -1,5 +1,6 @@
 package com.g4mesoft.minecraft.renderer;
 
+import com.g4mesoft.graphics3d.ViewFrustum3D;
 import com.g4mesoft.math.Mat4f;
 
 public class WorldCamera {
@@ -15,7 +16,7 @@ public class WorldCamera {
 	private final Mat4f projMatrix;
 	private final Mat4f projViewMatrix;
 
-	private final ViewFrustum viewFrustum;
+	private final ViewFrustum3D viewFrustum;
 	
 	private boolean viewMatrixNeedsRefresh;
 	private boolean finalMatrixNeedsRefresh;
@@ -26,7 +27,7 @@ public class WorldCamera {
 		projMatrix = new Mat4f();
 		projViewMatrix = new Mat4f();
 		
-		viewFrustum = new ViewFrustum();
+		viewFrustum = new ViewFrustum3D();
 		
 		viewMatrixNeedsRefresh = false;
 		finalMatrixNeedsRefresh = false;
@@ -86,7 +87,7 @@ public class WorldCamera {
 		viewFrustumNeedsRefresh = true;
 	}
 	
-	public ViewFrustum getViewFrustum() {
+	public ViewFrustum3D getViewFrustum() {
 		if (viewFrustumNeedsRefresh) {
 			viewFrustum.initFrustum(getProjViewMatrix());
 			viewFrustumNeedsRefresh = false;

@@ -10,7 +10,7 @@ public class DirtBlock extends Block {
 
 	private final IBlockModel model;
 	
-	public DirtBlock() {
+	protected DirtBlock() {
 		model = new BasicBlockModel(BlockTextures.DIRT_TEXTURE);
 	}
 	

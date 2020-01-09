@@ -7,10 +7,12 @@ import java.util.Random;
 import com.g4mesoft.math.Vec3f;
 import com.g4mesoft.minecraft.MinecraftApp;
 import com.g4mesoft.minecraft.world.block.Block;
-import com.g4mesoft.minecraft.world.block.BlockPosition;
+import com.g4mesoft.minecraft.world.block.MutableBlockPosition;
 import com.g4mesoft.minecraft.world.block.IBlockPosition;
+import com.g4mesoft.minecraft.world.block.ImmutableBlockPosition;
 import com.g4mesoft.minecraft.world.block.state.BlockState;
 import com.g4mesoft.minecraft.world.entity.PlayerEntity;
+import com.g4mesoft.minecraft.world.gen.DiamondNoise;
 import com.g4mesoft.world.phys.AABB3;
 
 public class World {
@@ -20,33 +22,39 @@ public class World {
 	public static final int CHUNKS_X = 8;
 	public static final int CHUNKS_Z = 8;
 	
-	private static final int RANDOM_TICK_SPEED = 2;
+	private static final int RANDOM_TICK_SPEED = 3;
 	
 	private final MinecraftApp app;
 	
 	private final WorldChunk[] chunks;
+	private final Random random;
 	
 	private BlockRay blockRay;
 	private PlayerEntity player;
-	
-	private final Random random;
 	
 	public World(MinecraftApp app) {
 		this.app = app;
 
 		chunks = new WorldChunk[CHUNKS_X * CHUNKS_Z];
+		random = new Random();
+
+		blockRay = new BlockRay(this, 0.01f);
+		player = new PlayerEntity(this);
+
+		generateWorld();
+	}
+	
+	private void generateWorld() {
+		DiamondNoise noise = new DiamondNoise(CHUNKS_X * WorldChunk.CHUNK_SIZE, random);
 		
 		int i = 0;
 		for (int cz = 0; cz < CHUNKS_Z; cz++) {
 			for (int cx = 0; cx < CHUNKS_X; cx++) {
-				chunks[i++] = new WorldChunk(cx, cz);
+				WorldChunk chunk = new WorldChunk(cx, cz);
+				chunk.generateChunk(noise);
+				chunks[i++] = chunk;
 			}
 		}
-		
-		blockRay = new BlockRay(this, 0.01f);
-		player = new PlayerEntity(this);
-	
-		random = new Random();
 	}
 	
 	public BlockHitResult castBlockRay(float x, float y, float z, Vec3f dir) {
@@ -79,10 +87,6 @@ public class World {
 		return chunk.getBlockState(blockPos);
 	}
 	
-	public void setBlock(IBlockPosition blockPos, Block block) {
-		setBlockState(blockPos, block.getDefaultState());
-	}
-
 	public void setBlockState(IBlockPosition blockPos, BlockState state) {
 		WorldChunk chunk = getChunk(blockPos);
 		if (chunk != null) {
@@ -95,13 +99,21 @@ public class World {
 					int x = blockPos.getX();
 					int z = blockPos.getZ();
 					
-					markRangeDirty(new BlockPosition(x, oldHighestPoint, z), 
-					               new BlockPosition(x,    highestPoint, z));
+					markRangeDirty(new ImmutableBlockPosition(x, oldHighestPoint, z), 
+					               new ImmutableBlockPosition(x,    highestPoint, z));
 				} else {
 					markDirty(blockPos);
 				}
 			}
 		}
+	}
+
+	public Block getBlock(IBlockPosition blockPos) {
+		return getBlockState(blockPos).getBlock();
+	}
+	
+	public void setBlock(IBlockPosition blockPos, Block block) {
+		setBlockState(blockPos, block.getDefaultState());
 	}
 	
 	public int getHighestPoint(IBlockPosition blockPos) {
@@ -134,16 +146,17 @@ public class World {
 	}
 	
 	private void updateRandomTick() {
+		MutableBlockPosition pos = new MutableBlockPosition();
+
 		for (int chunkX = 0; chunkX < CHUNKS_X; chunkX++) {
 			for (int chunkZ = 0; chunkZ < CHUNKS_Z; chunkZ++) {
 				WorldChunk chunk = getChunk(chunkX, chunkZ);
 				if (chunk != null && chunk.isRandomTicked()) {
 					for (int i = 0; i < RANDOM_TICK_SPEED; i++) {
-						int x = random.nextInt(WorldChunk.CHUNK_SIZE) + chunkX * WorldChunk.CHUNK_SIZE;
-						int y = random.nextInt(WORLD_HEIGHT);
-						int z = random.nextInt(WorldChunk.CHUNK_SIZE) + chunkZ * WorldChunk.CHUNK_SIZE;
+						pos.x = random.nextInt(WorldChunk.CHUNK_SIZE) + chunkX * WorldChunk.CHUNK_SIZE;
+						pos.y = random.nextInt(WORLD_HEIGHT);
+						pos.z = random.nextInt(WorldChunk.CHUNK_SIZE) + chunkZ * WorldChunk.CHUNK_SIZE;
 
-						IBlockPosition pos = new BlockPosition(x, y, z);
 						BlockState state = chunk.getBlockState(pos);
 						Block block = state.getBlock();
 						
@@ -166,7 +179,7 @@ public class World {
 	public List<AABB3> getBlockHitboxes(AABB3 hitbox) {
 		List<AABB3> hitboxes = new ArrayList<AABB3>();
 		
-		BlockPosition pos = new BlockPosition();
+		MutableBlockPosition pos = new MutableBlockPosition();
 		
 		int x1 = (int)hitbox.x1;
 		int y1 = (int)hitbox.y1;

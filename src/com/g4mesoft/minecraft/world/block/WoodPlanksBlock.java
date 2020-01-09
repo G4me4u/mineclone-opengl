@@ -15,7 +15,7 @@ public class WoodPlanksBlock extends Block {
 	
 	private final IBlockModel[] models;
 	
-	public WoodPlanksBlock() {
+	protected WoodPlanksBlock() {
 		models = new IBlockModel[WoodType.WOOD_TYPES.length];
 		
 		models[WoodType.OAK.getIndex()] = new BasicBlockModel(BlockTextures.OAK_PLANKS_TEXTURE);
@@ -25,13 +25,7 @@ public class WoodPlanksBlock extends Block {
 	
 	@Override
 	public IBlockModel getModel(World world, IBlockPosition pos, BlockState blockState) {
-		WoodType type = blockState.getValue(WOOD_TYPE_PROPERTY);
-		
-		int index = type.getIndex();
-		if (index >= models.length)
-			index = 0;
-		
-		return models[index];
+		return models[blockState.getValue(WOOD_TYPE_PROPERTY).getIndex()];
 	}
 	
 	@Override

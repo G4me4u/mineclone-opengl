@@ -20,7 +20,7 @@ public class Block {
 	private String name;
 	private final BlockState defaultBlockState;
 	
-	public Block() {
+	protected Block() {
 		name = null;
 		defaultBlockState = createDefaultState();
 	}

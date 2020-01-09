@@ -14,15 +14,14 @@ public class GrassBlock extends Block {
 
 	private final IBlockModel model;
 	
-	public GrassBlock() {
+	protected GrassBlock() {
 		model = new BasicBlockModel(BlockTextures.GRASS_TOP_TEXTURE, 
 		                            BlockTextures.DIRT_TEXTURE,
 		                            BlockTextures.GRASS_SIDE_TEXTURE);
 	}
 	
 	private boolean isValidGrassCondition(World world, IBlockPosition pos) {
-		BlockState aboveState = world.getBlockState(pos.getOffset(Direction.UP));
-		return !aboveState.getBlock().isSolid();
+		return !world.getBlock(pos.getOffset(Direction.UP)).isSolid();
 	}
 	
 	@Override
@@ -36,11 +35,9 @@ public class GrassBlock extends Block {
 		int y = pos.getY() + random.nextInt(3) - 1;
 		int z = pos.getZ() + random.nextInt(3) - 1;
 	
-		if (x != pos.getX() || y != pos.getY() || z != pos.getZ()) {
-			IBlockPosition dirtPos = new BlockPosition(x, y, z);
-			
-			BlockState dirtState = world.getBlockState(dirtPos);
-			if (dirtState.getBlock() == Blocks.DIRT_BLOCK && isValidGrassCondition(world, dirtPos))
+		if (!pos.equals(x, y, z)) {
+			IBlockPosition dirtPos = new ImmutableBlockPosition(x, y, z);
+			if (world.getBlock(dirtPos) == Blocks.DIRT_BLOCK && isValidGrassCondition(world, dirtPos))
 				world.setBlock(dirtPos, Blocks.GRASS_BLOCK);
 		}
 	}

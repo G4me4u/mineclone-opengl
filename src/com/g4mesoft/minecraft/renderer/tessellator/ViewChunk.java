@@ -9,7 +9,7 @@ import com.g4mesoft.minecraft.world.Blocks;
 import com.g4mesoft.minecraft.world.World;
 import com.g4mesoft.minecraft.world.WorldChunk;
 import com.g4mesoft.minecraft.world.block.Block;
-import com.g4mesoft.minecraft.world.block.BlockPosition;
+import com.g4mesoft.minecraft.world.block.MutableBlockPosition;
 import com.g4mesoft.minecraft.world.block.state.BlockState;
 
 public class ViewChunk {
@@ -51,7 +51,7 @@ public class ViewChunk {
 		int yc = getY();
 		int zc = getZ();
 		
-		BlockPosition pos = new BlockPosition(xc, yc, zc);
+		MutableBlockPosition pos = new MutableBlockPosition(xc, yc, zc);
 		WorldChunk chunk = world.getChunk(pos);
 		
 		// Release old memory before rebuilding
@@ -119,7 +119,7 @@ public class ViewChunk {
 		return vertices == null;
 	}
 	
-	public void setDirty() {
+	public void markDirty() {
 		dirty = true;
 	}
 	

@@ -3,7 +3,7 @@ package com.g4mesoft.minecraft.world;
 import com.g4mesoft.math.Mat4f;
 import com.g4mesoft.math.MathUtils;
 import com.g4mesoft.math.Vec3f;
-import com.g4mesoft.minecraft.world.block.BlockPosition;
+import com.g4mesoft.minecraft.world.block.MutableBlockPosition;
 import com.g4mesoft.minecraft.world.block.state.BlockState;
 
 public class BlockRay {
@@ -46,7 +46,7 @@ public class BlockRay {
 	public BlockHitResult castRay(float x, float y, float z, Vec3f dir) {
 		dir = new Vec3f(dir).normalize().mul(stepSize);
 	
-		BlockPosition blockPos = new BlockPosition();
+		MutableBlockPosition blockPos = new MutableBlockPosition();
 		
 		boolean first = false;
 		

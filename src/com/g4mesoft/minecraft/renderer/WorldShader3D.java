@@ -1,5 +1,6 @@
 package com.g4mesoft.minecraft.renderer;
 
+import com.g4mesoft.graphics3d.Fragment3D;
 import com.g4mesoft.graphics3d.IShader3D;
 import com.g4mesoft.graphics3d.Texture3D;
 import com.g4mesoft.graphics3d.Triangle3D;
@@ -50,7 +51,7 @@ public class WorldShader3D implements IShader3D {
 	}
 
 	@Override
-	public int fragment(Vertex3D vert) {
+	public boolean fragment(Vertex3D vert, Fragment3D fragment) {
 		float u = vert.loadFloat(FRAG_LOCATION_TEX_U);
 		float v = vert.loadFloat(FRAG_LOCATION_TEX_V);
 		
@@ -62,13 +63,14 @@ public class WorldShader3D implements IShader3D {
 		float g = ((rgb >>>  8) & 0xFF) * lightness;
 		float b = ((rgb >>>  0) & 0xFF) * lightness;
 
-		float fd = vert.loadFloat(FRAG_LOCATION_DEPTH) * 0.05f;
-		float fog = 1.0f / MathUtils.exp(fd * fd);
+		float fd = vert.loadFloat(FRAG_LOCATION_DEPTH) * 0.01f;
+		float fog = 1.0f / MathUtils.exp(fd * fd * fd * fd * fd);
 		r = r * fog + (1.0f - fog) * 0xFF;
 		g = g * fog + (1.0f - fog) * 0xFF;
 		b = b * fog + (1.0f - fog) * 0xFF;
 		
-		return (((int)r) << 16) | (((int)g) << 8) | ((int)b);
+		fragment.setRGB((int)r, (int)g, (int)b);
+		return true;
 	}
 
 	@Override

@@ -27,7 +27,7 @@ public class WorldRenderer {
 	
 	private static final float FOV = 70.0f;
 	private static final float NEAR = 0.1f;
-	private static final float FAR = 100.0f;
+	private static final float FAR = 1000.0f;
 	
 	public static final int NUM_VERTEX_DATA = 3;
 	
@@ -183,14 +183,19 @@ public class WorldRenderer {
 		if (chunkZ < 0 || chunkZ >= World.CHUNKS_Z)
 			return;
 		
-		chunks[chunkX + (chunkY + chunkZ * CHUNKS_Y) * World.CHUNKS_X].setDirty();
+		chunks[chunkX + (chunkY + chunkZ * CHUNKS_Y) * World.CHUNKS_X].markDirty();
+	}
+	
+	public void update() {
+		selectionRenderer.update();
 	}
 	
 	public void render(AbstractPixelRenderer3D renderer3d, float dt) {
 		updateCamera(dt);
 
-		selectionRenderer.render(renderer3d, dt);
 		renderWorld(renderer3d, dt);
+		
+		selectionRenderer.render(renderer3d, dt);
 	}
 
 	private void updateCamera(float dt) {

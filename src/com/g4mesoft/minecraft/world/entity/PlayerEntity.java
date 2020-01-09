@@ -14,12 +14,14 @@ import com.g4mesoft.minecraft.world.Blocks;
 import com.g4mesoft.minecraft.world.World;
 import com.g4mesoft.minecraft.world.WorldChunk;
 import com.g4mesoft.minecraft.world.block.Block;
-import com.g4mesoft.minecraft.world.block.BlockPosition;
+import com.g4mesoft.minecraft.world.block.IBlockPosition;
 import com.g4mesoft.minecraft.world.block.state.BlockState;
 import com.g4mesoft.world.phys.AABB3;
 
 public class PlayerEntity extends Entity {
 
+	private static final int INTERACT_INTERVAL = 4;
+	
 	private final PlayerCamera camera;
 	private final PlayerController controller;
 	private final PlayerHotbar hotbar;
@@ -29,6 +31,8 @@ public class PlayerEntity extends Entity {
 	
 	public float prevYaw;
 	public float prevPitch;
+	
+	private int interactTimer;
 	
 	public PlayerEntity(World world) {
 		super(world);
@@ -56,38 +60,52 @@ public class PlayerEntity extends Entity {
 		
 		hotbar.update();
 		
-		boolean remove = MouseInputListener.MOUSE_LEFT.isClicked();
-		boolean place = MouseInputListener.MOUSE_RIGHT.isClicked();
+		boolean remove = MouseInputListener.MOUSE_LEFT.isActive();
+		boolean place = MouseInputListener.MOUSE_RIGHT.isActive();
 		if (remove || place) {
-			Mat3f rot = new Mat3f().rotateX(-yaw).rotateY(-pitch);
-			Vec3f dir = new Vec3f(-rot.m02, -rot.m12, -rot.m22);
-			BlockHitResult hitResult = world.castBlockRay(eyeX, eyeY, eyeZ, dir);
-			
-			if (hitResult != null) {
-				if (remove) {
-					world.setBlock(hitResult.blockPos, Blocks.AIR_BLOCK);
-				} else {
-					BlockPosition placePos = hitResult.blockPos.getOffset(hitResult.face);
+			interactTimer--;
+
+			if (interactTimer <= 0) {
+				Mat3f rot = new Mat3f().rotateX(-yaw).rotateY(-pitch);
+				Vec3f dir = new Vec3f(-rot.m02, -rot.m12, -rot.m22);
+				BlockHitResult hitResult = world.castBlockRay(eyeX, eyeY, eyeZ, dir);
+				
+				if (hitResult != null) {
+					boolean success = false;
 					
-					BlockState placeState = hotbar.getHotbarBlock();
-					Block placeBlock = placeState.getBlock();
-					
-					List<AABB3> hitboxes = new ArrayList<AABB3>();
-					placeBlock.getEntityHitboxes(world, placePos, placeState, hitboxes);
-					
-					AABB3 playerHitbox = getHitbox();
-					boolean insidePlayer = false;
-					for (AABB3 hitbox : hitboxes) {
-						if (playerHitbox.collides(hitbox)) {
-							insidePlayer = true;
-							break;
+					if (remove) {
+						world.setBlock(hitResult.blockPos, Blocks.AIR_BLOCK);
+						success = true;
+					} else {
+						IBlockPosition placePos = hitResult.blockPos.getOffset(hitResult.face);
+						
+						BlockState placeState = hotbar.getHotbarBlock();
+						Block placeBlock = placeState.getBlock();
+						
+						List<AABB3> hitboxes = new ArrayList<AABB3>();
+						placeBlock.getEntityHitboxes(world, placePos, placeState, hitboxes);
+						
+						AABB3 playerHitbox = getHitbox();
+						boolean insidePlayer = false;
+						for (AABB3 hitbox : hitboxes) {
+							if (playerHitbox.collides(hitbox)) {
+								insidePlayer = true;
+								break;
+							}
+						}
+						
+						if (!insidePlayer) {
+							world.setBlockState(placePos, placeState);
+							success = true;
 						}
 					}
 					
-					if (!insidePlayer)
-						world.setBlockState(placePos, placeState);
+					if (success)
+						interactTimer = INTERACT_INTERVAL;
 				}
 			}
+		} else {
+			interactTimer = 0;
 		}
 		
 		controller.update(this);

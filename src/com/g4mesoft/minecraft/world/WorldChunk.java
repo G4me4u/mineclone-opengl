@@ -2,9 +2,9 @@ package com.g4mesoft.minecraft.world;
 
 import java.util.Arrays;
 
-import com.g4mesoft.minecraft.world.block.Block;
 import com.g4mesoft.minecraft.world.block.IBlockPosition;
 import com.g4mesoft.minecraft.world.block.state.BlockState;
+import com.g4mesoft.minecraft.world.gen.DiamondNoise;
 
 public class WorldChunk {
 
@@ -29,29 +29,28 @@ public class WorldChunk {
 
 		Arrays.fill(blocks, Blocks.AIR_BLOCK.getDefaultState());
 		Arrays.fill(heights, 0);
-		
-		generateChunk();
 	}
 	
-	private void generateChunk() {
+	public void generateChunk(DiamondNoise noise) {
 		int x0 = chunkX * CHUNK_SIZE; 
 		int x1 = x0 + CHUNK_SIZE; 
 
 		int z0 = chunkZ * CHUNK_SIZE; 
 		int z1 = z0 + CHUNK_SIZE; 
 		
+		
 		for (int z = z0; z < z1; z++) {
 			for (int x = x0; x < x1; x++) {
-				for (int y = 0; y < World.WORLD_HEIGHT; y++) {
-					Block block;
-					if (y < World.WORLD_HEIGHT / 2) {
-						block = Blocks.DIRT_BLOCK;
-					} else {
-						block = Blocks.AIR_BLOCK;
-					}
+				float n = noise.getNoise(x, z) * 2.0f - 1.0f;
+				int y1 = Math.round(64 + 60 * n);
 
-					setBlockState(x, y, z, block.getDefaultState());
-				}
+				// For less height updates set top blocks first.
+				setBlockState(x, y1, z, Blocks.GRASS_BLOCK.getDefaultState());
+
+				for (int y = y1 - 1; y >= y1 - 3; y--)
+					setBlockState(x, y, z, Blocks.DIRT_BLOCK.getDefaultState());
+				for (int y = y1 - 4; y >= 0; y--)
+					setBlockState(x, y, z, Blocks.WOOD_PLANKS_BLOCK.getDefaultState());
 			}
 		}
 	}

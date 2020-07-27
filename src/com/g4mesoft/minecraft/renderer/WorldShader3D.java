@@ -55,13 +55,16 @@ public class WorldShader3D implements IShader3D {
 		float u = vert.loadFloat(FRAG_LOCATION_TEX_U);
 		float v = vert.loadFloat(FRAG_LOCATION_TEX_V);
 		
+		int rgba = texture.samplePixel(u, v);
+		
+		if ((rgba >>> 24) < 0x80)
+			return false;
+
 		float lightness = vert.loadFloat(FRAG_LOCATION_LIGHTNESS);
 		
-		int rgb = texture.samplePixel(u, v);
-		
-		float r = ((rgb >>> 16) & 0xFF) * lightness;
-		float g = ((rgb >>>  8) & 0xFF) * lightness;
-		float b = ((rgb >>>  0) & 0xFF) * lightness;
+		float r = ((rgba >>> 16) & 0xFF) * lightness;
+		float g = ((rgba >>>  8) & 0xFF) * lightness;
+		float b = ((rgba >>>  0) & 0xFF) * lightness;
 
 		float fd = vert.loadFloat(FRAG_LOCATION_DEPTH) * 0.01f;
 		float fog = 1.0f / MathUtils.exp(fd * fd * fd * fd * fd);

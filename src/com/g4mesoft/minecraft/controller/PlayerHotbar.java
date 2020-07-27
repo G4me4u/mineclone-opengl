@@ -18,7 +18,7 @@ public class PlayerHotbar {
 	private final KeyInput toggleKey;
 	
 	public PlayerHotbar() {
-		hotbarBlocks = new BlockState[5];
+		hotbarBlocks = new BlockState[8];
 		hotbarIndex = 0;
 		
 		hotbarBlocks[0] = Blocks.DIRT_BLOCK.getDefaultState();
@@ -28,6 +28,9 @@ public class PlayerHotbar {
 		hotbarBlocks[2] = plank.withProperty(WoodPlanksBlock.WOOD_TYPE_PROPERTY, WoodType.OAK);
 		hotbarBlocks[3] = plank.withProperty(WoodPlanksBlock.WOOD_TYPE_PROPERTY, WoodType.BIRCH);
 		hotbarBlocks[4] = plank.withProperty(WoodPlanksBlock.WOOD_TYPE_PROPERTY, WoodType.ACACIA);
+		hotbarBlocks[5] = Blocks.STONE_BLOCK.getDefaultState();
+		hotbarBlocks[6] = Blocks.COBBLESTONE_BLOCK.getDefaultState();
+		hotbarBlocks[7] = Blocks.LEAVES_BLOCK.getDefaultState();
 		
 		toggleKey = new KeySingleInput("hotbarToggle", KeyEvent.VK_T);
 		

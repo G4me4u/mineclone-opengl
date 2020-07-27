@@ -1,6 +1,7 @@
 package com.g4mesoft.minecraft.world;
 
 import java.util.Arrays;
+import java.util.Random;
 
 import com.g4mesoft.minecraft.world.block.IBlockPosition;
 import com.g4mesoft.minecraft.world.block.state.BlockState;
@@ -31,26 +32,27 @@ public class WorldChunk {
 		Arrays.fill(heights, 0);
 	}
 	
-	public void generateChunk(DiamondNoise noise) {
+	public void generateChunk(DiamondNoise noise, Random random) {
 		int x0 = chunkX * CHUNK_SIZE; 
 		int x1 = x0 + CHUNK_SIZE; 
 
 		int z0 = chunkZ * CHUNK_SIZE; 
-		int z1 = z0 + CHUNK_SIZE; 
-		
+		int z1 = z0 + CHUNK_SIZE;
 		
 		for (int z = z0; z < z1; z++) {
 			for (int x = x0; x < x1; x++) {
 				float n = noise.getNoise(x, z) * 2.0f - 1.0f;
-				int y1 = Math.round(64 + 60 * n);
+				int y1 = Math.round(16 + 8 * n);
 
 				// For less height updates set top blocks first.
 				setBlockState(x, y1, z, Blocks.GRASS_BLOCK.getDefaultState());
 
 				for (int y = y1 - 1; y >= y1 - 3; y--)
 					setBlockState(x, y, z, Blocks.DIRT_BLOCK.getDefaultState());
-				for (int y = y1 - 4; y >= 0; y--)
-					setBlockState(x, y, z, Blocks.WOOD_PLANKS_BLOCK.getDefaultState());
+				for (int y = y1 - 4; y > 0; y--)
+					setBlockState(x, y, z, Blocks.STONE_BLOCK.getDefaultState());
+
+				setBlockState(x, 0, z, Blocks.COBBLESTONE_BLOCK.getDefaultState());
 			}
 		}
 	}
@@ -138,7 +140,7 @@ public class WorldChunk {
 		
 		for (int y = startHeight; y >= 0; y--) {
 			BlockState state = getBlockState(x, y, z);
-			if (state.getBlock() != Blocks.AIR_BLOCK) {
+			if (state.getBlock().isSolid()) {
 				heights[heightIndex] = y;
 				break;
 			}
@@ -147,5 +149,13 @@ public class WorldChunk {
 	
 	public boolean isRandomTicked() {
 		return numRandomTickedBlocks > 0;
+	}
+	
+	public int getChunkX() {
+		return chunkX;
+	}
+
+	public int getChunkZ() {
+		return chunkZ;
 	}
 }

@@ -4,6 +4,7 @@ import com.g4mesoft.graphics3d.IVertexProvider;
 import com.g4mesoft.graphics3d.Shape3D;
 import com.g4mesoft.graphics3d.VertexTessellator3D;
 import com.g4mesoft.math.Vec3f;
+import com.g4mesoft.minecraft.renderer.RenderLayer;
 import com.g4mesoft.minecraft.renderer.WorldRenderer;
 import com.g4mesoft.minecraft.world.Blocks;
 import com.g4mesoft.minecraft.world.World;
@@ -25,7 +26,8 @@ public class ViewChunk {
 	private final Vec3f center;
 
 	private boolean dirty;
-	private IVertexProvider vertices;
+	private boolean allEmpty;
+	private IVertexProvider[] layerVertices;
 	
 	public ViewChunk(WorldRenderer worldRenderer, int chunkX, int chunkY, int chunkZ) {
 		this.worldRenderer = worldRenderer;
@@ -41,10 +43,20 @@ public class ViewChunk {
 		center = new Vec3f(x, y, z).add(CHUNK_SIZE * 0.5f);
 	
 		dirty = true;
-		vertices = null;
+		allEmpty = true;
+		layerVertices = new IVertexProvider[RenderLayer.LAYERS.length];
 	}
 	
-	public void rebuild(VertexTessellator3D tessellator) {
+	public void rebuildAll(VertexTessellator3D tessellator) {
+		allEmpty = true;
+		
+		for (RenderLayer layer : RenderLayer.LAYERS)
+			allEmpty &= !rebuildLayer(tessellator, layer);
+	
+		dirty = false;
+	}
+	
+	private boolean rebuildLayer(VertexTessellator3D tessellator, RenderLayer layer) {
 		World world = worldRenderer.getWorld();
 		
 		int xc = getX();
@@ -56,7 +68,7 @@ public class ViewChunk {
 		
 		// Release old memory before rebuilding
 		// the chunk.
-		vertices = null;
+		layerVertices[layer.getIndex()] = null;
 
 		if (chunk != null) {
 			for (int zo = 0; zo < CHUNK_SIZE; zo++) {
@@ -69,7 +81,7 @@ public class ViewChunk {
 						BlockState blockState = chunk.getBlockState(pos);
 						Block block = blockState.getBlock();
 						
-						if (block != Blocks.AIR_BLOCK) {
+						if (block != Blocks.AIR_BLOCK && block.getLayer(world, pos, blockState) == layer) {
 							IBlockModel blockModel = block.getModel(world, pos, blockState);
 							if (blockModel != null)
 								blockModel.tessellateBlock(world, pos, tessellator);
@@ -79,12 +91,13 @@ public class ViewChunk {
 			}
 	
 			if (tessellator.getNumVertices() > 0) {
-				vertices = tessellator.getVertexProvider(Shape3D.QUADS);
+				layerVertices[layer.getIndex()] = tessellator.getVertexProvider(Shape3D.QUADS);
 				tessellator.clear();
+				return true;
 			}
 		}
 		
-		dirty = false;
+		return false;
 	}
 	
 	public int getChunkX() {
@@ -111,12 +124,16 @@ public class ViewChunk {
 		return chunkZ * CHUNK_SIZE;
 	}
 	
-	public IVertexProvider getVertices() {
-		return vertices;
+	public IVertexProvider getVertices(RenderLayer layer) {
+		return layerVertices[layer.getIndex()];
 	}
 
-	public boolean isEmpty() {
-		return vertices == null;
+	public boolean isAllEmpty() {
+		return allEmpty;
+	}
+	
+	public boolean isEmpty(RenderLayer layer) {
+		return getVertices(layer) == null;
 	}
 	
 	public void markDirty() {
@@ -128,10 +145,6 @@ public class ViewChunk {
 	}
 	
 	public Vec3f getCenter() {
-		return getCenter(new Vec3f());
-	}
-
-	public Vec3f getCenter(Vec3f center) {
-		return center.set(this.center);
+		return center;
 	}
 }

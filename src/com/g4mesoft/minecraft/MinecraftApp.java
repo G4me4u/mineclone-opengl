@@ -34,13 +34,15 @@ public class MinecraftApp extends Application {
 	
 		fullscreenKey = new KeySingleInput("fullscreen", KeyEvent.VK_F11);
 		addKey(fullscreenKey);
+
+		world.generateWorld();
 	}
 
 	@Override
 	protected void displayResized(int newWidth, int newHeight) {
 		super.displayResized(newWidth, newHeight);
 		
-		int s = 0;
+		int s = 3;
 		newWidth >>>= s;
 		newHeight >>>= s;
 		

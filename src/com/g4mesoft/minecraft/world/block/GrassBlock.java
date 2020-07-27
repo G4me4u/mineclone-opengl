@@ -31,12 +31,12 @@ public class GrassBlock extends Block {
 			return;
 		}
 		
-		int x = pos.getX() + random.nextInt(3) - 1;
-		int y = pos.getY() + random.nextInt(3) - 1;
-		int z = pos.getZ() + random.nextInt(3) - 1;
+		int xo = random.nextInt(3) - 1;
+		int yo = random.nextInt(3) - 1;
+		int zo = random.nextInt(3) - 1;
 	
-		if (!pos.equals(x, y, z)) {
-			IBlockPosition dirtPos = new ImmutableBlockPosition(x, y, z);
+		if (xo != 0 && yo != 0 && zo != 0) {
+			IBlockPosition dirtPos = pos.getOffset(xo, yo, zo);
 			if (world.getBlock(dirtPos) == Blocks.DIRT_BLOCK && isValidGrassCondition(world, dirtPos))
 				world.setBlock(dirtPos, Blocks.GRASS_BLOCK);
 		}

@@ -8,6 +8,8 @@ import com.g4mesoft.math.Vec3f;
 import com.g4mesoft.minecraft.MinecraftApp;
 import com.g4mesoft.minecraft.world.block.Block;
 import com.g4mesoft.minecraft.world.block.MutableBlockPosition;
+import com.g4mesoft.minecraft.world.block.PlantBlock;
+import com.g4mesoft.minecraft.world.block.PlantType;
 import com.g4mesoft.minecraft.world.block.IBlockPosition;
 import com.g4mesoft.minecraft.world.block.ImmutableBlockPosition;
 import com.g4mesoft.minecraft.world.block.state.BlockState;
@@ -17,7 +19,7 @@ import com.g4mesoft.world.phys.AABB3;
 
 public class World {
 	
-	public static final int WORLD_HEIGHT = WorldChunk.CHUNK_SIZE * 8;
+	public static final int WORLD_HEIGHT = WorldChunk.CHUNK_SIZE * 5;
 	
 	public static final int CHUNKS_X = 8;
 	public static final int CHUNKS_Z = 8;
@@ -40,20 +42,87 @@ public class World {
 
 		blockRay = new BlockRay(this, 0.01f);
 		player = new PlayerEntity(this);
-
-		generateWorld();
 	}
 	
-	private void generateWorld() {
+	public void generateWorld() {
 		DiamondNoise noise = new DiamondNoise(CHUNKS_X * WorldChunk.CHUNK_SIZE, random);
 		
 		int i = 0;
 		for (int cz = 0; cz < CHUNKS_Z; cz++) {
 			for (int cx = 0; cx < CHUNKS_X; cx++) {
 				WorldChunk chunk = new WorldChunk(cx, cz);
-				chunk.generateChunk(noise);
+				chunk.generateChunk(noise, random);
 				chunks[i++] = chunk;
 			}
+		}
+		
+		for (i = 0; i < CHUNKS_Z * CHUNKS_X; i++)
+			populateChunk(chunks[i]);
+	}
+	
+	private void populateChunk(WorldChunk chunk) {
+		MutableBlockPosition blockPos = new MutableBlockPosition();
+		
+		int x0 = chunk.getChunkX() * WorldChunk.CHUNK_SIZE;
+		int z0 = chunk.getChunkZ() * WorldChunk.CHUNK_SIZE;
+		int x1 = x0 + WorldChunk.CHUNK_SIZE;
+		int z1 = z0 + WorldChunk.CHUNK_SIZE;
+		
+		for (blockPos.z = z0; blockPos.z < z1; blockPos.z++) {
+			for (blockPos.x = x0; blockPos.x < x1; blockPos.x++) {
+				blockPos.y = chunk.getHighestPoint(blockPos) + 1;
+				
+				if (random.nextInt(160) == 0) {
+					growTree(blockPos);
+
+					blockPos.y--;
+					
+					setBlock(blockPos, Blocks.DIRT_BLOCK);
+				} else if (random.nextInt(20) == 0) {
+					BlockState plantState = Blocks.PLANT_BLOCK.getDefaultState();
+					
+					PlantType type = PlantType.PLANT_TYPES[random.nextInt(PlantType.PLANT_TYPES.length)];
+					plantState = plantState.withProperty(PlantBlock.PLANT_TYPE_PROPERTY, type);
+					
+					setBlockState(blockPos, plantState);
+				}
+			}
+		}
+	}
+	
+	public void growTree(IBlockPosition blockPos) {
+		int treeHeight = 5 + random.nextInt(3);
+		int trunkHeight = Math.max(1, treeHeight - 5);
+		
+		MutableBlockPosition tmpPos = new MutableBlockPosition(blockPos);
+		
+		for (int i = 0; i < treeHeight; i++) {
+			if (i > trunkHeight) {
+				int yo = i - trunkHeight;
+				
+				for (int zo = -3; zo <= 3; zo++) {
+					for (int xo = -3; xo <= 3; xo++) {
+						tmpPos.x = blockPos.getX() + xo;
+						tmpPos.z = blockPos.getZ() + zo;
+						
+						if (getBlock(tmpPos) == Blocks.AIR_BLOCK) {
+							int distSqr = xo * xo + yo * yo + zo * zo;
+							
+							if (distSqr < 3 * 2 * 3)
+								setBlock(tmpPos, Blocks.LEAVES_BLOCK);
+						}
+					}
+				}
+			}
+
+			if (i < treeHeight - 1) {
+				tmpPos.x = blockPos.getX();
+				tmpPos.z = blockPos.getZ();
+				
+				setBlock(tmpPos, Blocks.WOOD_LOG_BLOCK);
+			}
+
+			tmpPos.y++;
 		}
 	}
 	
@@ -65,8 +134,8 @@ public class World {
 		if (blockPos.getY() < 0 || blockPos.getY() >= WORLD_HEIGHT)
 			return null;
 		
-		int chunkX = blockPos.getX() / WorldChunk.CHUNK_SIZE;
-		int chunkZ = blockPos.getZ() / WorldChunk.CHUNK_SIZE;
+		int chunkX = Math.floorDiv(blockPos.getX(), WorldChunk.CHUNK_SIZE);
+		int chunkZ = Math.floorDiv(blockPos.getZ(), WorldChunk.CHUNK_SIZE);
 		
 		return getChunk(chunkX, chunkZ);
 	}
@@ -90,19 +159,30 @@ public class World {
 	public void setBlockState(IBlockPosition blockPos, BlockState state) {
 		WorldChunk chunk = getChunk(blockPos);
 		if (chunk != null) {
-			int oldHighestPoint = chunk.getHighestPoint(blockPos);
-			
-			if (chunk.setBlockState(blockPos, state)) {
-				int highestPoint = chunk.getHighestPoint(blockPos);
+			BlockState oldState = chunk.getBlockState(blockPos);
+
+			if (oldState != state) {
+				int oldHighestPoint = chunk.getHighestPoint(blockPos);
 				
-				if (oldHighestPoint != highestPoint) {
-					int x = blockPos.getX();
-					int z = blockPos.getZ();
+				if (chunk.setBlockState(blockPos, state)) {
+					int highestPoint = chunk.getHighestPoint(blockPos);
 					
-					markRangeDirty(new ImmutableBlockPosition(x, oldHighestPoint, z), 
-					               new ImmutableBlockPosition(x,    highestPoint, z));
-				} else {
-					markDirty(blockPos);
+					if (oldHighestPoint != highestPoint) {
+						int x = blockPos.getX();
+						int z = blockPos.getZ();
+						
+						markRangeDirty(new ImmutableBlockPosition(x, oldHighestPoint, z), 
+						               new ImmutableBlockPosition(x,    highestPoint, z), true);
+					} else {
+						Block oldBlock = oldState.getBlock();
+						Block newBlock = state.getBlock();
+						
+						if (oldBlock.isSolid() || newBlock.isSolid()) {
+							markDirty(blockPos, (oldBlock != newBlock));
+						} else {
+							markDirty(blockPos, false);
+						}
+					}
 				}
 			}
 		}
@@ -123,12 +203,12 @@ public class World {
 		return chunk.getHighestPoint(blockPos);
 	}
 	
-	private void markRangeDirty(IBlockPosition p0, IBlockPosition p1) {
-		app.getWorldRenderer().markRangeDirty(p0, p1);
+	private void markRangeDirty(IBlockPosition p0, IBlockPosition p1, boolean includeBorders) {
+		app.getWorldRenderer().markRangeDirty(p0, p1, includeBorders);
 	}
 
-	private void markDirty(IBlockPosition blockPos) {
-		app.getWorldRenderer().markDirty(blockPos);
+	private void markDirty(IBlockPosition blockPos, boolean includeBorders) {
+		app.getWorldRenderer().markDirty(blockPos, includeBorders);
 	}
 	
 	public boolean isLoadedBlock(IBlockPosition blockPos) {
@@ -160,7 +240,7 @@ public class World {
 						BlockState state = chunk.getBlockState(pos);
 						Block block = state.getBlock();
 						
-						if (block != Blocks.AIR_BLOCK)
+						if (block.isRandomTicked())
 							block.randomTick(this, pos, state, random);
 					}
 				}

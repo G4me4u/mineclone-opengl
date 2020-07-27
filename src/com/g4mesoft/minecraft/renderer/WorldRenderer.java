@@ -12,7 +12,6 @@ import com.g4mesoft.graphics3d.Texture3D;
 import com.g4mesoft.graphics3d.VertexTessellator3D;
 import com.g4mesoft.graphics3d.ViewFrustum3D;
 import com.g4mesoft.math.MathUtils;
-import com.g4mesoft.math.Vec3f;
 import com.g4mesoft.minecraft.renderer.tessellator.ViewChunk;
 import com.g4mesoft.minecraft.world.World;
 import com.g4mesoft.minecraft.world.WorldChunk;
@@ -23,6 +22,8 @@ import com.g4mesoft.util.FileUtil;
 public class WorldRenderer {
 
 	private static final int CHUNKS_Y = World.WORLD_HEIGHT / WorldChunk.CHUNK_SIZE;
+	private static final int NUM_VIEW_CHUNKS = World.CHUNKS_X * CHUNKS_Y * World.CHUNKS_Z;
+	
 	private static final float CHUNK_SPHERE_RADIUS = MathUtils.sqrt(3.0f) * 0.5f * WorldChunk.CHUNK_SIZE;
 	
 	private static final float FOV = 70.0f;
@@ -45,6 +46,7 @@ public class WorldRenderer {
 	private final VertexTessellator3D tessellator;
 	
 	private final ViewChunk[] chunks;
+	private final int[] visibilityGraph;
 	
 	private final BlockSelectionRenderer selectionRenderer;
 	
@@ -55,7 +57,8 @@ public class WorldRenderer {
 		worldShader = new WorldShader3D(camera, loadTexture(TEXTURE_FILE));
 		tessellator = new VertexTessellator3D(NUM_VERTEX_DATA);
 		
-		chunks = new ViewChunk[World.CHUNKS_X * CHUNKS_Y * World.CHUNKS_Z];
+		chunks = new ViewChunk[NUM_VIEW_CHUNKS];
+		visibilityGraph = new int[NUM_VIEW_CHUNKS + 1];
 		
 		int index = 0;
 		for (int chunkZ = 0; chunkZ < World.CHUNKS_Z; chunkZ++) {
@@ -93,36 +96,38 @@ public class WorldRenderer {
 		camera.setPerspective(FOV, aspect, NEAR, FAR);
 	}
 
-	public void markDirty(IBlockPosition blockPos) {
+	public void markDirty(IBlockPosition blockPos, boolean includeBorders) {
 		int chunkX = blockPos.getX() / ViewChunk.CHUNK_SIZE;
 		int chunkY = blockPos.getY() / ViewChunk.CHUNK_SIZE;
 		int chunkZ = blockPos.getZ() / ViewChunk.CHUNK_SIZE;
 
 		markChunkDirty(chunkX, chunkY, chunkZ);
 	
-		int xSub = Math.abs(blockPos.getX() % ViewChunk.CHUNK_SIZE);
-		if (xSub == 0) {
-			markChunkDirty(chunkX - 1, chunkY, chunkZ);
-		} else if (xSub == ViewChunk.CHUNK_SIZE - 1) {
-			markChunkDirty(chunkX + 1, chunkY, chunkZ);
-		}
-		
-		int ySub = Math.abs(blockPos.getY() % ViewChunk.CHUNK_SIZE);
-		if (ySub == 0) {
-			markChunkDirty(chunkX, chunkY - 1, chunkZ);
-		} else if (ySub == ViewChunk.CHUNK_SIZE - 1) {
-			markChunkDirty(chunkX, chunkY + 1, chunkZ);
-		}
-		
-		int zSub = Math.abs(blockPos.getZ() % ViewChunk.CHUNK_SIZE);
-		if (zSub == 0) {
-			markChunkDirty(chunkX, chunkY, chunkZ - 1);
-		} else if (zSub == ViewChunk.CHUNK_SIZE - 1) {
-			markChunkDirty(chunkX, chunkY, chunkZ + 1);
+		if (includeBorders) {
+			int xSub = Math.abs(blockPos.getX() % ViewChunk.CHUNK_SIZE);
+			if (xSub == 0) {
+				markChunkDirty(chunkX - 1, chunkY, chunkZ);
+			} else if (xSub == ViewChunk.CHUNK_SIZE - 1) {
+				markChunkDirty(chunkX + 1, chunkY, chunkZ);
+			}
+			
+			int ySub = Math.abs(blockPos.getY() % ViewChunk.CHUNK_SIZE);
+			if (ySub == 0) {
+				markChunkDirty(chunkX, chunkY - 1, chunkZ);
+			} else if (ySub == ViewChunk.CHUNK_SIZE - 1) {
+				markChunkDirty(chunkX, chunkY + 1, chunkZ);
+			}
+			
+			int zSub = Math.abs(blockPos.getZ() % ViewChunk.CHUNK_SIZE);
+			if (zSub == 0) {
+				markChunkDirty(chunkX, chunkY, chunkZ - 1);
+			} else if (zSub == ViewChunk.CHUNK_SIZE - 1) {
+				markChunkDirty(chunkX, chunkY, chunkZ + 1);
+			}
 		}
 	}
 	
-	public void markRangeDirty(IBlockPosition p0, IBlockPosition p1) {
+	public void markRangeDirty(IBlockPosition p0, IBlockPosition p1, boolean includeBorders) {
 		int x0 = MathUtils.min(p0.getX(), p1.getX());
 		int y0 = MathUtils.min(p0.getY(), p1.getY());
 		int z0 = MathUtils.min(p0.getZ(), p1.getZ());
@@ -142,20 +147,22 @@ public class WorldRenderer {
 
 		markChunksDirty(chunkX0, chunkY0, chunkZ0, chunkX1, chunkY1, chunkZ1);
 		
-		if (x0 % ViewChunk.CHUNK_SIZE == 0)
-			markChunksDirty(chunkX0 - 1, chunkY0, chunkZ0, chunkX0 - 1, chunkY1, chunkZ1);
-		if (x1 % ViewChunk.CHUNK_SIZE == ViewChunk.CHUNK_SIZE - 1)
-			markChunksDirty(chunkX1 + 1, chunkY0, chunkZ0, chunkX1 + 1, chunkY1, chunkZ1);
-		
-		if (y0 % ViewChunk.CHUNK_SIZE == 0)
-			markChunksDirty(chunkX0, chunkY0 - 1, chunkZ0, chunkX1, chunkY0 - 1, chunkZ1);
-		if (y1 % ViewChunk.CHUNK_SIZE == ViewChunk.CHUNK_SIZE - 1)
-			markChunksDirty(chunkX0, chunkY1 + 1, chunkZ0, chunkX1, chunkY1 + 1, chunkZ1);
-
-		if (z0 % ViewChunk.CHUNK_SIZE == 0)
-			markChunksDirty(chunkX0, chunkY0, chunkZ0 - 1, chunkX1, chunkY1, chunkZ0 - 1);
-		if (z1 % ViewChunk.CHUNK_SIZE == ViewChunk.CHUNK_SIZE - 1)
-			markChunksDirty(chunkX0, chunkY0, chunkZ1 + 1, chunkX1, chunkY1, chunkZ1 + 1);
+		if (includeBorders) {
+			if (x0 % ViewChunk.CHUNK_SIZE == 0)
+				markChunksDirty(chunkX0 - 1, chunkY0, chunkZ0, chunkX0 - 1, chunkY1, chunkZ1);
+			if (x1 % ViewChunk.CHUNK_SIZE == ViewChunk.CHUNK_SIZE - 1)
+				markChunksDirty(chunkX1 + 1, chunkY0, chunkZ0, chunkX1 + 1, chunkY1, chunkZ1);
+			
+			if (y0 % ViewChunk.CHUNK_SIZE == 0)
+				markChunksDirty(chunkX0, chunkY0 - 1, chunkZ0, chunkX1, chunkY0 - 1, chunkZ1);
+			if (y1 % ViewChunk.CHUNK_SIZE == ViewChunk.CHUNK_SIZE - 1)
+				markChunksDirty(chunkX0, chunkY1 + 1, chunkZ0, chunkX1, chunkY1 + 1, chunkZ1);
+	
+			if (z0 % ViewChunk.CHUNK_SIZE == 0)
+				markChunksDirty(chunkX0, chunkY0, chunkZ0 - 1, chunkX1, chunkY1, chunkZ0 - 1);
+			if (z1 % ViewChunk.CHUNK_SIZE == ViewChunk.CHUNK_SIZE - 1)
+				markChunksDirty(chunkX0, chunkY0, chunkZ1 + 1, chunkX1, chunkY1, chunkZ1 + 1);
+		}
 	}
 
 	public void markChunksDirty(int chunkX0, int chunkY0, int chunkZ0, int chunkX1, int chunkY1, int chunkZ1) {
@@ -212,28 +219,53 @@ public class WorldRenderer {
 	}
 	
 	private void renderWorld(AbstractPixelRenderer3D renderer3d, float dt) {
+		buildVisibilityGraph();
+		
 		renderer3d.setShader(worldShader);
 
+		for (RenderLayer layer : RenderLayer.LAYERS)
+			renderWorldLayer(renderer3d, layer);
+	}
+	
+	private void buildVisibilityGraph() {
+		int p = 0;
+		
 		ViewFrustum3D frustum = camera.getViewFrustum();
 		
-		Vec3f tmp = new Vec3f();
-		for (ViewChunk chunk : chunks) {
-			if (!chunk.isDirty() && chunk.isEmpty())
-				continue;
-				
-			chunk.getCenter(tmp);
+		for (int i = 0; i < NUM_VIEW_CHUNKS; i++) {
+			ViewChunk chunk = chunks[i];
 			
-			if (frustum.sphereInView(tmp, CHUNK_SPHERE_RADIUS)) {
+			if (!chunk.isDirty() && chunk.isAllEmpty())
+				continue;
+			
+			if (frustum.sphereInView(chunk.getCenter(), CHUNK_SPHERE_RADIUS)) {
 				if (chunk.isDirty())
-					chunk.rebuild(tessellator);
-				
-				IVertexProvider vertices = chunk.getVertices();
+					chunk.rebuildAll(tessellator);
+		
+				visibilityGraph[p++] = i;
+			}
+		}
+		
+		visibilityGraph[p] = -1;
+	}
+	
+	private void renderWorldLayer(AbstractPixelRenderer3D renderer3d, RenderLayer layer) {
+		renderer3d.setCullEnabled(layer != RenderLayer.SPRITE_LAYER);
+		
+		for (int i = 0; visibilityGraph[i] >= 0; i++) {
+			ViewChunk chunk = chunks[visibilityGraph[i]];
+
+			if (!chunk.isEmpty(layer)) {
+				IVertexProvider vertices = chunk.getVertices(layer);
+			
 				if (vertices != null)
 					renderer3d.drawVertices(vertices);
 			}
 		}
+		
+		renderer3d.setCullEnabled(true);
 	}
-
+	
 	public World getWorld() {
 		return world;
 	}

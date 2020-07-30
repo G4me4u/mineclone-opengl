@@ -18,6 +18,7 @@ import minecraft.controller.PlayerController;
 import minecraft.display.Display;
 import minecraft.display.DisplayListener;
 import minecraft.display.DisplaySize;
+import minecraft.input.IKeyboardListener;
 import minecraft.input.Keyboard;
 import minecraft.input.Mouse;
 import minecraft.renderer.world.BlockTextures;
@@ -26,7 +27,7 @@ import minecraft.util.LibUtil;
 import minecraft.world.World;
 import minecraft.world.block.Block;
 
-public class MinecraftApp implements DisplayListener {
+public class MinecraftApp implements DisplayListener, IKeyboardListener {
 
 	private static final String TITLE = "Minecraft";
 	private static final int DEFAULT_WIDTH  = 856;
@@ -56,6 +57,8 @@ public class MinecraftApp implements DisplayListener {
 
 		Mouse.init(display);
 		Keyboard.init(display);
+		
+		Keyboard.addListener(this);
 		
 		display.setMouseGrabbed(true);
 		
@@ -93,7 +96,7 @@ public class MinecraftApp implements DisplayListener {
 		sizeChanged(size.width, size.height);
 		
 		display.addDisplayListener(this::sizeChanged);
-		
+
 		initGLState();
 
 		timer.init();
@@ -162,5 +165,23 @@ public class MinecraftApp implements DisplayListener {
 	
 	public static void main(String[] args) throws Exception {
 		new MinecraftApp().start();
+	}
+
+	@Override
+	public void keyPressed(int key, int mods) {
+		if (key == Keyboard.KEY_F11)
+			display.setFullScreen(!display.isFullScreen());
+	}
+
+	@Override
+	public void keyRepeated(int key, int mods) {
+	}
+
+	@Override
+	public void keyReleased(int key, int mods) {
+	}
+
+	@Override
+	public void keyTyped(int codePoint) {
 	}
 }

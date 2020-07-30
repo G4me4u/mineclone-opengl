@@ -33,12 +33,25 @@ public class Display implements IResource {
 	private boolean mouseGrabbed;
 	private Map<Integer, Long> standardCursors;
 	
+	private boolean fullScreen;
+	
+	private long windowMonitor;
+	
+	private int prevX;
+	private int prevY;
+	private int prevWidth;
+	private int prevHeight;
+	
 	public Display() {
 		windowHandle = -1L;
 		
 		listeners = new ArrayList<DisplayListener>();
 	
+		supportsRawMouseMotion = false;
+		mouseGrabbed = false;
 		standardCursors = new HashMap<Integer, Long>();
+
+		fullScreen = false;
 	}
 	
 	public void addDisplayListener(DisplayListener listener) {
@@ -71,9 +84,17 @@ public class Display implements IResource {
 			throw new RuntimeException("Failed to create the GLFW window");
 
 		glfwSetWindowSizeCallback(windowHandle, (window, newWidth, newHeight) -> {
-			dispatchSizeChangedEvent(newWidth, newHeight);
+			// Get the frame buffer size instead of the provided newWidth, newHeight.
+			DisplaySize newSize = getDisplaySize();
+			
+			dispatchSizeChangedEvent(newSize.width, newSize.height);
 		});
-
+		
+		glfwSetMonitorCallback((monitor, event) -> {
+			if (monitor == windowMonitor && event == GLFW_DISCONNECTED)
+				setFullScreen(false);
+		});
+		
 		// Get the resolution of the primary monitor
 		GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 		DisplaySize size = getDisplaySize();
@@ -108,7 +129,7 @@ public class Display implements IResource {
 			IntBuffer pWidth = stack.mallocInt(1); // int*
 			IntBuffer pHeight = stack.mallocInt(1); // int*
 	
-			glfwGetWindowSize(windowHandle, pWidth, pHeight);
+			glfwGetFramebufferSize(windowHandle, pWidth, pHeight);
 		
 			return new DisplaySize(pWidth.get(0), pHeight.get(0));
 		}
@@ -189,6 +210,44 @@ public class Display implements IResource {
 			}
 
 			mouseGrabbed = grabbed;
+		}
+	}
+	
+	public boolean isFullScreen() {
+		return fullScreen;
+	}
+	
+	public void setFullScreen(boolean fullScreen) {
+		if (fullScreen != this.fullScreen) {
+			if (fullScreen) {
+				long monitor = glfwGetPrimaryMonitor();
+				GLFWVidMode mode = glfwGetVideoMode(monitor);
+				
+				try (MemoryStack stack = stackPush()) {
+					IntBuffer pX = stack.mallocInt(1); // int*
+					IntBuffer pY = stack.mallocInt(1); // int*
+					
+					glfwGetWindowPos(windowHandle, pX, pY);
+					
+					prevX = pX.get(0);
+					prevY = pY.get(0);
+
+					glfwGetWindowSize(windowHandle, pX, pY);
+					
+					prevWidth = pX.get(0);
+					prevHeight = pY.get(0);
+				}
+
+				glfwSetWindowMonitor(windowHandle, monitor, 0, 0, mode.width(), mode.height(), mode.refreshRate());
+				
+				windowMonitor = monitor;
+			} else {
+				glfwSetWindowMonitor(windowHandle, NULL, prevX, prevY, prevWidth, prevHeight, GLFW_DONT_CARE);
+
+				windowMonitor = NULL;
+			}
+			
+			this.fullScreen = fullScreen;
 		}
 	}
 

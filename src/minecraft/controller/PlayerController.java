@@ -11,7 +11,7 @@ import minecraft.world.entity.PlayerEntity;
 
 public class PlayerController implements IMouseListener {
 
-	private static final float MOUSE_SENSITIVITY = 0.001f;
+	private static final float MOUSE_SENSITIVITY = 0.002f;
 	
 	private final Display display;
 	

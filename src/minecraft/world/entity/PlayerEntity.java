@@ -56,7 +56,10 @@ public class PlayerEntity extends Entity {
 			interactTimer--;
 
 			if (interactTimer <= 0) {
-				Mat3 rot = new Mat3().rotateX(-yaw).rotateY(-pitch);
+				float yawRad   = (float)Math.toRadians(yaw);
+				float pitchRad = (float)Math.toRadians(pitch);
+				
+				Mat3 rot = new Mat3().rotateX(-yawRad).rotateY(-pitchRad);
 				Vec3 dir = new Vec3(-rot.m02, -rot.m12, -rot.m22);
 				BlockHitResult hitResult = world.castBlockRay(eyeX, eyeY, eyeZ, dir);
 				

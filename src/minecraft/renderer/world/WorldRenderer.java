@@ -200,7 +200,11 @@ public class WorldRenderer implements IResource {
 		float z = player.prevEyeZ + (player.eyeZ - player.prevEyeZ) * dt;
 
 		camera.setPosition(-x, -y, -z);
-		camera.setRotation(-player.yaw, -player.pitch);
+		
+		float yaw   = (float)Math.toRadians(player.yaw);
+		float pitch = (float)Math.toRadians(player.pitch);
+		
+		camera.setRotation(-yaw, -pitch);
 	}
 	
 	private void renderWorld(float dt) {

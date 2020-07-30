@@ -11,7 +11,7 @@ import minecraft.world.entity.PlayerEntity;
 
 public class PlayerController implements IMouseListener {
 
-	private static final float MOUSE_SENSITIVITY = 0.002f;
+	private static final float MOUSE_SENSITIVITY = 0.1f;
 	
 	private final Display display;
 	
@@ -56,7 +56,9 @@ public class PlayerController implements IMouseListener {
 			if (!LinMath.nearZero(distSqr)) {
 				moveVec.div((float)Math.sqrt(distSqr));
 				
-				rotMat.setRotation(player.pitch, 0.0f, 1.0f, 0.0f);
+				float pitch = (float)Math.toRadians(player.pitch);
+				rotMat.toIdentity().rotateY(pitch);
+				
 				rotMat.mul(moveVec, moveVec);
 			}
 			

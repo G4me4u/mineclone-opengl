@@ -105,8 +105,6 @@ public class MinecraftApp implements DisplayListener, IKeyboardListener {
 		int frames = 0;
 		
 		while (!display.isCloseRequested()) {
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
 			int ticksThisFrame = timer.clock();
 			
 			for (int i = 0; i < ticksThisFrame; i++)
@@ -152,6 +150,8 @@ public class MinecraftApp implements DisplayListener, IKeyboardListener {
 	}
 
 	private void render(float dt) {
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
 		worldRenderer.render(dt);
 	}
 

@@ -5,7 +5,6 @@ import java.util.Random;
 
 import minecraft.renderer.model.IBlockModel;
 import minecraft.renderer.world.BlockTextures;
-import minecraft.renderer.world.RenderLayer;
 import minecraft.world.EntityHitbox;
 import minecraft.world.World;
 import minecraft.world.block.state.BlockState;
@@ -50,10 +49,6 @@ public class Block {
 		return isSolid();
 	}
 
-	public RenderLayer getLayer(World world, IBlockPosition pos, BlockState blockState) {
-		return RenderLayer.BLOCK_LAYER;
-	}
-	
 	public IBlockModel getModel(World world, IBlockPosition pos, BlockState blockState) {
 		return null;
 	}

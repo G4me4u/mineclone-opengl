@@ -5,7 +5,6 @@ import minecraft.graphic.opengl.buffer.VertexBuffer;
 import minecraft.graphic.tessellator.VertexAttribBuilder;
 import minecraft.math.Vec3;
 import minecraft.renderer.model.IBlockModel;
-import minecraft.world.Blocks;
 import minecraft.world.World;
 import minecraft.world.WorldChunk;
 import minecraft.world.block.Block;
@@ -16,7 +15,7 @@ public class ViewChunk implements IResource {
 
 	public static final int CHUNK_SIZE = WorldChunk.CHUNK_SIZE;
 	
-	public static final int MAX_VERTEX_COUNT = 16384;
+	public static final int MAX_VERTEX_COUNT = 8192 * 4;
 	
 	private final WorldRenderer worldRenderer;
 	
@@ -27,10 +26,9 @@ public class ViewChunk implements IResource {
 	private final Vec3 center;
 
 	private boolean dirty;
-	private boolean allEmpty;
 	
-	private final VertexBuffer[] layerBuffers;
-	private final int[] vertexCounts;
+	private final VertexBuffer vertexBuffer;
+	private int vertexCount;
 	
 	public ViewChunk(WorldRenderer worldRenderer, int chunkX, int chunkY, int chunkZ) {
 		this.worldRenderer = worldRenderer;
@@ -44,26 +42,14 @@ public class ViewChunk implements IResource {
 		float z = chunkZ * CHUNK_SIZE;
 		
 		center = new Vec3(x, y, z).add(CHUNK_SIZE * 0.5f);
+
+		dirty = true;
 	
-		dirty = allEmpty = true;
-
-		layerBuffers = new VertexBuffer[RenderLayer.LAYERS.length];
-		for (int i = 0; i < layerBuffers.length; i++)
-			layerBuffers[i] = new VertexBuffer(worldRenderer.getBufferLayout(), MAX_VERTEX_COUNT);
-
-		vertexCounts = new int[RenderLayer.LAYERS.length];
+		vertexBuffer = new VertexBuffer(worldRenderer.getBufferLayout(), MAX_VERTEX_COUNT);
+		vertexCount = 0;
 	}
 	
 	public void rebuildAll(VertexAttribBuilder builder) {
-		allEmpty = true;
-		
-		for (RenderLayer layer : RenderLayer.LAYERS)
-			allEmpty &= !rebuildLayer(builder, layer);
-	
-		dirty = false;
-	}
-	
-	private boolean rebuildLayer(VertexAttribBuilder builder, RenderLayer layer) {
 		World world = worldRenderer.getWorld();
 		
 		int xc = getX();
@@ -84,27 +70,23 @@ public class ViewChunk implements IResource {
 						BlockState blockState = chunk.getBlockState(pos);
 						Block block = blockState.getBlock();
 						
-						if (block != Blocks.AIR_BLOCK && block.getLayer(world, pos, blockState) == layer) {
-							IBlockModel blockModel = block.getModel(world, pos, blockState);
-							if (blockModel != null)
-								blockModel.tessellate(world, pos, builder);
-						}
+						IBlockModel blockModel = block.getModel(world, pos, blockState);
+						
+						if (blockModel != null)
+							blockModel.tessellate(world, pos, builder);
 					}
 				}
 			}
 	
-			VertexBuffer buffer = layerBuffers[layer.getIndex()];
-			buffer.bufferSubData(builder.getReadbleBuffer(), 0);
-
-			int vertexCount = builder.getVertexCount();
-			vertexCounts[layer.getIndex()] = vertexCount;
+			vertexBuffer.bufferSubData(builder.getReadbleBuffer(), 0);
+			vertexCount = builder.getVertexCount();
 			
 			builder.clear();
-			
-			return (vertexCount != 0);
+		} else {
+			vertexCount = 0;
 		}
 		
-		return false;
+		dirty = false;
 	}
 	
 	public int getChunkX() {
@@ -130,25 +112,25 @@ public class ViewChunk implements IResource {
 	public int getZ() {
 		return chunkZ * CHUNK_SIZE;
 	}
-	
-	public VertexBuffer getVertexBuffer(RenderLayer layer) {
-		return layerBuffers[layer.getIndex()];
-	}
-	
-	public int getVertexCount(RenderLayer layer) {
-		return vertexCounts[layer.getIndex()];
-	}
 
-	public boolean isAllEmpty() {
-		return allEmpty;
-	}
-	
 	public void markDirty() {
 		dirty = true;
 	}
 	
 	public boolean isDirty() {
 		return dirty;
+	}
+
+	public VertexBuffer getVertexBuffer() {
+		return vertexBuffer;
+	}
+	
+	public int getVertexCount() {
+		return vertexCount;
+	}
+
+	public boolean isEmpty() {
+		return (vertexCount == 0);
 	}
 	
 	public Vec3 getCenter() {
@@ -157,7 +139,6 @@ public class ViewChunk implements IResource {
 	
 	@Override
 	public void dispose() {
-		for (VertexBuffer buffer : layerBuffers)
-			buffer.close();
+		vertexBuffer.close();
 	}
 }

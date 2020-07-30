@@ -18,10 +18,10 @@ import minecraft.world.gen.DiamondNoise;
 
 public class World {
 	
-	public static final int WORLD_HEIGHT = WorldChunk.CHUNK_SIZE * 5;
+	public static final int WORLD_HEIGHT = WorldChunk.CHUNK_SIZE * 8;
 	
-	public static final int CHUNKS_X = 8;
-	public static final int CHUNKS_Z = 8;
+	public static final int CHUNKS_X = 16;
+	public static final int CHUNKS_Z = 16;
 	
 	private static final int RANDOM_TICK_SPEED = 3;
 	
@@ -71,7 +71,7 @@ public class World {
 			for (blockPos.x = x0; blockPos.x < x1; blockPos.x++) {
 				blockPos.y = chunk.getHighestPoint(blockPos) + 1;
 				
-				if (random.nextInt(160) == 0) {
+				if (random.nextInt(80) == 0) {
 					growTree(blockPos);
 
 					blockPos.y--;

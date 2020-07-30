@@ -4,7 +4,6 @@ import minecraft.renderer.model.CropBlockModel;
 import minecraft.renderer.model.IBlockModel;
 import minecraft.renderer.model.PlantBlockModel;
 import minecraft.renderer.world.BlockTextures;
-import minecraft.renderer.world.RenderLayer;
 import minecraft.world.World;
 import minecraft.world.block.state.BlockState;
 import minecraft.world.block.state.EnumBlockProperty;
@@ -31,11 +30,6 @@ public class PlantBlock extends Block {
 		return models[blockState.getValue(PLANT_TYPE_PROPERTY).getIndex()];
 	}
 
-	@Override
-	public RenderLayer getLayer(World world, IBlockPosition pos, BlockState blockState) {
-		return RenderLayer.SPRITE_LAYER;
-	}
-	
 	@Override
 	public boolean isSolid() {
 		return false;

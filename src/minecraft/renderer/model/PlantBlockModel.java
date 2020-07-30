@@ -41,7 +41,24 @@ public class PlantBlockModel extends AbstractBlockModel {
 		builder.putFloat2(texture.getU0(), texture.getV1());
 		builder.putFloat(lightness);
 		builder.next();
-
+		
+		builder.putFloat3(x1, y0, z1);
+		builder.putFloat2(texture.getU0(), texture.getV0());
+		builder.putFloat(lightness);
+		builder.next();
+		builder.putFloat3(x0, y0, z0);
+		builder.putFloat2(texture.getU1(), texture.getV0());
+		builder.putFloat(lightness);
+		builder.next();
+		builder.putFloat3(x0, y1, z0);
+		builder.putFloat2(texture.getU1(), texture.getV1());
+		builder.putFloat(lightness);
+		builder.next();
+		builder.putFloat3(x1, y1, z1);
+		builder.putFloat2(texture.getU0(), texture.getV1());
+		builder.putFloat(lightness);
+		builder.next();
+		
 		builder.putFloat3(x1, y0, z0);
 		builder.putFloat2(texture.getU0(), texture.getV0());
 		builder.putFloat(lightness);
@@ -55,6 +72,23 @@ public class PlantBlockModel extends AbstractBlockModel {
 		builder.putFloat(lightness);
 		builder.next();
 		builder.putFloat3(x1, y1, z0);
+		builder.putFloat2(texture.getU0(), texture.getV1());
+		builder.putFloat(lightness);
+		builder.next();
+
+		builder.putFloat3(x0, y0, z1);
+		builder.putFloat2(texture.getU0(), texture.getV0());
+		builder.putFloat(lightness);
+		builder.next();
+		builder.putFloat3(x1, y0, z0);
+		builder.putFloat2(texture.getU1(), texture.getV0());
+		builder.putFloat(lightness);
+		builder.next();
+		builder.putFloat3(x1, y1, z0);
+		builder.putFloat2(texture.getU1(), texture.getV1());
+		builder.putFloat(lightness);
+		builder.next();
+		builder.putFloat3(x0, y1, z1);
 		builder.putFloat2(texture.getU0(), texture.getV1());
 		builder.putFloat(lightness);
 		builder.next();

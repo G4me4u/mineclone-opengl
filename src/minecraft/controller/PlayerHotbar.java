@@ -10,6 +10,8 @@ public class PlayerHotbar {
 
 	private final BlockState[] hotbarBlocks;
 	private int hotbarIndex;
+
+	private boolean wasSwitchingHotbar;
 	
 	public PlayerHotbar() {
 		hotbarBlocks = new BlockState[8];
@@ -28,12 +30,16 @@ public class PlayerHotbar {
 	}
 	
 	public void update() {
-		if (Keyboard.isHeld(Keyboard.KEY_T)) {
+		boolean switchingHotbar = Keyboard.isHeld(Keyboard.KEY_T);
+		
+		if (switchingHotbar && !wasSwitchingHotbar) {
 			hotbarIndex++;
 			
 			if (hotbarIndex >= hotbarBlocks.length)
 				hotbarIndex = 0;
 		}
+		
+		wasSwitchingHotbar = switchingHotbar;
 	}
 	
 	public BlockState getHotbarBlock() {

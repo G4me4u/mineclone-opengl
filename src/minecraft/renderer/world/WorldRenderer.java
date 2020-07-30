@@ -1,10 +1,7 @@
 package minecraft.renderer.world;
 
-import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
 import static org.lwjgl.opengl.GL11.GL_QUADS;
-import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glDrawArrays;
-import static org.lwjgl.opengl.GL11.glEnable;
 
 import minecraft.IResource;
 import minecraft.graphic.opengl.buffer.BufferAttrib;
@@ -217,8 +214,7 @@ public class WorldRenderer implements IResource {
 		
 		BlockTextures.bindBlocksTexture();
 		
-		for (RenderLayer layer : RenderLayer.LAYERS)
-			renderWorldLayer(layer);
+		renderVisibleChunks();
 	}
 	
 	private void buildVisibilityGraph() {
@@ -229,38 +225,30 @@ public class WorldRenderer implements IResource {
 		for (int i = 0; i < NUM_VIEW_CHUNKS; i++) {
 			ViewChunk chunk = chunks[i];
 
-			if (!chunk.isDirty() && chunk.isAllEmpty())
-				continue;
-			
-			if (frustum.sphereInView(chunk.getCenter(), CHUNK_SPHERE_RADIUS)) {
-				if (chunk.isDirty())
-					chunk.rebuildAll(attribBuilder);
-		
-				visibilityGraph[p++] = i;
+			if (!chunk.isEmpty() || chunk.isDirty()) {
+				if (frustum.sphereInView(chunk.getCenter(), CHUNK_SPHERE_RADIUS)) {
+					if (chunk.isDirty())
+						chunk.rebuildAll(attribBuilder);
+					
+					visibilityGraph[p++] = i;
+				}
 			}
 		}
 		
 		visibilityGraph[p] = -1;
 	}
 	
-	private void renderWorldLayer(RenderLayer layer) {
-		if (layer == RenderLayer.SPRITE_LAYER)
-			glDisable(GL_CULL_FACE);
-
+	private void renderVisibleChunks() {
 		for (int i = 0; visibilityGraph[i] >= 0; i++) {
 			ViewChunk chunk = chunks[visibilityGraph[i]];
 			
-			int count = chunk.getVertexCount(layer);
-
-			if (count > 0) {
-				VertexBuffer buffer = chunk.getVertexBuffer(layer);
+			if (!chunk.isEmpty()) {
+				VertexBuffer buffer = chunk.getVertexBuffer();
 				vertexArray.setBufferBinding(buffer, bufferBindingIndex);
 				
-				glDrawArrays(GL_QUADS, 0, count);
+				glDrawArrays(GL_QUADS, 0, chunk.getVertexCount());
 			}
 		}
-		
-		glEnable(GL_CULL_FACE);
 	}
 	
 	public World getWorld() {

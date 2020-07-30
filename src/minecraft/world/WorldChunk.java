@@ -41,8 +41,7 @@ public class WorldChunk {
 		
 		for (int z = z0; z < z1; z++) {
 			for (int x = x0; x < x1; x++) {
-				float n = noise.getNoise(x, z) * 2.0f - 1.0f;
-				int y1 = Math.round(16 + 8 * n);
+				int y1 = Math.round(16 + 86 * noise.getNoise(x, z));
 
 				// For less height updates set top blocks first.
 				setBlockState(x, y1, z, Blocks.GRASS_BLOCK.getDefaultState());

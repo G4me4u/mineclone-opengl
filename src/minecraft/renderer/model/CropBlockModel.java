@@ -24,5 +24,11 @@ public class CropBlockModel extends AbstractBlockModel {
 		addAlignedQuad(builder, pos, Direction.SOUTH, PLANT_QUAD_OFFSET, texture, lightness);
 		addAlignedQuad(builder, pos, Direction.WEST , PLANT_QUAD_OFFSET, texture, lightness);
 		addAlignedQuad(builder, pos, Direction.EAST , PLANT_QUAD_OFFSET, texture, lightness);
+
+		// Add opposite faces
+		addAlignedQuad(builder, pos, Direction.NORTH, 1.0f - PLANT_QUAD_OFFSET, texture, lightness);
+		addAlignedQuad(builder, pos, Direction.SOUTH, 1.0f - PLANT_QUAD_OFFSET, texture, lightness);
+		addAlignedQuad(builder, pos, Direction.WEST , 1.0f - PLANT_QUAD_OFFSET, texture, lightness);
+		addAlignedQuad(builder, pos, Direction.EAST , 1.0f - PLANT_QUAD_OFFSET, texture, lightness);
 	}
 }

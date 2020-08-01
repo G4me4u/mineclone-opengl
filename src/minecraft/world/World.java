@@ -18,7 +18,7 @@ import minecraft.world.gen.DiamondNoise;
 
 public class World {
 	
-	public static final int WORLD_HEIGHT = WorldChunk.CHUNK_SIZE * 8;
+	public static final int WORLD_HEIGHT = WorldChunk.CHUNK_SIZE * 9;
 	
 	public static final int CHUNKS_X = 16;
 	public static final int CHUNKS_Z = 16;

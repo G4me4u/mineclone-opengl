@@ -23,7 +23,7 @@ public class WorldRenderer implements IResource {
 	
 	private static final float CHUNK_SPHERE_RADIUS = (float)(Math.sqrt(3.0) * 0.5 * WorldChunk.CHUNK_SIZE);
 	
-	private static final float CAMERA_FOV = 70.0f;
+	private static final float CAMERA_FOV = (float)Math.toRadians(70.0f);
 	private static final float CAMERA_NEAR = 0.1f;
 	private static final float CAMERA_FAR = 1000.0f;
 	

@@ -74,43 +74,43 @@ public class ShaderProgram implements IResource {
 		return shaderID;
 	}
 
-	public void uniformInt(int location, int value) {
+	protected void uniformInt(int location, int value) {
 		glProgramUniform1i(programHandle, location, value);
 	}
 
-	public void uniformIntArray(int location, int[] arr) {
+	protected void uniformIntArray(int location, int[] arr) {
 		glProgramUniform1iv(programHandle, location, arr);
 	}
 
-	public void uniformFloat(int location, float value) {
+	protected void uniformFloat(int location, float value) {
 		glProgramUniform1f(programHandle, location, value);
 	}
 
-	public void uniformFloat2(int location, Vec2 vec) {
+	protected void uniformFloat2(int location, Vec2 vec) {
 		uniformFloat2(location, vec.x, vec.y);
 	}
 
-	public void uniformFloat2(int location, float x, float y) {
+	protected void uniformFloat2(int location, float x, float y) {
 		glProgramUniform2f(programHandle, location, x, y);
 	}
 
-	public void uniformFloat3(int location, Vec3 vec) {
+	protected void uniformFloat3(int location, Vec3 vec) {
 		uniformFloat3(location, vec.x, vec.y, vec.z);
 	}
 
-	public void uniformFloat3(int location, float x, float y, float z) {
+	protected void uniformFloat3(int location, float x, float y, float z) {
 		glProgramUniform3f(programHandle, location, x, y, z);
 	}
 
-	public void uniformVec4(int location, Vec4 vec) {
+	protected void uniformVec4(int location, Vec4 vec) {
 		uniformFloat4(location, vec.x, vec.y, vec.z, vec.w);
 	}
 
-	public void uniformFloat4(int location, float x, float y, float z, float w) {
+	protected void uniformFloat4(int location, float x, float y, float z, float w) {
 		glProgramUniform4f(programHandle, location, x, y, z, w);
 	}
 	
-	public void uniformMat3(int location, Mat3 m) {
+	protected void uniformMat3(int location, Mat3 m) {
 		matBuffer.clear();
 		m.writeBuffer(matBuffer, false);
 		matBuffer.flip();
@@ -118,7 +118,7 @@ public class ShaderProgram implements IResource {
 		glProgramUniformMatrix3fv(programHandle, location, false, matBuffer);
 	}
 
-	public void uniformMat4(int location, Mat4 m) {
+	protected void uniformMat4(int location, Mat4 m) {
 		matBuffer.clear();
 		m.writeBuffer(matBuffer, false);
 		matBuffer.flip();
@@ -126,7 +126,7 @@ public class ShaderProgram implements IResource {
 		glProgramUniformMatrix4fv(programHandle, location, false, matBuffer);
 	}
 	
-	public int getUniformLocation(String uniformName) {
+	protected int getUniformLocation(String uniformName) {
 		int location = glGetUniformLocation(programHandle, uniformName);
 		
 		if (location == -1)

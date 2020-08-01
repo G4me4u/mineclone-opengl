@@ -77,11 +77,9 @@ public class BlockState {
 	}
 	
 	public BlockState incrementState() {
-		// Just like the index would wrap 
-		// around to zero when going above 
-		// states.length, we wrap around 
-		// and return ourselves, if state
-		// is empty.
+		// Just like the index would wrap around to zero when going above 
+		// states.length - 1, we wrap around and return ourselves, if the
+		// state array is empty.
 		if (states == null)
 			return this;
 
@@ -109,8 +107,7 @@ public class BlockState {
 		Map<IBlockProperty<?>, PropertyInfo> propertyLookup;
 		propertyLookup = new HashMap<IBlockProperty<?>, PropertyInfo>(numProperties);
 
-		// Make sure properties of the
-		// same name don't exist.
+		// Make sure there are no properties with duplicates names.
 		HashSet<String> nameTable = new HashSet<String>();
 		
 		int stride = 1;
@@ -119,7 +116,7 @@ public class BlockState {
 			
 			String name = property.getName();
 			if (!nameTable.add(name))
-				throw new IllegalArgumentException("Douplicate property of name \"" + name + "\"");
+				throw new IllegalArgumentException("Duplicate property of name \"" + name + "\"");
 			
 			PropertyInfo propertyInfo = new PropertyInfo(i, stride);
 			propertyLookup.put(property, propertyInfo);

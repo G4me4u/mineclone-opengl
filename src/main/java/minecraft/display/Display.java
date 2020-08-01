@@ -76,6 +76,8 @@ public class Display implements IResource {
 		if (!glfwInit())
 			throw new IllegalStateException("Unable to initialize GLFW");
 
+		supportsRawMouseMotion = glfwRawMouseMotionSupported();
+		
 		glfwDefaultWindowHints();
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);

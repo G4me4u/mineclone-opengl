@@ -21,10 +21,12 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
-/bin/
 
-# Include Library Jars
-!lib/*.jar
+# Eclipse project files
+bin/
+.settings/
+.classpath
+.project
 
 # Ignore Gradle project-specific cache directory
 .gradle

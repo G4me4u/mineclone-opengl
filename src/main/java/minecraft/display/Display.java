@@ -34,6 +34,7 @@ public class Display implements IResource {
 	private Map<Integer, Long> standardCursors;
 	
 	private boolean fullScreen;
+	private boolean vSync;
 	
 	private long windowMonitor;
 	
@@ -52,6 +53,7 @@ public class Display implements IResource {
 		standardCursors = new HashMap<Integer, Long>();
 
 		fullScreen = false;
+		vSync = false;
 	}
 	
 	public void addDisplayListener(DisplayListener listener) {
@@ -109,7 +111,7 @@ public class Display implements IResource {
 		createCapabilities();
 		
 		// Enable v-sync
-		glfwSwapInterval(1);
+		setVSync(true);
 		
 		glfwShowWindow(windowHandle);
 	}
@@ -239,6 +241,8 @@ public class Display implements IResource {
 				}
 
 				glfwSetWindowMonitor(windowHandle, monitor, 0, 0, mode.width(), mode.height(), mode.refreshRate());
+
+				setVSync(vSync);
 				
 				windowMonitor = monitor;
 			} else {
@@ -249,6 +253,16 @@ public class Display implements IResource {
 			
 			this.fullScreen = fullScreen;
 		}
+	}
+	
+	public boolean isVSync() {
+		return vSync;
+	}
+	
+	public void setVSync(boolean vSync) {
+		this.vSync = vSync;
+		
+		glfwSwapInterval(vSync ? 1 : 0);
 	}
 
 	public long getHandle() {

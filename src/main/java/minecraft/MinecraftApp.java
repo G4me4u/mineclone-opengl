@@ -23,7 +23,6 @@ import minecraft.input.Keyboard;
 import minecraft.input.Mouse;
 import minecraft.renderer.world.BlockTextures;
 import minecraft.renderer.world.WorldRenderer;
-import minecraft.util.LibUtil;
 import minecraft.world.World;
 import minecraft.world.block.Block;
 
@@ -34,10 +33,6 @@ public class MinecraftApp implements DisplayListener, IKeyboardListener {
 	private static final int DEFAULT_HEIGHT = 480;
 	
 	private static final float TPS = 20.0f;
-	
-	static {
-		LibUtil.loadNatives();
-	}
 	
 	private Display display;
 	

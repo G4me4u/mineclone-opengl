@@ -51,12 +51,12 @@ public class BlockState {
 	
 	public <T> T getValue(IBlockProperty<T> property) {
 		int index = getPropertyInfo(property).getIndex();
-		return property.getPropertyValue(values[index]);
+		return property.getValue(values[index]);
 	}
 
 	public <T> BlockState withProperty(IBlockProperty<T> property, T value) {
 		PropertyInfo propertyInfo = getPropertyInfo(property);
-		int diff = property.getPropertyValueIndex(value) - values[propertyInfo.getIndex()];
+		int diff = property.getValueIndex(value) - values[propertyInfo.getIndex()];
 		return states[stateIndex + diff * propertyInfo.stride];
 	}
 	
@@ -121,7 +121,7 @@ public class BlockState {
 			PropertyInfo propertyInfo = new PropertyInfo(i, stride);
 			propertyLookup.put(property, propertyInfo);
 
-			int numValues = property.getNumValues();
+			int numValues = property.getValueCount();
 			if (numValues == 0)
 				throw new IllegalArgumentException("Illegal property " + property);
 			
@@ -151,7 +151,7 @@ public class BlockState {
 				
 				value++;
 				
-				if (value >= property.getNumValues())
+				if (value >= property.getValueCount())
 					value = 0;
 			}
 		}
@@ -177,7 +177,7 @@ public class BlockState {
 				IBlockProperty<?> property = entry.getKey();
 				PropertyInfo info = entry.getValue();
 				sb.append(property.toString()).append('=');
-				sb.append(property.getPropertyValue(values[info.index]));
+				sb.append(property.getValue(values[info.index]));
 			}
 		}
 		

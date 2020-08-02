@@ -2,22 +2,27 @@ package minecraft.common.world.block.state;
 
 import java.util.Arrays;
 
-public class EnumBlockProperty<T extends Enum<T>> implements IBlockProperty<T> {
+public final class EnumBlockProperty<T extends Enum<T>> implements IBlockProperty<T> {
 
-	private final String propertyName;
+	private final String name;
 	private final T[] values;
 	
 	private final int hash;
 	
-	public EnumBlockProperty(String propertyName, T[] values) {
-		this.propertyName = propertyName;
+	public EnumBlockProperty(String name, T[] values) {
+		this.name = name;
 		this.values = values;
 	
-		hash = propertyName.hashCode() * 31 + Arrays.hashCode(values);
+		hash = name.hashCode() * 31 + Arrays.hashCode(values);
 	}
 	
 	@Override
-	public int getPropertyValueIndex(T value) {
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public int getValueIndex(T value) {
 		for (int i = 0; i < values.length; i++) {
 			if (values[i] == value)
 				return i;
@@ -25,54 +30,42 @@ public class EnumBlockProperty<T extends Enum<T>> implements IBlockProperty<T> {
 		
 		throw new IllegalArgumentException("Invalid enum type! " + value);
 	}
-
+	
 	@Override
-	public T getPropertyValue(int index) {
+	public T getValue(int index) {
 		return values[index];
 	}
 
 	@Override
-	public String getName() {
-		return propertyName;
-	}
-
-	@Override
-	public int getNumValues() {
+	public int getValueCount() {
 		return values.length;
 	}
 
-	public boolean equals(EnumBlockProperty<?> other) {
-		if (other == this)
-			return true;
-		
-		if (other != null && propertyName.equals(other.propertyName))
-			return Arrays.equals(values, other.values);
-		return false;
-	}
-	
-	@Override
-	public boolean equals(IBlockProperty<T> other) {
-		if (!(other instanceof EnumBlockProperty))
-			return false;
-		
-		return equals((EnumBlockProperty<?>)other);
-	}
-	
-	@Override
-	public boolean equals(Object other) {
-		if (!(other instanceof EnumBlockProperty))
-			return false;
-
-		return equals((EnumBlockProperty<?>)other);
-	}
-	
 	@Override
 	public int hashCode() {
 		return hash;
 	}
 	
 	@Override
+	public boolean equals(Object other) {
+		if (other == this)
+			return true;
+
+		if (!(other instanceof EnumBlockProperty))
+			return false;
+		
+		EnumBlockProperty<?> property = (EnumBlockProperty<?>)other;
+		
+		if (!name.equals(property.name))
+			return false;
+		if (!Arrays.equals(values, property.values))
+			return false;
+		
+		return true;
+	}
+	
+	@Override
 	public String toString() {
-		return "EnumBlockProperty[name=\"" + propertyName + "\", values=" + Arrays.toString(values) + "]";
+		return "EnumBlockProperty[name=\"" + name + "\", values=" + Arrays.toString(values) + "]";
 	}
 }

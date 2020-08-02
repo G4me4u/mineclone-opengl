@@ -1,8 +1,10 @@
 package minecraft.world.block;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Random;
 
+import minecraft.common.ReferenceRegsitry;
 import minecraft.renderer.model.IBlockModel;
 import minecraft.renderer.world.BlockTextures;
 import minecraft.world.EntityHitbox;
@@ -21,7 +23,7 @@ public class Block {
 	public static final String LEAVES_BLOCK_ID      = "leaves";
 	public static final String WOOD_LOG_BLOCK_ID    = "log";
 	
-	private static BlockRegistry blockRegistry = null;
+	private static ReferenceRegsitry<String, Block> blockRegistry = null;
 	
 	private String name;
 	private final BlockState defaultBlockState;
@@ -80,7 +82,7 @@ public class Block {
 		if (blockRegistry != null)
 			throw new IllegalStateException("Already registered blocks!");
 		
-		blockRegistry = new BlockRegistry();
+		blockRegistry = new ReferenceRegsitry<String, Block>();
 	
 		registerBlock(Block.AIR_BLOCK_ID, new Block());
 		registerBlock(Block.DIRT_BLOCK_ID, new BasicSolidBlock(BlockTextures.DIRT_TEXTURE));
@@ -94,10 +96,7 @@ public class Block {
 	}
 	
 	private static void registerBlock(String name, Block block) {
-		if (block.getName() != null)
-			throw new IllegalStateException("Block has already been registered!");
-		
-		blockRegistry.addBlock(name, block);
+		blockRegistry.register(name, block);
 		
 		block.setName(name);
 	}
@@ -106,6 +105,11 @@ public class Block {
 		if (blockRegistry == null)
 			throw new IllegalStateException("Blocks are not yet registered!");
 		
-		return blockRegistry.getBlock(name);
+		Block block = blockRegistry.getElement(name);
+		
+		if (block == null)
+			throw new NoSuchElementException("Block '" + name + "' is not registered.");
+
+		return block;
 	}
 }

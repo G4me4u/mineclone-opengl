@@ -221,10 +221,10 @@ public class World {
 	public void update() {
 		player.update();
 		
-		updateRandomTick();
+		performRandomUpdates();
 	}
 	
-	private void updateRandomTick() {
+	private void performRandomUpdates() {
 		MutableBlockPosition pos = new MutableBlockPosition();
 
 		for (int chunkX = 0; chunkX < CHUNKS_X; chunkX++) {
@@ -240,7 +240,7 @@ public class World {
 						Block block = state.getBlock();
 						
 						if (block.isRandomTicked())
-							block.randomTick(this, pos, state, random);
+							block.randomUpdate(this, pos, state, random);
 					}
 				}
 			}

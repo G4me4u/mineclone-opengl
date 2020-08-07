@@ -25,7 +25,7 @@ public class GrassBlock extends Block {
 	}
 	
 	@Override
-	public void randomTick(World world, IBlockPosition pos, BlockState blockState, Random random) {
+	public void randomUpdate(World world, IBlockPosition pos, BlockState blockState, Random random) {
 		if (!isValidGrassCondition(world, pos)) {
 			world.setBlock(pos, Blocks.DIRT_BLOCK);
 			return;

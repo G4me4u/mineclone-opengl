@@ -56,7 +56,7 @@ public class VertexBuffer implements IResource {
 	}
 
 	@Override
-	public void dispose() {
+	public void close() {
 		glDeleteBuffers(bufferHandle);
 	}
 }

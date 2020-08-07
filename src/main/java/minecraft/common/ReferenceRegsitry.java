@@ -9,8 +9,8 @@ public class ReferenceRegsitry<K, V> {
 	private final Map<V, K> elementToId;
 	
 	public ReferenceRegsitry() {
-		idToElement = new HashMap<K, V>();
-		elementToId = new HashMap<V, K>();
+		idToElement = new HashMap<>();
+		elementToId = new HashMap<>();
 	}
 	
 	public void register(K id, V element) {

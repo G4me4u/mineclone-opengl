@@ -45,9 +45,9 @@ public class Mouse {
 	private Mouse(Display display) {
 		this.display = display;
 		
-		listeners = new ArrayList<IMouseListener>();
+		listeners = new ArrayList<>();
 		
-		heldButtons = new LinkedHashSet<Integer>();
+		heldButtons = new LinkedHashSet<>();
 	}
 	
 	public static void init(Display display) {

@@ -260,7 +260,7 @@ public class WorldRenderer implements IResource {
 	}
 	
 	@Override
-	public void dispose() {
+	public void close() {
 		vertexArray.close();
 		attribBuilder.close();
 		worldShader.close();

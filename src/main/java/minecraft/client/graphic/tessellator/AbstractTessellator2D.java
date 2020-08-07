@@ -40,13 +40,13 @@ public abstract class AbstractTessellator2D implements ITessellator2D {
 	public AbstractTessellator2D() {
 		colorGradient = new ConstantColorGradient2D(Color.WHITE);
 		
-		activeTextures = new ArrayList<ITexture>();
+		activeTextures = new ArrayList<>();
 		textureRegion = null;
 		textureIndex = WHITE_TEXTURE_INDEX;
 		
-		transformStack = new LinkedList<Mat3>();
+		transformStack = new LinkedList<>();
 		
-		clipStack = new LinkedList<ClipShape>();
+		clipStack = new LinkedList<>();
 		triangleCache = EMPTY_TRIANGLE_CACHE;
 	}
 

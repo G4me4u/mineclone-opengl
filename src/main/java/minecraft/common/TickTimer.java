@@ -1,4 +1,4 @@
-package minecraft.client;
+package minecraft.common;
 
 public class TickTimer {
 

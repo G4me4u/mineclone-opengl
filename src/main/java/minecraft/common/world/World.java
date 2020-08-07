@@ -256,7 +256,7 @@ public class World {
 	}
 
 	public List<EntityHitbox> getBlockHitboxes(EntityHitbox hitbox) {
-		List<EntityHitbox> hitboxes = new ArrayList<EntityHitbox>();
+		List<EntityHitbox> hitboxes = new ArrayList<>();
 		
 		MutableBlockPosition pos = new MutableBlockPosition();
 		

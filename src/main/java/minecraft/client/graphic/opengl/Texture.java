@@ -139,7 +139,7 @@ public class Texture implements ITexture {
 	}
 
 	@Override
-	public void dispose() {
+	public void close() {
 		glDeleteTextures(textureHandle);
 	}
 }

@@ -49,6 +49,9 @@ dependencies {
     runtimeOnly "org.lwjgl:lwjgl-openal::${lwjgl_natives}"
     runtimeOnly "org.lwjgl:lwjgl-opengl::${lwjgl_natives}"
     runtimeOnly "org.lwjgl:lwjgl-stb::${lwjgl_natives}"
+
+    // Netty IO dependencies
+    implementation "io.netty:netty-all:${netty_version}"
 }
 
 // ensure that the encoding is set to UTF-8, no matter what the system default is

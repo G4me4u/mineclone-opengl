@@ -16,7 +16,7 @@ public class FileUtil {
 		if (is == null)
 			throw new IllegalArgumentException("Input stream is null!");
 		
-		List<byte[]> batch = new ArrayList<byte[]>();
+		List<byte[]> batch = new ArrayList<>();
 
 		byte[] data = new byte[BATCH_BUFFER_SIZE];
 		int p = 0;

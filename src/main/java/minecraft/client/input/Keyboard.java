@@ -153,7 +153,7 @@ public class Keyboard {
 	private Keyboard(Display display) {
 		this.display = display;
 		
-		listeners = new ArrayList<IKeyboardListener>();
+		listeners = new ArrayList<>();
 	}
 	
 	public static void init(Display display) {

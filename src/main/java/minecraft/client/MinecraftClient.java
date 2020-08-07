@@ -23,6 +23,7 @@ import minecraft.client.input.Keyboard;
 import minecraft.client.input.Mouse;
 import minecraft.client.renderer.world.BlockTextures;
 import minecraft.client.renderer.world.WorldRenderer;
+import minecraft.common.TickTimer;
 import minecraft.common.world.World;
 import minecraft.common.world.block.Block;
 

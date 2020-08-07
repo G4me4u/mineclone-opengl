@@ -168,7 +168,7 @@ public class BlockSelectionRenderer implements IResource {
 	}
 
 	@Override
-	public void dispose() {
+	public void close() {
 		vertexArray.close();
 		cubeBuffer.close();
 		

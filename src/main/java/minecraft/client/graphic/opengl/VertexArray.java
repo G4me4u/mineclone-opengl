@@ -22,7 +22,7 @@ public class VertexArray implements IResource {
 	public VertexArray() {
 		vertexArrayHandle = glCreateVertexArrays();
 		
-		bindingLayouts = new ArrayList<BufferLayout>();
+		bindingLayouts = new ArrayList<>();
 		nextAttribIndex = 0;
 	}
 
@@ -131,7 +131,7 @@ public class VertexArray implements IResource {
 	}
 	
 	@Override
-	public void dispose() {
+	public void close() {
 		glDeleteVertexArrays(vertexArrayHandle);
 	}
 }

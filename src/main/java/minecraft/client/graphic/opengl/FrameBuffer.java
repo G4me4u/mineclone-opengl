@@ -206,7 +206,7 @@ public class FrameBuffer implements IResource {
 	}
 	
 	@Override
-	public void dispose() {
+	public void close() {
 		if (multisampled) {
 			glDeleteRenderbuffers(colorBufferHandle);
 		} else {
@@ -260,7 +260,7 @@ public class FrameBuffer implements IResource {
 		}
 
 		@Override
-		public void dispose() {
+		public void close() {
 			// Handled by FrameBuffer#dispose
 		}
 	}

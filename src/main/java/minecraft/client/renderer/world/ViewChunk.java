@@ -138,7 +138,7 @@ public class ViewChunk implements IResource {
 	}
 	
 	@Override
-	public void dispose() {
+	public void close() {
 		vertexBuffer.close();
 	}
 }

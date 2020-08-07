@@ -82,7 +82,7 @@ public class Block {
 		if (blockRegistry != null)
 			throw new IllegalStateException("Already registered blocks!");
 		
-		blockRegistry = new ReferenceRegsitry<String, Block>();
+		blockRegistry = new ReferenceRegsitry<>();
 	
 		registerBlock(Block.AIR_BLOCK_ID, new Block());
 		registerBlock(Block.DIRT_BLOCK_ID, new BasicSolidBlock(BlockTextures.DIRT_TEXTURE));

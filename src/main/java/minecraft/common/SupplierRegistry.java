@@ -1,6 +1,7 @@
 package minecraft.common;
 
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -10,8 +11,8 @@ public class SupplierRegistry<K, V> {
 	private final Map<K, Supplier<? extends V>> idToSupplier;
 	
 	public SupplierRegistry() {
-		elementToId = new HashMap<Class<? extends V>, K>();
-		idToSupplier = new HashMap<K, Supplier<? extends V>>();
+		elementToId = new IdentityHashMap<>();
+		idToSupplier = new HashMap<>();
 	}
 	
 	public <T extends V> void register(K id, Class<T> elementClazz, Supplier<T> supplier) {
@@ -28,12 +29,12 @@ public class SupplierRegistry<K, V> {
 		return idToSupplier.containsKey(id);
 	}
 
-	public boolean containsElement(Class<? extends V> elementClazz) {
-		return elementToId.containsKey(elementClazz);
+	public <E extends V> boolean containsElement(E element) {
+		return elementToId.containsKey(element.getClass());
 	}
 
-	public K getIdentifier(Class<? extends V> elementClazz) {
-		return elementToId.get(elementClazz);
+	public <E extends V> K getIdentifier(E element) {
+		return elementToId.get(element.getClass());
 	}
 
 	public Supplier<? extends V> getSupplier(K id) {

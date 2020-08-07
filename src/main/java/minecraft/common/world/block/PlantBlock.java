@@ -11,8 +11,7 @@ import minecraft.common.world.block.state.IBlockProperty;
 
 public class PlantBlock extends Block {
 
-	public static final IBlockProperty<PlantType> PLANT_TYPE_PROPERTY = 
-			new EnumBlockProperty<PlantType>("type", PlantType.PLANT_TYPES);
+	public static final IBlockProperty<PlantType> PLANT_TYPE_PROPERTY = new EnumBlockProperty<>("type", PlantType.PLANT_TYPES);
 	
 	private final IBlockModel[] models;
 	

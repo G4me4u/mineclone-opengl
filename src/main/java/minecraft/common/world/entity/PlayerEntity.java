@@ -95,7 +95,7 @@ public class PlayerEntity extends Entity {
 	private boolean isBlockInsidePlayer(BlockState state, IBlockPosition blockPos) {
 		Block block = state.getBlock();
 
-		List<EntityHitbox> hitboxes = new ArrayList<EntityHitbox>();
+		List<EntityHitbox> hitboxes = new ArrayList<>();
 		block.getEntityHitboxes(world, blockPos, state, hitboxes);
 		
 		EntityHitbox playerHitbox = getHitbox();

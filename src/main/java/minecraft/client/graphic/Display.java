@@ -46,11 +46,11 @@ public class Display implements IResource {
 	public Display() {
 		windowHandle = -1L;
 		
-		listeners = new ArrayList<DisplayListener>();
+		listeners = new ArrayList<>();
 	
 		supportsRawMouseMotion = false;
 		mouseGrabbed = false;
-		standardCursors = new HashMap<Integer, Long>();
+		standardCursors = new HashMap<>();
 
 		fullScreen = false;
 		vSync = false;
@@ -272,7 +272,7 @@ public class Display implements IResource {
 	}
 	
 	@Override
-	public void dispose() {
+	public void close() {
 		// Destroy the standard cursors
 		for (Long cursorPtr : standardCursors.values())
 			glfwDestroyCursor(cursorPtr.longValue());

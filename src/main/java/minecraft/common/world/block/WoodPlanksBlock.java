@@ -10,8 +10,7 @@ import minecraft.common.world.block.state.IBlockProperty;
 
 public class WoodPlanksBlock extends Block {
 
-	public static final IBlockProperty<WoodType> WOOD_TYPE_PROPERTY = 
-			new EnumBlockProperty<WoodType>("type", WoodType.WOOD_TYPES);
+	public static final IBlockProperty<WoodType> WOOD_TYPE_PROPERTY = new EnumBlockProperty<>("type", WoodType.WOOD_TYPES);
 	
 	private final IBlockModel[] models;
 	

@@ -140,7 +140,7 @@ public class ShaderProgram implements IResource {
 	}
 	
 	@Override
-	public void dispose() {
+	public void close() {
 		glDetachShader(programHandle, vertexShaderHandle);
 		glDetachShader(programHandle, fragmentShaderHandle);
 		

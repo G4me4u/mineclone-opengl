@@ -384,7 +384,7 @@ public class VertexAttribBuilder implements IResource {
 	}
 	
 	@Override
-	public void dispose() {
+	public void close() {
 		if (bufferAddress != MemoryUtil.NULL) {
 			MemoryUtil.nmemFree(bufferAddress);
 			

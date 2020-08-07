@@ -78,7 +78,7 @@ public class BatchedTessellator2D extends AbstractTessellator2D {
 	}
 	
 	@Override
-	public void dispose() {
+	public void close() {
 		builder.close();
 	}
 }

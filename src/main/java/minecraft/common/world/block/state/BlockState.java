@@ -104,11 +104,10 @@ public class BlockState {
 		if (numProperties == 0)
 			return new BlockState(block);
 
-		Map<IBlockProperty<?>, PropertyInfo> propertyLookup;
-		propertyLookup = new HashMap<IBlockProperty<?>, PropertyInfo>(numProperties);
+		Map<IBlockProperty<?>, PropertyInfo> propertyLookup = new HashMap<>(numProperties);
 
 		// Make sure there are no properties with duplicates names.
-		HashSet<String> nameTable = new HashSet<String>();
+		HashSet<String> nameTable = new HashSet<>();
 		
 		int stride = 1;
 		for (int i = numProperties - 1; i >= 0; i--) {

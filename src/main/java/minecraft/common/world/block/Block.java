@@ -62,7 +62,7 @@ public class Block {
 	public void randomUpdate(World world, IBlockPosition pos, BlockState blockState, Random random) {
 	}
 	
-	public boolean isRandomTicked() {
+	public boolean hasRandomUpdate() {
 		return false;
 	}
 	

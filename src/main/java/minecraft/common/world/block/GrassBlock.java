@@ -43,7 +43,7 @@ public class GrassBlock extends Block {
 	}
 	
 	@Override
-	public boolean isRandomTicked() {
+	public boolean hasRandomUpdate() {
 		return true;
 	}
 	

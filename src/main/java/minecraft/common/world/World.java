@@ -230,7 +230,7 @@ public class World {
 		for (int chunkX = 0; chunkX < CHUNKS_X; chunkX++) {
 			for (int chunkZ = 0; chunkZ < CHUNKS_Z; chunkZ++) {
 				WorldChunk chunk = getChunk(chunkX, chunkZ);
-				if (chunk != null && chunk.isRandomTicked()) {
+				if (chunk != null && chunk.hasRandomUpdates()) {
 					for (int i = 0; i < RANDOM_TICK_SPEED; i++) {
 						pos.x = random.nextInt(WorldChunk.CHUNK_SIZE) + chunkX * WorldChunk.CHUNK_SIZE;
 						pos.y = random.nextInt(WORLD_HEIGHT);
@@ -239,7 +239,7 @@ public class World {
 						BlockState state = chunk.getBlockState(pos);
 						Block block = state.getBlock();
 						
-						if (block.isRandomTicked())
+						if (block.hasRandomUpdate())
 							block.randomUpdate(this, pos, state, random);
 					}
 				}

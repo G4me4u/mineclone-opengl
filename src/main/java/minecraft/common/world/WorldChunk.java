@@ -17,7 +17,7 @@ public class WorldChunk {
 	private final BlockState[] blocks;
 	private int[] heights;
 	
-	private int numRandomTickedBlocks;
+	private int randomUpdateCount;
 
 	public WorldChunk(int chunkX, int chunkZ) {
 		this.chunkX = chunkX;
@@ -26,7 +26,7 @@ public class WorldChunk {
 		blocks = new BlockState[CHUNK_SIZE * CHUNK_SIZE * World.WORLD_HEIGHT];
 		heights = new int[CHUNK_SIZE * CHUNK_SIZE];
 		
-		numRandomTickedBlocks = 0;
+		randomUpdateCount = 0;
 
 		Arrays.fill(blocks, Blocks.AIR_BLOCK.getDefaultState());
 		Arrays.fill(heights, 0);
@@ -117,10 +117,10 @@ public class WorldChunk {
 		if (oldState != state) {
 			blocks[index] = state;
 			
-			if (oldState.getBlock().isRandomTicked())
-				numRandomTickedBlocks--;
-			if (state.getBlock().isRandomTicked())
-				numRandomTickedBlocks++;
+			if (oldState.getBlock().hasRandomUpdate())
+				randomUpdateCount--;
+			if (state.getBlock().hasRandomUpdate())
+				randomUpdateCount++;
 			
 			updateHeight(x, z, y);
 
@@ -146,8 +146,8 @@ public class WorldChunk {
 		}
 	}
 	
-	public boolean isRandomTicked() {
-		return numRandomTickedBlocks > 0;
+	public boolean hasRandomUpdates() {
+		return randomUpdateCount > 0;
 	}
 	
 	public int getChunkX() {

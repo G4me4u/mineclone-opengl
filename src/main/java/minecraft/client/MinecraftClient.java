@@ -23,8 +23,8 @@ import minecraft.client.input.Keyboard;
 import minecraft.client.input.Mouse;
 import minecraft.client.renderer.world.BlockTextures;
 import minecraft.client.renderer.world.WorldRenderer;
+import minecraft.client.world.ClientWorld;
 import minecraft.common.TickTimer;
-import minecraft.common.world.World;
 import minecraft.common.world.block.Block;
 
 public class MinecraftClient implements DisplayListener, IKeyboardListener {
@@ -39,7 +39,7 @@ public class MinecraftClient implements DisplayListener, IKeyboardListener {
 	
 	private PlayerController controller;
 
-	private World world;
+	private ClientWorld world;
 	private WorldRenderer worldRenderer;
 	
 	private TickTimer timer;
@@ -67,7 +67,7 @@ public class MinecraftClient implements DisplayListener, IKeyboardListener {
 		
 		controller = new PlayerController(display);
 
-		world = new World(this);
+		world = new ClientWorld(this);
 		worldRenderer = new WorldRenderer(world);
 		
 		timer = new TickTimer(TPS);

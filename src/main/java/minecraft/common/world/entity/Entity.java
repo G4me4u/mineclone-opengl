@@ -4,13 +4,13 @@ import java.util.List;
 
 import minecraft.common.math.LinMath;
 import minecraft.common.world.EntityHitbox;
-import minecraft.common.world.World;
+import minecraft.common.world.IWorld;
 
 public abstract class Entity {
 
 	private static final float EYE_HEIGHT = 1.6f;
 	
-	protected final World world;
+	protected final IWorld world;
 	private final EntityHitbox hitbox;
 	
 	public float eyeX;
@@ -27,7 +27,7 @@ public abstract class Entity {
 	protected float vy;
 	protected float vz;
 	
-	public Entity(World world) {
+	public Entity(IWorld world) {
 		this.world = world;
 	
 		hitbox = createHitbox();

@@ -4,7 +4,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+import minecraft.common.world.Direction;
+import minecraft.common.world.IServerWorld;
 import minecraft.common.world.block.Block;
+import minecraft.common.world.block.IBlockPosition;
 
 public class BlockState {
 
@@ -33,9 +36,25 @@ public class BlockState {
 		
 		values = null;
 	}
+	
+	public boolean canGrowVegetation() {
+		return block.canGrowVegetation(this);
+	}
 
 	public Block getBlock() {
 		return block;
+	}
+	
+	public void onBlockUpdate(IServerWorld world, IBlockPosition blockPos, Direction direction, BlockState sourceState) {
+		block.onBlockUpdate(this, world, blockPos, direction, sourceState);
+	}
+	
+	public void onStateUpdate(IServerWorld world, IBlockPosition blockPos, Direction direction, BlockState sourceState) {
+		block.onStateUpdate(this, world, blockPos, direction, sourceState);
+	}
+	
+	public void onInventoryUpdate(IServerWorld world, IBlockPosition blockPos, Direction direction, BlockState sourceState) {
+		block.onInventoryUpdate(this, world, blockPos, direction, sourceState);
 	}
 	
 	private <T> PropertyInfo getPropertyInfo(IBlockProperty<T> property) {

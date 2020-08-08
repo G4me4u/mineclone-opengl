@@ -11,11 +11,13 @@ import minecraft.common.math.Vec3;
 import minecraft.common.world.BlockHitResult;
 import minecraft.common.world.Blocks;
 import minecraft.common.world.EntityHitbox;
+import minecraft.common.world.IServerWorld;
 import minecraft.common.world.World;
 import minecraft.common.world.WorldChunk;
 import minecraft.common.world.block.Block;
 import minecraft.common.world.block.IBlockPosition;
 import minecraft.common.world.block.state.BlockState;
+import minecraft.server.world.ServerWorld;
 
 public class PlayerEntity extends Entity {
 
@@ -67,14 +69,14 @@ public class PlayerEntity extends Entity {
 					boolean success = false;
 					
 					if (remove) {
-						world.setBlock(hitResult.blockPos, Blocks.AIR_BLOCK);
+						((IServerWorld)world).setBlock(hitResult.blockPos, Blocks.AIR_BLOCK, ServerWorld.BLOCK_FLAG + ServerWorld.STATE_FLAG);
 						success = true;
 					} else {
 						IBlockPosition placePos = hitResult.blockPos.getOffset(hitResult.face);
 						BlockState placeState = hotbar.getHotbarBlock();
 						
 						if (!isBlockInsidePlayer(placeState, placePos)) {
-							world.setBlockState(placePos, placeState);
+							((IServerWorld)world).setBlockState(placePos, placeState, ServerWorld.BLOCK_FLAG + ServerWorld.STATE_FLAG);
 							success = true;
 						}
 					}

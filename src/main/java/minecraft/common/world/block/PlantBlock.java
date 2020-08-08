@@ -4,10 +4,14 @@ import minecraft.client.renderer.model.CropBlockModel;
 import minecraft.client.renderer.model.IBlockModel;
 import minecraft.client.renderer.model.PlantBlockModel;
 import minecraft.client.renderer.world.BlockTextures;
-import minecraft.common.world.World;
+import minecraft.common.world.Blocks;
+import minecraft.common.world.Direction;
+import minecraft.common.world.IServerWorld;
+import minecraft.common.world.IWorld;
 import minecraft.common.world.block.state.BlockState;
 import minecraft.common.world.block.state.EnumBlockProperty;
 import minecraft.common.world.block.state.IBlockProperty;
+import minecraft.server.world.ServerWorld;
 
 public class PlantBlock extends Block {
 
@@ -25,7 +29,7 @@ public class PlantBlock extends Block {
 	}
 	
 	@Override
-	public IBlockModel getModel(World world, IBlockPosition pos, BlockState blockState) {
+	public IBlockModel getModel(IWorld world, IBlockPosition pos, BlockState blockState) {
 		return models[blockState.getValue(PLANT_TYPE_PROPERTY).getIndex()];
 	}
 
@@ -37,5 +41,14 @@ public class PlantBlock extends Block {
 	@Override
 	protected BlockState createDefaultState() {
 		return BlockState.createStateTree(this, PLANT_TYPE_PROPERTY);
+	}
+	
+	@Override
+	public void onBlockUpdate(BlockState state, IServerWorld world, IBlockPosition blockPos, Direction direction, BlockState sourceState) {
+		if (direction == Direction.DOWN) {
+			if (!world.getBlockState(blockPos.getOffset(direction)).canGrowVegetation()) {
+				world.setBlock(blockPos, Blocks.AIR_BLOCK, ServerWorld.BLOCK_FLAG + ServerWorld.STATE_FLAG);
+			}
+		}
 	}
 }

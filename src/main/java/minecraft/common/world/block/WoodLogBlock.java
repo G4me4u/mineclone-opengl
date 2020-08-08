@@ -3,7 +3,7 @@ package minecraft.common.world.block;
 import minecraft.client.renderer.model.BasicBlockModel;
 import minecraft.client.renderer.model.IBlockModel;
 import minecraft.client.renderer.world.BlockTextures;
-import minecraft.common.world.World;
+import minecraft.common.world.IWorld;
 import minecraft.common.world.block.state.BlockState;
 
 public class WoodLogBlock extends Block {
@@ -22,7 +22,7 @@ public class WoodLogBlock extends Block {
 	}
 	
 	@Override
-	public IBlockModel getModel(World world, IBlockPosition pos, BlockState blockState) {
+	public IBlockModel getModel(IWorld world, IBlockPosition pos, BlockState blockState) {
 		return model;
 	}
 }

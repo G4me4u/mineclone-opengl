@@ -7,8 +7,10 @@ import java.util.Random;
 import minecraft.client.renderer.model.IBlockModel;
 import minecraft.client.renderer.world.BlockTextures;
 import minecraft.common.ReferenceRegsitry;
+import minecraft.common.world.Direction;
 import minecraft.common.world.EntityHitbox;
-import minecraft.common.world.World;
+import minecraft.common.world.IServerWorld;
+import minecraft.common.world.IWorld;
 import minecraft.common.world.block.state.BlockState;
 
 public class Block {
@@ -37,7 +39,7 @@ public class Block {
 		return BlockState.createStateTree(this);
 	}
 	
-	public void getEntityHitboxes(World world, IBlockPosition pos, BlockState state, List<EntityHitbox> hitboxes) {
+	public void getEntityHitboxes(IWorld world, IBlockPosition pos, BlockState state, List<EntityHitbox> hitboxes) {
 		if (hasEntityHitbox(world, pos, state)) {
 			float x = pos.getX();
 			float y = pos.getY();
@@ -47,11 +49,11 @@ public class Block {
 		}
 	}
 
-	protected boolean hasEntityHitbox(World world, IBlockPosition pos, BlockState state) {
+	protected boolean hasEntityHitbox(IWorld world, IBlockPosition pos, BlockState state) {
 		return isSolid();
 	}
 
-	public IBlockModel getModel(World world, IBlockPosition pos, BlockState blockState) {
+	public IBlockModel getModel(IWorld world, IBlockPosition pos, BlockState blockState) {
 		return null;
 	}
 	
@@ -59,7 +61,11 @@ public class Block {
 		return false;
 	}
 	
-	public void randomUpdate(World world, IBlockPosition pos, BlockState blockState, Random random) {
+	public boolean canGrowVegetation(BlockState blockState) {
+		return false;
+	}
+	
+	public void randomUpdate(IServerWorld world, IBlockPosition pos, BlockState blockState, Random random) {
 	}
 	
 	public boolean hasRandomUpdate() {
@@ -68,6 +74,18 @@ public class Block {
 	
 	public BlockState getDefaultState() {
 		return defaultBlockState;
+	}
+	
+	public void onBlockUpdate(BlockState state, IServerWorld world, IBlockPosition blockPos, Direction direction, BlockState neighborState) {
+		
+	}
+	
+	public void onStateUpdate(BlockState state, IServerWorld world, IBlockPosition blockPos, Direction direction, BlockState neighborState) {
+		
+	}
+	
+	public void onInventoryUpdate(BlockState state, IServerWorld world, IBlockPosition blockPos, Direction direction, BlockState neighborState) {
+		
 	}
 	
 	private void setName(String name) {
@@ -84,15 +102,15 @@ public class Block {
 		
 		blockRegistry = new ReferenceRegsitry<>();
 	
-		registerBlock(Block.AIR_BLOCK_ID, new Block());
-		registerBlock(Block.DIRT_BLOCK_ID, new BasicSolidBlock(BlockTextures.DIRT_TEXTURE));
-		registerBlock(Block.GRASS_BLOCK_ID, new GrassBlock());
-		registerBlock(Block.WOOD_PLANKS_BLOCK_ID, new WoodPlanksBlock());
-		registerBlock(Block.STONE_BLOCK_ID, new BasicSolidBlock(BlockTextures.STONE_TEXTURE));
-		registerBlock(Block.COBBLESTONE_BLOCK_ID, new BasicSolidBlock(BlockTextures.COBBLESTONE_TEXTURE));
-		registerBlock(Block.PLANT_BLOCK_ID, new PlantBlock());
-		registerBlock(Block.LEAVES_BLOCK_ID, new LeavesBlock());
-		registerBlock(Block.WOOD_LOG_BLOCK_ID, new WoodLogBlock());
+		registerBlock(AIR_BLOCK_ID, new Block());
+		registerBlock(DIRT_BLOCK_ID, new DirtBlock());
+		registerBlock(GRASS_BLOCK_ID, new GrassBlock());
+		registerBlock(WOOD_PLANKS_BLOCK_ID, new WoodPlanksBlock());
+		registerBlock(STONE_BLOCK_ID, new BasicSolidBlock(BlockTextures.STONE_TEXTURE));
+		registerBlock(COBBLESTONE_BLOCK_ID, new BasicSolidBlock(BlockTextures.COBBLESTONE_TEXTURE));
+		registerBlock(PLANT_BLOCK_ID, new PlantBlock());
+		registerBlock(LEAVES_BLOCK_ID, new LeavesBlock());
+		registerBlock(WOOD_LOG_BLOCK_ID, new WoodLogBlock());
 	}
 	
 	private static void registerBlock(String name, Block block) {

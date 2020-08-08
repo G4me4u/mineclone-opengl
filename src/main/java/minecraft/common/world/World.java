@@ -8,30 +8,26 @@ import minecraft.client.MinecraftClient;
 import minecraft.common.math.Vec3;
 import minecraft.common.world.block.Block;
 import minecraft.common.world.block.IBlockPosition;
-import minecraft.common.world.block.ImmutableBlockPosition;
 import minecraft.common.world.block.MutableBlockPosition;
-import minecraft.common.world.block.PlantBlock;
-import minecraft.common.world.block.PlantType;
 import minecraft.common.world.block.state.BlockState;
 import minecraft.common.world.entity.PlayerEntity;
-import minecraft.common.world.gen.DiamondNoise;
 
-public class World {
+public class World implements IWorld {
 	
 	public static final int WORLD_HEIGHT = WorldChunk.CHUNK_SIZE * 8;
 	
 	public static final int CHUNKS_X = 16;
 	public static final int CHUNKS_Z = 16;
 	
-	private static final int RANDOM_TICK_SPEED = 3;
+	protected static final int RANDOM_TICK_SPEED = 3;
 	
-	private final MinecraftClient app;
+	protected final MinecraftClient app;
 	
-	private final WorldChunk[] chunks;
-	private final Random random;
+	protected final WorldChunk[] chunks;
+	protected final Random random;
 	
-	private BlockRay blockRay;
-	private PlayerEntity player;
+	protected BlockRay blockRay;
+	protected PlayerEntity player;
 	
 	public World(MinecraftClient app) {
 		this.app = app;
@@ -43,88 +39,7 @@ public class World {
 		player = new PlayerEntity(this, app.getController());
 	}
 	
-	public void generateWorld() {
-		DiamondNoise noise = new DiamondNoise(CHUNKS_X * WorldChunk.CHUNK_SIZE, random);
-		
-		int i = 0;
-		for (int cz = 0; cz < CHUNKS_Z; cz++) {
-			for (int cx = 0; cx < CHUNKS_X; cx++) {
-				WorldChunk chunk = new WorldChunk(cx, cz);
-				chunk.generateChunk(noise, random);
-				chunks[i++] = chunk;
-			}
-		}
-		
-		for (i = 0; i < CHUNKS_Z * CHUNKS_X; i++)
-			populateChunk(chunks[i]);
-	}
-	
-	private void populateChunk(WorldChunk chunk) {
-		MutableBlockPosition blockPos = new MutableBlockPosition();
-		
-		int x0 = chunk.getChunkX() * WorldChunk.CHUNK_SIZE;
-		int z0 = chunk.getChunkZ() * WorldChunk.CHUNK_SIZE;
-		int x1 = x0 + WorldChunk.CHUNK_SIZE;
-		int z1 = z0 + WorldChunk.CHUNK_SIZE;
-		
-		for (blockPos.z = z0; blockPos.z < z1; blockPos.z++) {
-			for (blockPos.x = x0; blockPos.x < x1; blockPos.x++) {
-				blockPos.y = chunk.getHighestPoint(blockPos) + 1;
-				
-				if (random.nextInt(80) == 0) {
-					growTree(blockPos);
-
-					blockPos.y--;
-					
-					setBlock(blockPos, Blocks.DIRT_BLOCK);
-				} else if (random.nextInt(20) == 0) {
-					BlockState plantState = Blocks.PLANT_BLOCK.getDefaultState();
-					
-					PlantType type = PlantType.PLANT_TYPES[random.nextInt(PlantType.PLANT_TYPES.length)];
-					plantState = plantState.withProperty(PlantBlock.PLANT_TYPE_PROPERTY, type);
-					
-					setBlockState(blockPos, plantState);
-				}
-			}
-		}
-	}
-	
-	public void growTree(IBlockPosition blockPos) {
-		int treeHeight = 5 + random.nextInt(3);
-		int trunkHeight = Math.max(1, treeHeight - 5);
-		
-		MutableBlockPosition tmpPos = new MutableBlockPosition(blockPos);
-		
-		for (int i = 0; i < treeHeight; i++) {
-			if (i > trunkHeight) {
-				int yo = i - trunkHeight;
-				
-				for (int zo = -3; zo <= 3; zo++) {
-					for (int xo = -3; xo <= 3; xo++) {
-						tmpPos.x = blockPos.getX() + xo;
-						tmpPos.z = blockPos.getZ() + zo;
-						
-						if (getBlock(tmpPos) == Blocks.AIR_BLOCK) {
-							int distSqr = xo * xo + yo * yo + zo * zo;
-							
-							if (distSqr < 3 * 2 * 3)
-								setBlock(tmpPos, Blocks.LEAVES_BLOCK);
-						}
-					}
-				}
-			}
-
-			if (i < treeHeight - 1) {
-				tmpPos.x = blockPos.getX();
-				tmpPos.z = blockPos.getZ();
-				
-				setBlock(tmpPos, Blocks.WOOD_LOG_BLOCK);
-			}
-
-			tmpPos.y++;
-		}
-	}
-	
+	@Override
 	public BlockHitResult castBlockRay(float x, float y, float z, Vec3 dir) {
 		return blockRay.castRay(x, y, z, dir);
 	}
@@ -148,6 +63,7 @@ public class World {
 		return chunks[chunkX + chunkZ * CHUNKS_X];
 	}
 	
+	@Override
 	public BlockState getBlockState(IBlockPosition blockPos) {
 		WorldChunk chunk = getChunk(blockPos);
 		if (chunk == null)
@@ -155,46 +71,12 @@ public class World {
 		return chunk.getBlockState(blockPos);
 	}
 	
-	public void setBlockState(IBlockPosition blockPos, BlockState state) {
-		WorldChunk chunk = getChunk(blockPos);
-		if (chunk != null) {
-			BlockState oldState = chunk.getBlockState(blockPos);
-
-			if (oldState != state) {
-				int oldHighestPoint = chunk.getHighestPoint(blockPos);
-				
-				if (chunk.setBlockState(blockPos, state)) {
-					int highestPoint = chunk.getHighestPoint(blockPos);
-					
-					if (oldHighestPoint != highestPoint) {
-						int x = blockPos.getX();
-						int z = blockPos.getZ();
-						
-						markRangeDirty(new ImmutableBlockPosition(x, oldHighestPoint, z), 
-						               new ImmutableBlockPosition(x,    highestPoint, z), true);
-					} else {
-						Block oldBlock = oldState.getBlock();
-						Block newBlock = state.getBlock();
-						
-						if (oldBlock.isSolid() || newBlock.isSolid()) {
-							markDirty(blockPos, (oldBlock != newBlock));
-						} else {
-							markDirty(blockPos, false);
-						}
-					}
-				}
-			}
-		}
-	}
-
+	@Override
 	public Block getBlock(IBlockPosition blockPos) {
 		return getBlockState(blockPos).getBlock();
 	}
 	
-	public void setBlock(IBlockPosition blockPos, Block block) {
-		setBlockState(blockPos, block.getDefaultState());
-	}
-	
+	@Override
 	public int getHighestPoint(IBlockPosition blockPos) {
 		WorldChunk chunk = getChunk(blockPos);
 		if (chunk == null)
@@ -202,59 +84,32 @@ public class World {
 		return chunk.getHighestPoint(blockPos);
 	}
 	
-	private void markRangeDirty(IBlockPosition p0, IBlockPosition p1, boolean includeBorders) {
-		app.getWorldRenderer().markRangeDirty(p0, p1, includeBorders);
-	}
-
-	private void markDirty(IBlockPosition blockPos, boolean includeBorders) {
-		app.getWorldRenderer().markDirty(blockPos, includeBorders);
-	}
-	
+	@Override
 	public boolean isLoadedBlock(IBlockPosition blockPos) {
 		return getChunk(blockPos) != null;
 	}
-
+	
+	@Override
 	public boolean isLoadedBlock(int chunkX, int chunkZ) {
 		return getChunk(chunkX, chunkZ) != null;
 	}
 	
+	@Override
 	public void update() {
 		player.update();
-		
-		performRandomUpdates();
 	}
 	
-	private void performRandomUpdates() {
-		MutableBlockPosition pos = new MutableBlockPosition();
-
-		for (int chunkX = 0; chunkX < CHUNKS_X; chunkX++) {
-			for (int chunkZ = 0; chunkZ < CHUNKS_Z; chunkZ++) {
-				WorldChunk chunk = getChunk(chunkX, chunkZ);
-				if (chunk != null && chunk.hasRandomUpdates()) {
-					for (int i = 0; i < RANDOM_TICK_SPEED; i++) {
-						pos.x = random.nextInt(WorldChunk.CHUNK_SIZE) + chunkX * WorldChunk.CHUNK_SIZE;
-						pos.y = random.nextInt(WORLD_HEIGHT);
-						pos.z = random.nextInt(WorldChunk.CHUNK_SIZE) + chunkZ * WorldChunk.CHUNK_SIZE;
-
-						BlockState state = chunk.getBlockState(pos);
-						Block block = state.getBlock();
-						
-						if (block.hasRandomUpdate())
-							block.randomUpdate(this, pos, state, random);
-					}
-				}
-			}
-		}
-	}
-
+	@Override
 	public int getHeight() {
 		return WORLD_HEIGHT;
 	}
 	
+	@Override
 	public PlayerEntity getPlayer() {
 		return player;
 	}
-
+	
+	@Override
 	public List<EntityHitbox> getBlockHitboxes(EntityHitbox hitbox) {
 		List<EntityHitbox> hitboxes = new ArrayList<>();
 		

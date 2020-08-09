@@ -16,6 +16,7 @@ public enum Direction implements IIndexedValue {
 	
 	public static final Direction[] DIRECTIONS;
 	public static final Direction[] HORIZONTAL_DIRECTIONS;
+	public static final Direction[] VERTICAL_DIRECTIONS;
 	
 	static {
 		DIRECTIONS = new Direction[values().length];
@@ -23,6 +24,7 @@ public enum Direction implements IIndexedValue {
 			DIRECTIONS[dir.index] = dir;
 		
 		HORIZONTAL_DIRECTIONS = Arrays.stream(DIRECTIONS).filter(dir -> dir.getAxis().isHorizontal()).toArray(Direction[]::new);
+		VERTICAL_DIRECTIONS = Arrays.stream(DIRECTIONS).filter(dir -> !dir.getAxis().isHorizontal()).toArray(Direction[]::new);
 	}
 	
 	private final String name;

@@ -96,12 +96,20 @@ public class Block {
 		return false;
 	}
 	
+	public boolean conductsPower(IBlockState state) {
+		return isSolid();
+	}
+	
+	public boolean connectsToWire(IBlockState state, Direction dir) {
+		return isPowerComponent();
+	}
+	
 	public int getOutputPowerFlags(IBlockState state, Direction dir) {
-		return isSolid() ? IServerWorld.INDIRECT_POWER_FLAGS : IServerWorld.NO_FLAGS;
+		return conductsPower(state) ? IServerWorld.INDIRECT_POWER_FLAGS : IServerWorld.NO_FLAGS;
 	}
 
 	public int getPowerTo(IBlockState state, IServerWorld world, IBlockPosition pos, Direction dir, int powerFlags) {
-		if (isSolid() && (powerFlags & IServerWorld.INDIRECT_POWER_FLAGS) != 0) {
+		if (conductsPower(state) && (powerFlags & IServerWorld.INDIRECT_POWER_FLAGS) != 0) {
 			if ((powerFlags & IServerWorld.INDIRECT_WEAK_POWER_FLAG) != 0)
 				return world.getPowerExceptFrom(pos, dir, IServerWorld.DIRECT_POWER_FLAGS);
 			return world.getPowerExceptFrom(pos, dir, IServerWorld.DIRECT_STRONG_POWER_FLAG);
@@ -124,6 +132,10 @@ public class Block {
 	
 	public IBlockState getDefaultState() {
 		return defaultState;
+	}
+	
+	public IBlockState getPlacementState(IBlockState state, IServerWorld world, IBlockPosition pos) {
+		return state;
 	}
 	
 	public static final void registerBlocks() {

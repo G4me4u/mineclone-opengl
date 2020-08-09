@@ -56,12 +56,24 @@ public interface IBlockState {
 		return getBlock().canGrowVegetation(this);
 	}
 	
+	default public boolean conductsPower() {
+		return getBlock().conductsPower(this);
+	}
+	
+	default public boolean connectsToWire(Direction dir) {
+		return getBlock().connectsToWire(this, dir);
+	}
+	
 	default public int getOutputPowerFlags(Direction dir) {
 		return getBlock().getOutputPowerFlags(this, dir);
 	}
 
 	default public int getPowerTo(IServerWorld world, IBlockPosition pos, Direction dir, int powerFlags) {
 		return getBlock().getPowerTo(this, world, pos, dir, powerFlags);
+	}
+	
+	default public IBlockState getPlacementState(IServerWorld world, IBlockPosition pos) {
+		return getBlock().getPlacementState(this, world, pos);
 	}
 	
 	default public boolean isAir() {

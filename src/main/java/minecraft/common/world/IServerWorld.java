@@ -41,9 +41,11 @@ public interface IServerWorld extends IWorld {
 	public void updateNeighbors(IBlockPosition pos, IBlockState state, int updateFlags);
 	
 	public void updateNeighbor(IBlockPosition pos, Direction fromDir, IBlockState neighborState, int updateFlags);
-	
+
 	public int getPower(IBlockPosition pos, int powerFlags);
 
-	public int getPowerExcept(IBlockPosition pos, int powerFlags, Direction exceptDir);
-	
+	public int getPowerExceptFrom(IBlockPosition pos, Direction exceptDir, int powerFlags);
+
+	public int getPowerFrom(IBlockPosition pos, Direction dir, int powerFlags);
+
 }

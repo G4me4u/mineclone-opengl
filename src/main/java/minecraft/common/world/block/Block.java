@@ -100,16 +100,11 @@ public class Block {
 		return isSolid() ? IServerWorld.INDIRECT_POWER_FLAGS : IServerWorld.NO_FLAGS;
 	}
 
-	public int getInputPowerFlags(IBlockState state, Direction dir) {
-		return isSolid() ? IServerWorld.DIRECT_POWER_FLAGS : IServerWorld.NO_FLAGS;
-	}
-	
-	public int getPower(IBlockState state, IServerWorld world, IBlockPosition pos, Direction dir, int powerFlags) {
+	public int getPowerTo(IBlockState state, IServerWorld world, IBlockPosition pos, Direction dir, int powerFlags) {
 		if (isSolid() && (powerFlags & IServerWorld.INDIRECT_POWER_FLAGS) != 0) {
 			if ((powerFlags & IServerWorld.INDIRECT_WEAK_POWER_FLAG) != 0)
-				return world.getPowerExcept(pos, IServerWorld.DIRECT_POWER_FLAGS, dir);
-			
-			return world.getPowerExcept(pos, IServerWorld.DIRECT_STRONG_POWER_FLAG, dir);
+				return world.getPowerExceptFrom(pos, dir, IServerWorld.DIRECT_POWER_FLAGS);
+			return world.getPowerExceptFrom(pos, dir, IServerWorld.DIRECT_STRONG_POWER_FLAG);
 		}
 		
 		return 0;

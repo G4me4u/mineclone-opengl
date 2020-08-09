@@ -60,12 +60,8 @@ public interface IBlockState {
 		return getBlock().getOutputPowerFlags(this, dir);
 	}
 
-	default public int getInputPowerFlags(Direction dir) {
-		return getBlock().getInputPowerFlags(this, dir);
-	}
-	
-	default public int getPower(IServerWorld world, IBlockPosition pos, Direction dir, int powerFlags) {
-		return getBlock().getPower(this, world, pos, dir, powerFlags);
+	default public int getPowerTo(IServerWorld world, IBlockPosition pos, Direction dir, int powerFlags) {
+		return getBlock().getPowerTo(this, world, pos, dir, powerFlags);
 	}
 	
 	default public boolean isAir() {

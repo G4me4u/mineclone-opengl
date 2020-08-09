@@ -175,28 +175,34 @@ public class ServerWorld extends World implements IServerWorld {
 	
 	@Override
 	public int getPower(IBlockPosition pos, int powerFlags) {
-		return getPowerExcept(pos, powerFlags, null);
+		return getPowerExceptFrom(pos, null, powerFlags);
 	}
 
 	@Override
-	public int getPowerExcept(IBlockPosition pos, int powerFlags, Direction exceptDir) {
+	public int getPowerExceptFrom(IBlockPosition pos, Direction exceptDir, int powerFlags) {
 		int highestPower = 0;
 		
 		for (Direction dir : Direction.DIRECTIONS) {
 			if (dir != exceptDir) {
-				IBlockPosition neighborPos = pos.offset(dir);
-				IBlockState state = getBlockState(neighborPos);
-			
-				if ((state.getOutputPowerFlags(dir) & powerFlags) != 0) {
-					int power = state.getPower(this, neighborPos, dir, powerFlags);
-					
-					if (power > highestPower)
-						highestPower = power;
-				}
+				int power = getPowerFrom(pos, dir, powerFlags);
+				
+				if (power > highestPower)
+					highestPower = power;
 			}
 		}
 		
 		return highestPower;
+	}
+	
+	@Override
+	public int getPowerFrom(IBlockPosition pos, Direction dir, int powerFlags) {
+		IBlockPosition neighborPos = pos.offset(dir);
+		IBlockState state = getBlockState(neighborPos);
+	
+		if ((state.getOutputPowerFlags(dir) & powerFlags) != 0)
+			return state.getPowerTo(this, neighborPos, dir.getOpposite(), powerFlags);
+		
+		return 0;
 	}
 	
 	@Override

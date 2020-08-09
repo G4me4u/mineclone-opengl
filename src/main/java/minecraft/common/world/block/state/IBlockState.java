@@ -56,12 +56,12 @@ public interface IBlockState {
 		return getBlock().canGrowVegetation(this);
 	}
 	
-	default public boolean conductsRedstonePower() {
-		return getBlock().conductsRedstonePower(this);
+	default public int getOutputPowerFlags(Direction dir) {
+		return getBlock().getOutputPowerFlags(this, dir);
 	}
-	
-	default public boolean connectsToRedstoneWire(Direction dir) {
-		return getBlock().connectsToRedstoneWire(this, dir);
+
+	default public int getInputPowerFlags(Direction dir) {
+		return getBlock().getInputPowerFlags(this, dir);
 	}
 	
 	default public int getPower(IServerWorld world, IBlockPosition pos, Direction dir, int powerFlags) {
@@ -75,7 +75,7 @@ public interface IBlockState {
 	default public boolean isOf(Block block) {
 		return getBlock() == block;
 	}
-	
+
 	public Block getBlock();
 	
 	public <T> T getValue(IBlockProperty<T> property);

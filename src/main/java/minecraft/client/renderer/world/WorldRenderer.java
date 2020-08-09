@@ -9,6 +9,7 @@ import minecraft.client.graphic.BufferLayout;
 import minecraft.client.graphic.opengl.VertexArray;
 import minecraft.client.graphic.opengl.VertexBuffer;
 import minecraft.client.graphic.tessellator.VertexAttribBuilder;
+import minecraft.client.world.ClientWorld;
 import minecraft.common.IResource;
 import minecraft.common.math.ViewFrustum;
 import minecraft.common.world.World;
@@ -27,7 +28,7 @@ public class WorldRenderer implements IResource {
 	private static final float CAMERA_NEAR = 0.1f;
 	private static final float CAMERA_FAR = 1000.0f;
 	
-	private final World world;
+	private final ClientWorld world;
 	
 	private final WorldCamera camera;
 	private final WorldShader worldShader;
@@ -43,7 +44,7 @@ public class WorldRenderer implements IResource {
 	
 	private final BlockSelectionRenderer selectionRenderer;
 	
-	public WorldRenderer(World world) {
+	public WorldRenderer(ClientWorld world) {
 		this.world = world;
 		
 		camera = new WorldCamera();
@@ -251,7 +252,7 @@ public class WorldRenderer implements IResource {
 		}
 	}
 	
-	public World getWorld() {
+	public ClientWorld getWorld() {
 		return world;
 	}
 

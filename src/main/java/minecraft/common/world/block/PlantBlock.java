@@ -15,7 +15,7 @@ import minecraft.common.world.block.state.IBlockState;
 
 public class PlantBlock extends Block {
 
-	public static final IBlockProperty<PlantType> PLANT_TYPE_PROPERTY = new EnumBlockProperty<>("type", PlantType.TYPES);
+	public static final IBlockProperty<PlantType> PLANT_TYPE = new EnumBlockProperty<>("type", PlantType.TYPES);
 	
 	private final IBlockModel[] models;
 	
@@ -36,11 +36,11 @@ public class PlantBlock extends Block {
 	
 	@Override
 	public IBlockModel getModel(IWorld world, IBlockPosition pos, IBlockState state) {
-		return models[state.getValue(PLANT_TYPE_PROPERTY).getIndex()];
+		return models[state.getValue(PLANT_TYPE).getIndex()];
 	}
 	
 	@Override
 	protected IBlockState createDefaultState() {
-		return BlockState.createStateTree(this, PLANT_TYPE_PROPERTY);
+		return BlockState.createStateTree(this, PLANT_TYPE);
 	}
 }

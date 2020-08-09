@@ -4,13 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import minecraft.client.MinecraftClient;
 import minecraft.common.math.Vec3;
 import minecraft.common.world.block.Block;
 import minecraft.common.world.block.IBlockPosition;
 import minecraft.common.world.block.MutableBlockPosition;
 import minecraft.common.world.block.state.IBlockState;
-import minecraft.common.world.entity.PlayerEntity;
 
 public class World implements IWorld {
 	
@@ -21,22 +19,16 @@ public class World implements IWorld {
 	
 	protected static final int RANDOM_TICK_SPEED = 3;
 	
-	protected final MinecraftClient app;
-	
 	protected final WorldChunk[] chunks;
 	protected final Random random;
 	
 	protected BlockRay blockRay;
-	protected PlayerEntity player;
 	
-	public World(MinecraftClient app) {
-		this.app = app;
-
+	public World() {
 		chunks = new WorldChunk[CHUNKS_X * CHUNKS_Z];
 		random = new Random();
 
 		blockRay = new BlockRay(this, 0.01f);
-		player = new PlayerEntity(this, app.getController());
 	}
 	
 	@Override
@@ -96,17 +88,11 @@ public class World implements IWorld {
 	
 	@Override
 	public void update() {
-		player.update();
 	}
 	
 	@Override
 	public int getHeight() {
 		return WORLD_HEIGHT;
-	}
-	
-	@Override
-	public PlayerEntity getPlayer() {
-		return player;
 	}
 	
 	@Override
@@ -121,9 +107,8 @@ public class World implements IWorld {
 		
 		for (pos.x = (int)hitbox.x0; pos.x <= x1; pos.x++) {
 			for (pos.y = (int)hitbox.y0; pos.y <= y1; pos.y++) {
-				for (pos.z = (int)hitbox.z0; pos.z <= z1; pos.z++) {
+				for (pos.z = (int)hitbox.z0; pos.z <= z1; pos.z++)
 					getBlockState(pos).getEntityHitboxes(this, pos, hitboxes);
-				}
 			}
 		}
 		

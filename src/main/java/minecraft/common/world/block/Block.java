@@ -40,11 +40,11 @@ public class Block {
 	}
 	
 	public void onAdded(IServerWorld world, IBlockPosition pos, IBlockState state) {
-		world.updateNeighbors(pos, state, ServerWorld.BLOCK_FLAG | ServerWorld.STATE_FLAG);
+		world.updateNeighbors(pos, state, ServerWorld.COMMON_UPDATE_FLAGS);
 	}
 	
 	public void onRemoved(IServerWorld world, IBlockPosition pos, IBlockState state) {
-		world.updateNeighbors(pos, state, ServerWorld.BLOCK_FLAG | ServerWorld.STATE_FLAG);
+		world.updateNeighbors(pos, state, ServerWorld.COMMON_UPDATE_FLAGS);
 	}
 	
 	public void onStateReplaced(IServerWorld world, IBlockPosition pos, IBlockState state) {
@@ -92,15 +92,26 @@ public class Block {
 		return false;
 	}
 	
-	public boolean conductsRedstonePower(IBlockState state) {
-		return isSolid();
-	}
-	
-	public boolean connectsToRedstoneWire(IBlockState state, Direction dir) {
+	public boolean isPowerComponent() {
 		return false;
 	}
 	
+	public int getOutputPowerFlags(IBlockState state, Direction dir) {
+		return isSolid() ? IServerWorld.INDIRECT_POWER_FLAGS : IServerWorld.NO_FLAGS;
+	}
+
+	public int getInputPowerFlags(IBlockState state, Direction dir) {
+		return isSolid() ? IServerWorld.DIRECT_POWER_FLAGS : IServerWorld.NO_FLAGS;
+	}
+	
 	public int getPower(IBlockState state, IServerWorld world, IBlockPosition pos, Direction dir, int powerFlags) {
+		if (isSolid() && (powerFlags & IServerWorld.INDIRECT_POWER_FLAGS) != 0) {
+			if ((powerFlags & IServerWorld.INDIRECT_WEAK_POWER_FLAG) != 0)
+				return world.getPowerExcept(pos, IServerWorld.DIRECT_POWER_FLAGS, dir);
+			
+			return world.getPowerExcept(pos, IServerWorld.DIRECT_STRONG_POWER_FLAG, dir);
+		}
+		
 		return 0;
 	}
 	

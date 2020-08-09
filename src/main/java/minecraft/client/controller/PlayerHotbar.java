@@ -21,9 +21,9 @@ public class PlayerHotbar {
 		hotbarBlocks[1] = Blocks.GRASS_BLOCK.getDefaultState();
 		
 		IBlockState plank = Blocks.WOOD_PLANKS_BLOCK.getDefaultState();
-		hotbarBlocks[2] = plank.withProperty(WoodPlanksBlock.WOOD_TYPE_PROPERTY, WoodType.OAK);
-		hotbarBlocks[3] = plank.withProperty(WoodPlanksBlock.WOOD_TYPE_PROPERTY, WoodType.BIRCH);
-		hotbarBlocks[4] = plank.withProperty(WoodPlanksBlock.WOOD_TYPE_PROPERTY, WoodType.ACACIA);
+		hotbarBlocks[2] = plank.withProperty(WoodPlanksBlock.WOOD_TYPE, WoodType.OAK);
+		hotbarBlocks[3] = plank.withProperty(WoodPlanksBlock.WOOD_TYPE, WoodType.BIRCH);
+		hotbarBlocks[4] = plank.withProperty(WoodPlanksBlock.WOOD_TYPE, WoodType.ACACIA);
 		hotbarBlocks[5] = Blocks.STONE_BLOCK.getDefaultState();
 		hotbarBlocks[6] = Blocks.COBBLESTONE_BLOCK.getDefaultState();
 		hotbarBlocks[7] = Blocks.LEAVES_BLOCK.getDefaultState();

@@ -3,7 +3,6 @@ package minecraft.server.world;
 import java.util.ArrayList;
 import java.util.List;
 
-import minecraft.client.MinecraftClient;
 import minecraft.common.world.Blocks;
 import minecraft.common.world.Direction;
 import minecraft.common.world.IServerWorld;
@@ -11,7 +10,6 @@ import minecraft.common.world.World;
 import minecraft.common.world.WorldChunk;
 import minecraft.common.world.block.Block;
 import minecraft.common.world.block.IBlockPosition;
-import minecraft.common.world.block.ImmutableBlockPosition;
 import minecraft.common.world.block.MutableBlockPosition;
 import minecraft.common.world.block.PlantBlock;
 import minecraft.common.world.block.PlantType;
@@ -20,14 +18,7 @@ import minecraft.common.world.gen.DiamondNoise;
 
 public class ServerWorld extends World implements IServerWorld {
 	
-	public static final int NOTHING_FLAG = 0;
-	
-	public static final int BLOCK_FLAG = 1;
-	public static final int STATE_FLAG = 2;
-	public static final int INVENTORY_FLAG = 4;
-
-	public ServerWorld(MinecraftClient app) {
-		super(app);
+	public ServerWorld() {
 	}
 	
 	@Override
@@ -69,7 +60,7 @@ public class ServerWorld extends World implements IServerWorld {
 					IBlockState plantState = Blocks.PLANT_BLOCK.getDefaultState();
 					
 					PlantType type = PlantType.TYPES[random.nextInt(PlantType.TYPES.length)];
-					plantState = plantState.withProperty(PlantBlock.PLANT_TYPE_PROPERTY, type);
+					plantState = plantState.withProperty(PlantBlock.PLANT_TYPE, type);
 					
 					setBlockState(pos, plantState, false);
 				}
@@ -115,64 +106,45 @@ public class ServerWorld extends World implements IServerWorld {
 	}
 	
 	@Override
-	public void setBlockState(IBlockPosition pos, IBlockState state, boolean updateNeighbors) {
+	public boolean setBlockState(IBlockPosition pos, IBlockState state, boolean updateNeighbors) {
 		WorldChunk chunk = getChunk(pos);
 		
 		if (chunk != null) {
 			IBlockState oldState = chunk.getBlockState(pos);
 
-			if (oldState != state) {
-				int oldHighestPoint = chunk.getHighestPoint(pos);
-				
-				if (chunk.setBlockState(pos, state)) {
-					int highestPoint = chunk.getHighestPoint(pos);
-					
-					if (oldHighestPoint != highestPoint) {
-						int x = pos.getX();
-						int z = pos.getZ();
-						
-						markRangeDirty(new ImmutableBlockPosition(x, oldHighestPoint, z), 
-						               new ImmutableBlockPosition(x,    highestPoint, z), true);
-					} else {
-						Block oldBlock = oldState.getBlock();
-						Block newBlock = state.getBlock();
-						
-						if (oldBlock.isSolid() || newBlock.isSolid()) {
-							markDirty(pos, (oldBlock != newBlock));
-						} else {
-							markDirty(pos, false);
-						}
-					}
-					
-					if (updateNeighbors) {
-						if (state.isAir())
-							oldState.onRemoved(this, pos);
-						if (oldState.isAir())
-							state.onAdded(this, pos);
-						if (oldState.isOf(state.getBlock()))
-							state.onStateReplaced(this, pos);
-					}
+			if (chunk.setBlockState(pos, state)) {
+				if (updateNeighbors) {
+					if (state.isAir())
+						oldState.onRemoved(this, pos);
+					if (oldState.isAir())
+						state.onAdded(this, pos);
+					if (oldState.isOf(state.getBlock()))
+						state.onStateReplaced(this, pos);
 				}
+				
+				return true;
 			}
 		}
+		
+		return false;
 	}
 	
 	@Override
-	public void setBlock(IBlockPosition pos, Block block, boolean updateNeighbors) {
-		setBlockState(pos, block.getDefaultState(), updateNeighbors);
+	public boolean setBlock(IBlockPosition pos, Block block, boolean updateNeighbors) {
+		return setBlockState(pos, block.getDefaultState(), updateNeighbors);
 	}
 	
 	@Override
 	public void updateNeighbors(IBlockPosition pos, IBlockState state, int flags) {
 		List<Integer> usedFlags = new ArrayList<>();
-		if ((flags | BLOCK_FLAG) != 0) {
-			usedFlags.add(BLOCK_FLAG);
+		if ((flags | BLOCK_UPDATE_FLAG) != 0) {
+			usedFlags.add(BLOCK_UPDATE_FLAG);
 		}
-		if ((flags | STATE_FLAG) != 0) {
-			usedFlags.add(STATE_FLAG);
+		if ((flags | STATE_UPDATE_FLAG) != 0) {
+			usedFlags.add(STATE_UPDATE_FLAG);
 		}
-		if ((flags | INVENTORY_FLAG) != 0) {
-			usedFlags.add(INVENTORY_FLAG);
+		if ((flags | INVENTORY_UPDATE_FLAG) != 0) {
+			usedFlags.add(INVENTORY_UPDATE_FLAG);
 		}
 		
 		for (int flag : usedFlags) {
@@ -187,13 +159,13 @@ public class ServerWorld extends World implements IServerWorld {
 		IBlockState state = getBlockState(pos);
 		
 		switch (flag) {
-		case BLOCK_FLAG:
+		case BLOCK_UPDATE_FLAG:
 			state.onBlockUpdate(this, pos, fromDir, neighborState);
 			break;
-		case STATE_FLAG:
+		case STATE_UPDATE_FLAG:
 			state.onStateUpdate(this, pos, fromDir, neighborState);
 			break;
-		case INVENTORY_FLAG:
+		case INVENTORY_UPDATE_FLAG:
 			state.onInventoryUpdate(this, pos, fromDir, neighborState);
 			break;
 		default:
@@ -201,17 +173,35 @@ public class ServerWorld extends World implements IServerWorld {
 		}
 	}
 	
-	private void markRangeDirty(IBlockPosition p0, IBlockPosition p1, boolean includeBorders) {
-		app.getWorldRenderer().markRangeDirty(p0, p1, includeBorders);
+	@Override
+	public int getPower(IBlockPosition pos, int powerFlags) {
+		return getPowerExcept(pos, powerFlags, null);
 	}
 
-	private void markDirty(IBlockPosition pos, boolean includeBorders) {
-		app.getWorldRenderer().markDirty(pos, includeBorders);
+	@Override
+	public int getPowerExcept(IBlockPosition pos, int powerFlags, Direction exceptDir) {
+		int highestPower = 0;
+		
+		for (Direction dir : Direction.DIRECTIONS) {
+			if (dir != exceptDir) {
+				IBlockPosition neighborPos = pos.offset(dir);
+				IBlockState state = getBlockState(neighborPos);
+			
+				if ((state.getOutputPowerFlags(dir) & powerFlags) != 0) {
+					int power = state.getPower(this, neighborPos, dir, powerFlags);
+					
+					if (power > highestPower)
+						highestPower = power;
+				}
+			}
+		}
+		
+		return highestPower;
 	}
 	
 	@Override
 	public void update() {
-		player.update();
+		super.update();
 		
 		performRandomUpdates();
 	}

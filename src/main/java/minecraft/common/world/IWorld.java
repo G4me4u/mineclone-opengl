@@ -6,7 +6,6 @@ import minecraft.common.math.Vec3;
 import minecraft.common.world.block.Block;
 import minecraft.common.world.block.IBlockPosition;
 import minecraft.common.world.block.state.IBlockState;
-import minecraft.common.world.entity.PlayerEntity;
 
 public interface IWorld {
 	
@@ -25,8 +24,6 @@ public interface IWorld {
 	public void update();
 	
 	public int getHeight();
-	
-	public PlayerEntity getPlayer();
 	
 	public List<EntityHitbox> getBlockHitboxes(EntityHitbox hitbox);
 	

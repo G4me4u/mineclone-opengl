@@ -11,7 +11,7 @@ import minecraft.common.world.block.state.IBlockState;
 
 public class WoodPlanksBlock extends Block {
 
-	public static final IBlockProperty<WoodType> WOOD_TYPE_PROPERTY = new EnumBlockProperty<>("type", WoodType.TYPES);
+	public static final IBlockProperty<WoodType> WOOD_TYPE = new EnumBlockProperty<>("type", WoodType.TYPES);
 	
 	private final IBlockModel[] models;
 	
@@ -25,7 +25,7 @@ public class WoodPlanksBlock extends Block {
 	
 	@Override
 	public IBlockModel getModel(IWorld world, IBlockPosition pos, IBlockState state) {
-		return models[state.getValue(WOOD_TYPE_PROPERTY).getIndex()];
+		return models[state.getValue(WOOD_TYPE).getIndex()];
 	}
 	
 	@Override
@@ -35,6 +35,6 @@ public class WoodPlanksBlock extends Block {
 	
 	@Override
 	protected IBlockState createDefaultState() {
-		return BlockState.createStateTree(this, WOOD_TYPE_PROPERTY);
+		return BlockState.createStateTree(this, WOOD_TYPE);
 	}
 }

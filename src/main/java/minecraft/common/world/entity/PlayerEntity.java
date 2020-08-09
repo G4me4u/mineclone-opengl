@@ -71,7 +71,7 @@ public class PlayerEntity extends Entity {
 						((IServerWorld)world).setBlock(hitResult.pos, Blocks.AIR_BLOCK, true);
 						success = true;
 					} else {
-						IBlockPosition placePos = hitResult.pos.getOffset(hitResult.face);
+						IBlockPosition placePos = hitResult.pos.offset(hitResult.face);
 						IBlockState placeState = hotbar.getHotbarBlock();
 						
 						if (!isBlockInsidePlayer(placeState, placePos)) {

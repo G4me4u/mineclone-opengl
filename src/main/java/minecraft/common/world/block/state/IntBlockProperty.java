@@ -30,10 +30,11 @@ public class IntBlockProperty implements IBlockProperty<Integer> {
 	@Override
 	public int getValueIndex(Integer value) {
 		int v = value.intValue();
-		if (v < min)
-			throw new IllegalArgumentException("Value is less than minimum! " + v + " < " + min);
-		if (v > max)
-			throw new IllegalArgumentException("Value is greater than maximum! " + v + " > " + max);
+
+		if (v < min || v > max) {
+			throw new IllegalArgumentException("Value is outside valid range! (" + 
+					min + " < " + v + " < " + max + ")");
+		}
 		
 		return v - min;
 	}

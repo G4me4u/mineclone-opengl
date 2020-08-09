@@ -39,7 +39,7 @@ public class GrassBlock extends Block {
 		int zo = random.nextInt(3) - 1;
 	
 		if (xo != 0 && yo != 0 && zo != 0) {
-			IBlockPosition dirtPos = pos.getOffset(xo, yo, zo);
+			IBlockPosition dirtPos = pos.offset(xo, yo, zo);
 			
 			if (world.getBlock(dirtPos) == Blocks.DIRT_BLOCK && isValidGrassCondition(world, dirtPos))
 				world.setBlock(dirtPos, Blocks.GRASS_BLOCK, true);
@@ -47,7 +47,7 @@ public class GrassBlock extends Block {
 	}
 	
 	private boolean isValidGrassCondition(IWorld world, IBlockPosition pos) {
-		return !world.getBlock(pos.getOffset(Direction.UP)).isSolid();
+		return !world.getBlock(pos.offset(Direction.UP)).isSolid();
 	}
 	
 	@Override

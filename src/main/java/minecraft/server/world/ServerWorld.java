@@ -177,7 +177,7 @@ public class ServerWorld extends World implements IServerWorld {
 		
 		for (int flag : usedFlags) {
 			for (Direction dir : Direction.DIRECTIONS) {
-				updateNeighbor(pos.getOffset(dir), dir.getOpposite(), state, flag);
+				updateNeighbor(pos.offset(dir), dir.getOpposite(), state, flag);
 			}
 		}
 	}

@@ -38,7 +38,7 @@ public class ImmutableBlockPosition implements IBlockPosition {
 	}
 
 	@Override
-	public ImmutableBlockPosition getOffset(int xo, int yo, int zo) {
+	public ImmutableBlockPosition offset(int xo, int yo, int zo) {
 		return new ImmutableBlockPosition(x + xo, y + yo, z + zo);
 	}
 	

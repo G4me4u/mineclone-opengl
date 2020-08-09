@@ -11,38 +11,38 @@ public interface IBlockPosition {
 	public int getZ();
 	
 	default public IBlockPosition north() {
-		return getOffset(Direction.NORTH);
+		return offset(Direction.NORTH);
 	}
 	
 	default public IBlockPosition south() {
-		return getOffset(Direction.SOUTH);
+		return offset(Direction.SOUTH);
 	}
 	
 	default public IBlockPosition west() {
-		return getOffset(Direction.WEST);
+		return offset(Direction.WEST);
 	}
 	
 	default public IBlockPosition east() {
-		return getOffset(Direction.EAST);
+		return offset(Direction.EAST);
 	}
 	
 	default public IBlockPosition down() {
-		return getOffset(Direction.DOWN);
+		return offset(Direction.DOWN);
 	}
 	
 	default public IBlockPosition up() {
-		return getOffset(Direction.UP);
+		return offset(Direction.UP);
 	}
 	
-	default public IBlockPosition getOffset(Direction dir) {
-		return getOffset(dir.getOffsetX(), dir.getOffsetY(), dir.getOffsetZ());
+	default public IBlockPosition offset(Direction dir) {
+		return offset(dir.getOffsetX(), dir.getOffsetY(), dir.getOffsetZ());
 	}
 	
-	default public IBlockPosition getOffset(Direction dir, int amount) {
-		return getOffset(dir.getOffsetX() * amount, dir.getOffsetY() * amount, dir.getOffsetZ() * amount);
+	default public IBlockPosition offset(Direction dir, int amount) {
+		return offset(dir.getOffsetX() * amount, dir.getOffsetY() * amount, dir.getOffsetZ() * amount);
 	}
 
-	public IBlockPosition getOffset(int xo, int yo, int zo);
+	public IBlockPosition offset(int xo, int yo, int zo);
 	
 	public static int hashCode(IBlockPosition pos) {
 		return 31 * (pos.getX() + 31 * (pos.getY() + 31 * pos.getZ()));

@@ -33,17 +33,17 @@ public class RedstoneWireBlock extends Block {
 	}
 	
 	private WireConnection getWireConnection(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir) {
-		IBlockPosition side = pos.getOffset(dir);
+		IBlockPosition side = pos.offset(dir);
 		IBlockState sideState = world.getBlockState(side);
 		
 		if (sideState.connectsToRedstoneWire(dir.getOpposite())) {
 			return WireConnection.SIDE;
 		} else if (sideState.conductsRedstonePower()) {
 			IBlockPosition up = pos.up();
-			if (!world.getBlockState(up).conductsRedstonePower() && world.getBlockState(up.getOffset(dir)).isOf(Blocks.REDSTONE_WIRE_BLOCK)) {
+			if (!world.getBlockState(up).conductsRedstonePower() && world.getBlockState(up.offset(dir)).isOf(Blocks.REDSTONE_WIRE_BLOCK)) {
 				return WireConnection.UP;
 			}
-		} else if (world.getBlockState(pos.down().getOffset(dir)).isOf(Blocks.REDSTONE_WIRE_BLOCK)) {
+		} else if (world.getBlockState(pos.down().offset(dir)).isOf(Blocks.REDSTONE_WIRE_BLOCK)) {
 			return WireConnection.SIDE;
 		}
 		

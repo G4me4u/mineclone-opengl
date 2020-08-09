@@ -12,7 +12,7 @@ public abstract class AbstractBlockModel implements IBlockModel {
 	private static final float AMBIENT_LIGHT = 0.4f;
 	
 	protected void addBlockFace(World world, IBlockPosition pos, VertexAttribBuilder builder, Direction face, ITextureRegion tex) {
-		IBlockPosition offsetPos = pos.getOffset(face);
+		IBlockPosition offsetPos = pos.offset(face);
 		
 		if (world.isLoadedBlock(offsetPos)) {
 			IBlockState offsetState = world.getBlockState(offsetPos);

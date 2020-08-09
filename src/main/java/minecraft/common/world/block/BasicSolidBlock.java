@@ -4,7 +4,7 @@ import minecraft.client.graphic.ITextureRegion;
 import minecraft.client.renderer.model.BasicBlockModel;
 import minecraft.client.renderer.model.IBlockModel;
 import minecraft.common.world.IWorld;
-import minecraft.common.world.block.state.BlockState;
+import minecraft.common.world.block.state.IBlockState;
 
 public class BasicSolidBlock extends Block {
 
@@ -24,7 +24,7 @@ public class BasicSolidBlock extends Block {
 	}
 	
 	@Override
-	public IBlockModel getModel(IWorld world, IBlockPosition pos, BlockState blockState) {
+	public IBlockModel getModel(IWorld world, IBlockPosition pos, IBlockState state) {
 		return model;
 	}
 }

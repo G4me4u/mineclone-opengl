@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 import minecraft.common.world.block.IBlockPosition;
-import minecraft.common.world.block.state.BlockState;
+import minecraft.common.world.block.state.IBlockState;
 import minecraft.common.world.gen.DiamondNoise;
 
 public class WorldChunk {
@@ -14,7 +14,7 @@ public class WorldChunk {
 	private final int chunkX;
 	private final int chunkZ;
 
-	private final BlockState[] blocks;
+	private final IBlockState[] blocks;
 	private int[] heights;
 	
 	private int randomUpdateCount;
@@ -23,7 +23,7 @@ public class WorldChunk {
 		this.chunkX = chunkX;
 		this.chunkZ = chunkZ;
 		
-		blocks = new BlockState[CHUNK_SIZE * CHUNK_SIZE * World.WORLD_HEIGHT];
+		blocks = new IBlockState[CHUNK_SIZE * CHUNK_SIZE * World.WORLD_HEIGHT];
 		heights = new int[CHUNK_SIZE * CHUNK_SIZE];
 		
 		randomUpdateCount = 0;
@@ -82,8 +82,8 @@ public class WorldChunk {
 		return cx + cz * CHUNK_SIZE;
 	}
 
-	public int getHighestPoint(IBlockPosition blockPos) {
-		return getHighestPoint(blockPos.getX(), blockPos.getZ());
+	public int getHighestPoint(IBlockPosition pos) {
+		return getHighestPoint(pos.getX(), pos.getZ());
 	}
 
 	public int getHighestPoint(int x, int z) {
@@ -93,27 +93,28 @@ public class WorldChunk {
 		return heights[index];
 	}
 	
-	public BlockState getBlockState(IBlockPosition blockPos) {
-		return getBlockState(blockPos.getX(), blockPos.getY(), blockPos.getZ());
+	public IBlockState getBlockState(IBlockPosition pos) {
+		return getBlockState(pos.getX(), pos.getY(), pos.getZ());
 	}
 
-	public BlockState getBlockState(int x, int y, int z) {
+	public IBlockState getBlockState(int x, int y, int z) {
 		int index = getBlockIndex(x, y, z);
 		if (index == -1)
 			return Blocks.AIR_BLOCK.getDefaultState();
 		return blocks[index];
 	}
 
-	public boolean setBlockState(IBlockPosition blockPos, BlockState state) {
-		return setBlockState(blockPos.getX(), blockPos.getY(), blockPos.getZ(), state);
+	public boolean setBlockState(IBlockPosition pos, IBlockState state) {
+		return setBlockState(pos.getX(), pos.getY(), pos.getZ(), state);
 	}
 
-	public boolean setBlockState(int x, int y, int z, BlockState state) {
+	public boolean setBlockState(int x, int y, int z, IBlockState state) {
 		int index = getBlockIndex(x, y, z);
 		if (index == -1)
 			return false;
 		
-		BlockState oldState = blocks[index];
+		IBlockState oldState = blocks[index];
+		
 		if (oldState != state) {
 			blocks[index] = state;
 			
@@ -138,7 +139,8 @@ public class WorldChunk {
 		heights[heightIndex] = 0;
 		
 		for (int y = startHeight; y >= 0; y--) {
-			BlockState state = getBlockState(x, y, z);
+			IBlockState state = getBlockState(x, y, z);
+			
 			if (state.getBlock().isSolid()) {
 				heights[heightIndex] = y;
 				break;

@@ -1,6 +1,10 @@
 package minecraft.client.renderer.world;
 
-import static org.lwjgl.opengl.GL45.*;
+import static org.lwjgl.opengl.GL11.GL_BLEND;
+import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
+import static org.lwjgl.opengl.GL11.glDisable;
+import static org.lwjgl.opengl.GL11.glDrawArrays;
+import static org.lwjgl.opengl.GL11.glEnable;
 
 import java.nio.ByteBuffer;
 
@@ -18,7 +22,7 @@ import minecraft.common.world.BlockHitResult;
 import minecraft.common.world.Blocks;
 import minecraft.common.world.World;
 import minecraft.common.world.block.IBlockPosition;
-import minecraft.common.world.block.state.BlockState;
+import minecraft.common.world.block.state.IBlockState;
 
 public class BlockSelectionRenderer implements IResource {
 	
@@ -140,14 +144,14 @@ public class BlockSelectionRenderer implements IResource {
 		BlockHitResult res = world.castBlockRay(viewMatrix.m30, viewMatrix.m31, viewMatrix.m32, forward);
 
 		if (res != null) {
-			IBlockPosition blockPos = res.blockPos;
-			BlockState state = world.getBlockState(blockPos);
+			IBlockPosition pos = res.pos;
+			IBlockState state = world.getBlockState(pos);
 			
-			if (state.getBlock() != Blocks.AIR_BLOCK) {
+			if (state.isOf(Blocks.AIR_BLOCK)) {
 				shader.setProjViewMat(camera);
 				
 				Mat4 modlMat = new Mat4();
-				modlMat.translate(blockPos.getX(), blockPos.getY(), blockPos.getZ());
+				modlMat.translate(pos.getX(), pos.getY(), pos.getZ());
 				modlMat.scale(SELECTION_SCALE).translate((1.0f - SELECTION_SCALE) * 0.5f);
 				
 				shader.setModlMat(modlMat);

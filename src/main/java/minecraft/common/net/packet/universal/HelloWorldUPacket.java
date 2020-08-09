@@ -1,9 +1,9 @@
 package minecraft.common.net.packet.universal;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.util.CharsetUtil;
 import minecraft.common.net.packet.IPacket;
 import minecraft.common.net.packet.IPacketHandler;
+import minecraft.common.net.packet.PacketDecodeBuffer;
+import minecraft.common.net.packet.PacketEncodeBuffer;
 
 public class HelloWorldUPacket implements IPacket<IPacketHandler> {
 
@@ -17,15 +17,13 @@ public class HelloWorldUPacket implements IPacket<IPacketHandler> {
 	}
 	
 	@Override
-	public void decode(ByteBuf buffer) {
-		int length = buffer.readIntLE();
-		buffer.readCharSequence(length, CharsetUtil.UTF_8);
+	public void encode(PacketEncodeBuffer buffer) {
+		buffer.writeString(msg);
 	}
 
 	@Override
-	public void encode(ByteBuf buffer) {
-		buffer.writeIntLE(msg.length());
-		buffer.writeCharSequence(msg, CharsetUtil.UTF_8);
+	public void decode(PacketDecodeBuffer buffer) {
+		msg = buffer.readString();
 	}
 
 	@Override

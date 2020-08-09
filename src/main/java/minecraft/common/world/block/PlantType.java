@@ -7,13 +7,13 @@ public enum PlantType {
 	MARIGOLD(2, "marigold"),
 	DAISY(3, "daisy");
 
-	public static final PlantType[] PLANT_TYPES;
+	public static final PlantType[] TYPES;
 
 	static {
-		PLANT_TYPES = new PlantType[values().length];
+		TYPES = new PlantType[values().length];
 		
 		for (PlantType type : values())
-			PLANT_TYPES[type.getIndex()] = type;
+			TYPES[type.getIndex()] = type;
 	}
 	
 	private final int index;

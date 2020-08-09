@@ -6,13 +6,13 @@ public enum WoodType {
 	BIRCH(1, "birch"),
 	ACACIA(2, "acacia");
 
-	public static final WoodType[] WOOD_TYPES;
+	public static final WoodType[] TYPES;
 
 	static {
-		WOOD_TYPES = new WoodType[values().length];
+		TYPES = new WoodType[values().length];
 		
 		for (WoodType type : values())
-			WOOD_TYPES[type.getIndex()] = type;
+			TYPES[type.getIndex()] = type;
 	}
 	
 	private final int index;

@@ -21,25 +21,32 @@ public class BlockTextures {
 		}
 	}
 	
-	public static final ITextureRegion DIRT_TEXTURE              = blocksTexture.getRegion(0.50f, 0.75f, 0.75f, 1.00f);
-	public static final ITextureRegion GRASS_TOP_TEXTURE         = blocksTexture.getRegion(0.25f, 0.75f, 0.50f, 1.00f);
-	public static final ITextureRegion GRASS_SIDE_TEXTURE        = blocksTexture.getRegion(0.00f, 0.75f, 0.25f, 1.00f);
+	public static final ITextureRegion DIRT_TEXTURE              = getRegion(2, 0);
+	public static final ITextureRegion GRASS_TOP_TEXTURE         = getRegion(1, 0);
+	public static final ITextureRegion GRASS_SIDE_TEXTURE        = getRegion(0, 0);
 	
-	public static final ITextureRegion STONE_TEXTURE             = blocksTexture.getRegion(0.00f, 0.50f, 0.25f, 0.75f);
-	public static final ITextureRegion COBBLESTONE_TEXTURE       = blocksTexture.getRegion(0.25f, 0.50f, 0.50f, 0.75f);
+	public static final ITextureRegion STONE_TEXTURE             = getRegion(0, 1);
+	public static final ITextureRegion COBBLESTONE_TEXTURE       = getRegion(1, 1);
 	
-	public static final ITextureRegion OAK_PLANKS_TEXTURE        = blocksTexture.getRegion(0.00f, 0.25f, 0.25f, 0.50f);
-	public static final ITextureRegion BIRCH_PLANKS_TEXTURE      = blocksTexture.getRegion(0.25f, 0.25f, 0.50f, 0.50f);
-	public static final ITextureRegion ACACIA_PLANKS_TEXTURE     = blocksTexture.getRegion(0.50f, 0.25f, 0.75f, 0.50f);
+	public static final ITextureRegion OAK_PLANKS_TEXTURE        = getRegion(0, 2);
+	public static final ITextureRegion BIRCH_PLANKS_TEXTURE      = getRegion(1, 2);
+	public static final ITextureRegion ACACIA_PLANKS_TEXTURE     = getRegion(2, 2);
 	
-	public static final ITextureRegion OAK_LOG_SIDE_TEXTURE      = blocksTexture.getRegion(0.00f, 0.00f, 0.25f, 0.25f);
-	public static final ITextureRegion OAK_LOG_TOP_TEXTURE       = blocksTexture.getRegion(0.25f, 0.00f, 0.50f, 0.25f);
-	public static final ITextureRegion LEAVES_TEXTURE            = blocksTexture.getRegion(0.50f, 0.00f, 0.75f, 0.25f);
+	public static final ITextureRegion OAK_LOG_SIDE_TEXTURE      = getRegion(0, 3);
+	public static final ITextureRegion OAK_LOG_TOP_TEXTURE       = getRegion(1, 3);
+	public static final ITextureRegion LEAVES_TEXTURE            = getRegion(2, 3);
 	
-	public static final ITextureRegion GRASS_PLANT_TEXTURE       = blocksTexture.getRegion(0.75f, 0.75f, 1.00f, 1.00f);
-	public static final ITextureRegion FORGETMENOT_PLANT_TEXTURE = blocksTexture.getRegion(0.75f, 0.50f, 1.00f, 0.75f);
-	public static final ITextureRegion MARIGOLD_PLANT_TEXTURE    = blocksTexture.getRegion(0.75f, 0.25f, 1.00f, 0.50f);
-	public static final ITextureRegion DAISY_PLANT_TEXTURE       = blocksTexture.getRegion(0.75f, 0.00f, 1.00f, 0.25f);
+	public static final ITextureRegion GRASS_PLANT_TEXTURE       = getRegion(3, 0);
+	public static final ITextureRegion FORGETMENOT_PLANT_TEXTURE = getRegion(3, 1);
+	public static final ITextureRegion MARIGOLD_PLANT_TEXTURE    = getRegion(3, 2);
+	public static final ITextureRegion DAISY_PLANT_TEXTURE       = getRegion(3, 3);
+	
+	private static ITextureRegion getRegion(int sx, int sy) {
+		int xs0 = sx * 16;
+		int ys0 = sy * 16;
+		
+		return blocksTexture.getRegion(xs0, ys0, xs0 + 16, ys0 + 16);
+	}
 	
 	public static void bindBlocksTexture() {
 		blocksTexture.bind();

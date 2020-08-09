@@ -4,7 +4,7 @@ import minecraft.common.math.LinMath;
 import minecraft.common.math.Mat4;
 import minecraft.common.math.Vec3;
 import minecraft.common.world.block.MutableBlockPosition;
-import minecraft.common.world.block.state.BlockState;
+import minecraft.common.world.block.state.IBlockState;
 
 public class BlockRay {
 
@@ -46,7 +46,7 @@ public class BlockRay {
 	public BlockHitResult castRay(float x, float y, float z, Vec3 dir) {
 		dir = new Vec3(dir).normalize().mul(stepSize);
 	
-		MutableBlockPosition blockPos = new MutableBlockPosition();
+		MutableBlockPosition pos = new MutableBlockPosition();
 		
 		boolean first = false;
 		
@@ -56,18 +56,20 @@ public class BlockRay {
 			int yy = (int)y;
 			int zz = (int)z;
 			
-			if (first || !blockPos.equals(xx, yy, zz)) {
+			if (first || !pos.equals(xx, yy, zz)) {
 				first = false;
 				
-				blockPos.x = xx;
-				blockPos.y = yy;
-				blockPos.z = zz;
+				pos.x = xx;
+				pos.y = yy;
+				pos.z = zz;
 				
-				BlockState block = world.getBlockState(blockPos);
-				if (block.getBlock() != Blocks.AIR_BLOCK) {
+				IBlockState state = world.getBlockState(pos);
+				
+				if (!state.isOf(Blocks.AIR_BLOCK)) {
 					Vec3 hitOffset = new Vec3(x - xx - 0.5f, y - yy - 0.5f, z - zz - 0.5f);
 					Direction face = Direction.fromVector(hitOffset);
-					return new BlockHitResult(blockPos, x, y, z, face);
+					
+					return new BlockHitResult(pos, x, y, z, face);
 				}
 			}
 			

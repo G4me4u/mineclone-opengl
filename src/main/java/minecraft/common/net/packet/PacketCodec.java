@@ -8,6 +8,7 @@ import io.netty.handler.codec.ByteToMessageCodec;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.EncoderException;
 import minecraft.common.SupplierRegistry;
+import minecraft.common.net.NetworkPhase;
 import minecraft.common.net.NetworkSide;
 import minecraft.common.util.DebugUtil;
 
@@ -34,19 +35,23 @@ public class PacketCodec extends ByteToMessageCodec<IPacket<?>> {
 		if (DebugUtil.PERFORM_CHECKS && !outboundRegistry.containsElement(packet))
 			throw new EncoderException("Attempting to encode packet which is not in registry: " + packet);
 	
+		System.out.println(packet);
+		
 		int lengthIndex = outBuffer.writerIndex();
 		outBuffer.writeZero(LENGTH_BYTE_SIZE);
 
 		short packetId = outboundRegistry.getIdentifier(packet);
 		outBuffer.writeShortLE(packetId);
 		
-		packet.encode(outBuffer);
+		packet.encode(PacketEncodeBuffer.wrap(outBuffer));
 		
 		int packetLength = outBuffer.writerIndex() - (lengthIndex + HEADER_BYTE_SIZE);
 		if (DebugUtil.PERFORM_CHECKS && packetLength > MAXIMUM_PACKET_LENGTH)
 			throw new EncoderException("Packet length exceeds maximum (" + MAXIMUM_PACKET_LENGTH + "): " + packetLength);
 		
 		outBuffer.setShortLE(lengthIndex, (short)packetLength);
+	
+		System.out.println("Done!");
 	}
 
 	@Override
@@ -64,16 +69,17 @@ public class PacketCodec extends ByteToMessageCodec<IPacket<?>> {
 				IPacket<?> packet = inboundRegistry.createNewElement(packetId);
 				if (packet == null)
 					throw new DecoderException("Attempting to decode unknown packet: " + packetId);
-			
-				packet.decode(buffer.readSlice(packetLength));
+
+				ByteBuf bufferSlice = buffer.readSlice(packetLength);
+				packet.decode(PacketDecodeBuffer.wrap(bufferSlice));
 				
 				out.add(packet);
 			}
 		}
 	}
 	
-	public static PacketCodec create(NetworkSide side) {
-		return new PacketCodec(PacketRegistries.getRegistry(side),
-		                       PacketRegistries.getRegistry(side.getOpposite()));
+	public static PacketCodec create(NetworkPhase phase, NetworkSide side) {
+		return new PacketCodec(PacketRegistries.getRegistry(phase, side),
+		                       PacketRegistries.getRegistry(phase, side.getOpposite()));
 	}
 }

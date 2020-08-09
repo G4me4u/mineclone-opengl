@@ -1,7 +1,7 @@
 package minecraft.common.world.block;
 
 import minecraft.client.renderer.world.BlockTextures;
-import minecraft.common.world.block.state.BlockState;
+import minecraft.common.world.block.state.IBlockState;
 
 public class DirtBlock extends BasicSolidBlock {
 	
@@ -10,7 +10,7 @@ public class DirtBlock extends BasicSolidBlock {
 	}
 	
 	@Override
-	public boolean canGrowVegetation(BlockState state) {
+	public boolean canGrowVegetation(IBlockState state) {
 		return true;
 	}
 }

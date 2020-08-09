@@ -16,10 +16,10 @@ public class MutableBlockPosition implements IBlockPosition {
 		this.z = z;
 	}
 	
-	public MutableBlockPosition(IBlockPosition blockPos) {
-		this.x = blockPos.getX();
-		this.y = blockPos.getY();
-		this.z = blockPos.getZ();
+	public MutableBlockPosition(IBlockPosition pos) {
+		this.x = pos.getX();
+		this.y = pos.getY();
+		this.z = pos.getZ();
 	}
 	
 	@Override
@@ -45,6 +45,11 @@ public class MutableBlockPosition implements IBlockPosition {
 	@Override
 	public ImmutableBlockPosition toImmutable() {
 		return new ImmutableBlockPosition(this);
+	}
+	
+	@Override
+	public int hashCode() {
+		return IBlockPosition.hashCode(this);
 	}
 	
 	@Override

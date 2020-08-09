@@ -4,12 +4,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import minecraft.common.world.Direction;
-import minecraft.common.world.IServerWorld;
 import minecraft.common.world.block.Block;
-import minecraft.common.world.block.IBlockPosition;
 
-public class BlockState {
+public class BlockState implements IBlockState {
 
 	private final Block block;
 	private final BlockState[] states;
@@ -37,52 +34,65 @@ public class BlockState {
 		values = null;
 	}
 	
-	public void onAdded(IServerWorld world, IBlockPosition blockPos) {
-		block.onAdded(this, world, blockPos);
-	}
-	
-	public void onRemoved(IServerWorld world, IBlockPosition blockPos) {
-		block.onRemoved(this, world, blockPos);
-	}
-	
-	public void onStateReplaced(IServerWorld world, IBlockPosition blockPos) {
-		block.onStateReplaced(this, world, blockPos);
-	}
-	
-	public boolean canGrowVegetation() {
-		return block.canGrowVegetation(this);
-	}
-	
-	public boolean conductsRedstonePower() {
-		return block.conductsRedstonePower(this);
-	}
-	
-	public boolean connectsToRedstoneWire(Direction direction) {
-		return block.connectsToRedstoneWire(this, direction);
-	}
-	
-	public int getPower(IServerWorld world, IBlockPosition blockPos, Direction direction, int type) {
-		return block.getPower(this, world, blockPos, direction, type);
-	}
-	
+	@Override
 	public Block getBlock() {
 		return block;
 	}
 	
-	public boolean isOf(Block block) {
-		return this.block.equals(block);
+	@Override
+	public <T> T getValue(IBlockProperty<T> property) {
+		int index = getPropertyInfo(property).getIndex();
+		return property.getValue(values[index]);
+	}
+
+	@Override
+	public <T> IBlockState withProperty(IBlockProperty<T> property, T value) {
+		PropertyInfo propertyInfo = getPropertyInfo(property);
+		int diff = property.getValueIndex(value) - values[propertyInfo.getIndex()];
+		return states[stateIndex + diff * propertyInfo.stride];
 	}
 	
-	public void onBlockUpdate(IServerWorld world, IBlockPosition blockPos, Direction direction, BlockState sourceState) {
-		block.onBlockUpdate(this, world, blockPos, direction, sourceState);
+	@Override
+	public <T> IBlockState incrementProperty(IBlockProperty<T> property) {
+		int index = stateIndex + getPropertyInfo(property).stride;
+		if (index >= states.length)
+			index -= states.length;
+		
+		return states[index];
+	}
+
+	@Override
+	public <T> IBlockState decrementProperty(IBlockProperty<T> property) {
+		int index = stateIndex - getPropertyInfo(property).stride;
+		if (index < 0)
+			index += states.length;
+		
+		return states[index];
 	}
 	
-	public void onStateUpdate(IServerWorld world, IBlockPosition blockPos, Direction direction, BlockState sourceState) {
-		block.onStateUpdate(this, world, blockPos, direction, sourceState);
+	@Override
+	public IBlockState incrementState() {
+		// Just like the index would wrap around to zero when going above 
+		// states.length - 1, we wrap around and return ourselves, if the
+		// state array is empty.
+		if (states == null)
+			return this;
+
+		int index = stateIndex + 1;
+		if (index >= states.length)
+			return states[0];
+		return states[index];
 	}
-	
-	public void onInventoryUpdate(IServerWorld world, IBlockPosition blockPos, Direction direction, BlockState sourceState) {
-		block.onInventoryUpdate(this, world, blockPos, direction, sourceState);
+
+	@Override
+	public IBlockState decrementState() {
+		if (states == null)
+			return this;
+		
+		int index = stateIndex - 1;
+		if (index < 0)
+			return states[states.length - 1];
+		return states[index];
 	}
 	
 	private <T> PropertyInfo getPropertyInfo(IBlockProperty<T> property) {
@@ -96,57 +106,10 @@ public class BlockState {
 		return propertyInfo;
 	}
 	
-	public <T> T getValue(IBlockProperty<T> property) {
-		int index = getPropertyInfo(property).getIndex();
-		return property.getValue(values[index]);
-	}
-
-	public <T> BlockState withProperty(IBlockProperty<T> property, T value) {
-		PropertyInfo propertyInfo = getPropertyInfo(property);
-		int diff = property.getValueIndex(value) - values[propertyInfo.getIndex()];
-		return states[stateIndex + diff * propertyInfo.stride];
-	}
-	
-	public <T> BlockState incrementProperty(IBlockProperty<T> property) {
-		int index = stateIndex + getPropertyInfo(property).stride;
-		if (index >= states.length)
-			index -= states.length;
+	public static IBlockState createStateTree(Block block, IBlockProperty<?>... properties) {
+		if (block == null)
+			throw new IllegalArgumentException("block is null!");
 		
-		return states[index];
-	}
-
-	public <T> BlockState decrementProperty(IBlockProperty<T> property) {
-		int index = stateIndex - getPropertyInfo(property).stride;
-		if (index < 0)
-			index += states.length;
-		
-		return states[index];
-	}
-	
-	public BlockState incrementState() {
-		// Just like the index would wrap around to zero when going above 
-		// states.length - 1, we wrap around and return ourselves, if the
-		// state array is empty.
-		if (states == null)
-			return this;
-
-		int index = stateIndex + 1;
-		if (index >= states.length)
-			return states[0];
-		return states[index];
-	}
-
-	public BlockState decrementState() {
-		if (states == null)
-			return this;
-		
-		int index = stateIndex - 1;
-		if (index < 0)
-			return states[states.length - 1];
-		return states[index];
-	}
-	
-	public static BlockState createStateTree(Block block, IBlockProperty<?>... properties) {
 		int numProperties = properties.length;
 		if (numProperties == 0)
 			return new BlockState(block);
@@ -210,11 +173,7 @@ public class BlockState {
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append("BlockState[block=");
-		if (block == null) {
-			sb.append("null");
-		} else {
-			sb.append(block.getName());
-		}
+		sb.append(block.getName());
 
 		if (propertyLookup != null) {
 			for (Map.Entry<IBlockProperty<?>, PropertyInfo> entry : propertyLookup.entrySet()) {

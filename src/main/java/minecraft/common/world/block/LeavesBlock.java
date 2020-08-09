@@ -4,7 +4,7 @@ import minecraft.client.renderer.model.BasicBlockModel;
 import minecraft.client.renderer.model.IBlockModel;
 import minecraft.client.renderer.world.BlockTextures;
 import minecraft.common.world.IWorld;
-import minecraft.common.world.block.state.BlockState;
+import minecraft.common.world.block.state.IBlockState;
 
 public class LeavesBlock extends Block {
 
@@ -15,12 +15,12 @@ public class LeavesBlock extends Block {
 	}
 	
 	@Override
-	public IBlockModel getModel(IWorld world, IBlockPosition pos, BlockState blockState) {
+	public IBlockModel getModel(IWorld world, IBlockPosition pos, IBlockState state) {
 		return model;
 	}
 	
 	@Override
-	protected boolean hasEntityHitbox(IWorld world, IBlockPosition pos, BlockState state) {
+	protected boolean hasEntityHitbox(IWorld world, IBlockPosition pos, IBlockState state) {
 		return true;
 	}
 	

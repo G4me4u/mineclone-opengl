@@ -7,15 +7,16 @@ import minecraft.common.world.IWorld;
 import minecraft.common.world.block.state.BlockState;
 import minecraft.common.world.block.state.EnumBlockProperty;
 import minecraft.common.world.block.state.IBlockProperty;
+import minecraft.common.world.block.state.IBlockState;
 
 public class WoodPlanksBlock extends Block {
 
-	public static final IBlockProperty<WoodType> WOOD_TYPE_PROPERTY = new EnumBlockProperty<>("type", WoodType.WOOD_TYPES);
+	public static final IBlockProperty<WoodType> WOOD_TYPE_PROPERTY = new EnumBlockProperty<>("type", WoodType.TYPES);
 	
 	private final IBlockModel[] models;
 	
 	protected WoodPlanksBlock() {
-		models = new IBlockModel[WoodType.WOOD_TYPES.length];
+		models = new IBlockModel[WoodType.TYPES.length];
 		
 		models[WoodType.OAK.getIndex()] = new BasicBlockModel(BlockTextures.OAK_PLANKS_TEXTURE);
 		models[WoodType.BIRCH.getIndex()] = new BasicBlockModel(BlockTextures.BIRCH_PLANKS_TEXTURE);
@@ -23,8 +24,8 @@ public class WoodPlanksBlock extends Block {
 	}
 	
 	@Override
-	public IBlockModel getModel(IWorld world, IBlockPosition pos, BlockState blockState) {
-		return models[blockState.getValue(WOOD_TYPE_PROPERTY).getIndex()];
+	public IBlockModel getModel(IWorld world, IBlockPosition pos, IBlockState state) {
+		return models[state.getValue(WOOD_TYPE_PROPERTY).getIndex()];
 	}
 	
 	@Override
@@ -33,7 +34,7 @@ public class WoodPlanksBlock extends Block {
 	}
 	
 	@Override
-	protected BlockState createDefaultState() {
+	protected IBlockState createDefaultState() {
 		return BlockState.createStateTree(this, WOOD_TYPE_PROPERTY);
 	}
 }

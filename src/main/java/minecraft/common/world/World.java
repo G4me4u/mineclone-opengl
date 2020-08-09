@@ -9,7 +9,7 @@ import minecraft.common.math.Vec3;
 import minecraft.common.world.block.Block;
 import minecraft.common.world.block.IBlockPosition;
 import minecraft.common.world.block.MutableBlockPosition;
-import minecraft.common.world.block.state.BlockState;
+import minecraft.common.world.block.state.IBlockState;
 import minecraft.common.world.entity.PlayerEntity;
 
 public class World implements IWorld {
@@ -44,12 +44,12 @@ public class World implements IWorld {
 		return blockRay.castRay(x, y, z, dir);
 	}
 	
-	public WorldChunk getChunk(IBlockPosition blockPos) {
-		if (blockPos.getY() < 0 || blockPos.getY() >= WORLD_HEIGHT)
+	public WorldChunk getChunk(IBlockPosition pos) {
+		if (pos.getY() < 0 || pos.getY() >= WORLD_HEIGHT)
 			return null;
 		
-		int chunkX = Math.floorDiv(blockPos.getX(), WorldChunk.CHUNK_SIZE);
-		int chunkZ = Math.floorDiv(blockPos.getZ(), WorldChunk.CHUNK_SIZE);
+		int chunkX = Math.floorDiv(pos.getX(), WorldChunk.CHUNK_SIZE);
+		int chunkZ = Math.floorDiv(pos.getZ(), WorldChunk.CHUNK_SIZE);
 		
 		return getChunk(chunkX, chunkZ);
 	}
@@ -64,29 +64,29 @@ public class World implements IWorld {
 	}
 	
 	@Override
-	public BlockState getBlockState(IBlockPosition blockPos) {
-		WorldChunk chunk = getChunk(blockPos);
+	public IBlockState getBlockState(IBlockPosition pos) {
+		WorldChunk chunk = getChunk(pos);
 		if (chunk == null)
 			return Blocks.AIR_BLOCK.getDefaultState();
-		return chunk.getBlockState(blockPos);
+		return chunk.getBlockState(pos);
 	}
 	
 	@Override
-	public Block getBlock(IBlockPosition blockPos) {
-		return getBlockState(blockPos).getBlock();
+	public Block getBlock(IBlockPosition pos) {
+		return getBlockState(pos).getBlock();
 	}
 	
 	@Override
-	public int getHighestPoint(IBlockPosition blockPos) {
-		WorldChunk chunk = getChunk(blockPos);
+	public int getHighestPoint(IBlockPosition pos) {
+		WorldChunk chunk = getChunk(pos);
 		if (chunk == null)
 			return 0;
-		return chunk.getHighestPoint(blockPos);
+		return chunk.getHighestPoint(pos);
 	}
 	
 	@Override
-	public boolean isLoadedBlock(IBlockPosition blockPos) {
-		return getChunk(blockPos) != null;
+	public boolean isLoadedBlock(IBlockPosition pos) {
+		return getChunk(pos) != null;
 	}
 	
 	@Override
@@ -122,8 +122,7 @@ public class World implements IWorld {
 		for (pos.x = (int)hitbox.x0; pos.x <= x1; pos.x++) {
 			for (pos.y = (int)hitbox.y0; pos.y <= y1; pos.y++) {
 				for (pos.z = (int)hitbox.z0; pos.z <= z1; pos.z++) {
-					BlockState state = getBlockState(pos);
-					state.getBlock().getEntityHitboxes(this, pos, state, hitboxes);
+					getBlockState(pos).getEntityHitboxes(this, pos, hitboxes);
 				}
 			}
 		}

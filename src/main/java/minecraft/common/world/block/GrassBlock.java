@@ -9,7 +9,7 @@ import minecraft.common.world.Blocks;
 import minecraft.common.world.Direction;
 import minecraft.common.world.IServerWorld;
 import minecraft.common.world.IWorld;
-import minecraft.common.world.block.state.BlockState;
+import minecraft.common.world.block.state.IBlockState;
 
 public class GrassBlock extends Block {
 
@@ -21,17 +21,14 @@ public class GrassBlock extends Block {
 		                            BlockTextures.GRASS_SIDE_TEXTURE);
 	}
 	
-	private boolean isValidGrassCondition(IWorld world, IBlockPosition pos) {
-		return !world.getBlock(pos.getOffset(Direction.UP)).isSolid();
+	@Override
+	public void onBlockUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir, IBlockState sourceState) {
+		if (dir == Direction.UP && !isValidGrassCondition(world, pos))
+			world.setBlock(pos, Blocks.DIRT_BLOCK, true);
 	}
 	
 	@Override
-	public boolean canGrowVegetation(BlockState state) {
-		return true;
-	}
-	
-	@Override
-	public void randomUpdate(IServerWorld world, IBlockPosition pos, BlockState blockState, Random random) {
+	public void onRandomUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Random random) {
 		if (!isValidGrassCondition(world, pos)) {
 			world.setBlock(pos, Blocks.DIRT_BLOCK, true);
 			return;
@@ -43,14 +40,24 @@ public class GrassBlock extends Block {
 	
 		if (xo != 0 && yo != 0 && zo != 0) {
 			IBlockPosition dirtPos = pos.getOffset(xo, yo, zo);
+			
 			if (world.getBlock(dirtPos) == Blocks.DIRT_BLOCK && isValidGrassCondition(world, dirtPos))
 				world.setBlock(dirtPos, Blocks.GRASS_BLOCK, true);
 		}
 	}
 	
+	private boolean isValidGrassCondition(IWorld world, IBlockPosition pos) {
+		return !world.getBlock(pos.getOffset(Direction.UP)).isSolid();
+	}
+	
 	@Override
 	public boolean hasRandomUpdate() {
 		return true;
+	}
+
+	@Override
+	public IBlockModel getModel(IWorld world, IBlockPosition pos, IBlockState state) {
+		return model;
 	}
 	
 	@Override
@@ -59,14 +66,7 @@ public class GrassBlock extends Block {
 	}
 	
 	@Override
-	public IBlockModel getModel(IWorld world, IBlockPosition pos, BlockState blockState) {
-		return model;
-	}
-	
-	@Override
-	public void onBlockUpdate(BlockState state, IServerWorld world, IBlockPosition blockPos, Direction direction, BlockState sourceState) {
-		if (direction == Direction.UP && !isValidGrassCondition(world, blockPos)) {
-			world.setBlock(blockPos, Blocks.DIRT_BLOCK, true);
-		}
+	public boolean canGrowVegetation(IBlockState state) {
+		return true;
 	}
 }

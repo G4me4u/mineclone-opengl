@@ -83,7 +83,7 @@ public abstract class AbstractTessellator2D implements ITessellator2D {
 	@Override
 	public void drawQuadRegion(float x0, float y0, float u0, float v0, float x1, float y1, float u1, float v1) {
 		if (textureRegion != null) {
-			ITextureRegion region = textureRegion.getRegion(u0, v0, u1, v1);
+			ITextureRegion region = textureRegion.getUVRegion(u0, v0, u1, v1);
 			
 			u0 = region.getU0();
 			v0 = region.getV0();

@@ -80,29 +80,29 @@ public class WorldRenderer implements IResource {
 		camera.setPerspective(CAMERA_FOV, aspect, CAMERA_NEAR, CAMERA_FAR);
 	}
 
-	public void markDirty(IBlockPosition blockPos, boolean includeBorders) {
-		int chunkX = blockPos.getX() / ViewChunk.CHUNK_SIZE;
-		int chunkY = blockPos.getY() / ViewChunk.CHUNK_SIZE;
-		int chunkZ = blockPos.getZ() / ViewChunk.CHUNK_SIZE;
+	public void markDirty(IBlockPosition pos, boolean includeBorders) {
+		int chunkX = pos.getX() / ViewChunk.CHUNK_SIZE;
+		int chunkY = pos.getY() / ViewChunk.CHUNK_SIZE;
+		int chunkZ = pos.getZ() / ViewChunk.CHUNK_SIZE;
 
 		markChunkDirty(chunkX, chunkY, chunkZ);
 	
 		if (includeBorders) {
-			int xSub = Math.abs(blockPos.getX() % ViewChunk.CHUNK_SIZE);
+			int xSub = Math.abs(pos.getX() % ViewChunk.CHUNK_SIZE);
 			if (xSub == 0) {
 				markChunkDirty(chunkX - 1, chunkY, chunkZ);
 			} else if (xSub == ViewChunk.CHUNK_SIZE - 1) {
 				markChunkDirty(chunkX + 1, chunkY, chunkZ);
 			}
 			
-			int ySub = Math.abs(blockPos.getY() % ViewChunk.CHUNK_SIZE);
+			int ySub = Math.abs(pos.getY() % ViewChunk.CHUNK_SIZE);
 			if (ySub == 0) {
 				markChunkDirty(chunkX, chunkY - 1, chunkZ);
 			} else if (ySub == ViewChunk.CHUNK_SIZE - 1) {
 				markChunkDirty(chunkX, chunkY + 1, chunkZ);
 			}
 			
-			int zSub = Math.abs(blockPos.getZ() % ViewChunk.CHUNK_SIZE);
+			int zSub = Math.abs(pos.getZ() % ViewChunk.CHUNK_SIZE);
 			if (zSub == 0) {
 				markChunkDirty(chunkX, chunkY, chunkZ - 1);
 			} else if (zSub == ViewChunk.CHUNK_SIZE - 1) {

@@ -4,7 +4,7 @@ import minecraft.client.renderer.model.BasicBlockModel;
 import minecraft.client.renderer.model.IBlockModel;
 import minecraft.client.renderer.world.BlockTextures;
 import minecraft.common.world.IWorld;
-import minecraft.common.world.block.state.BlockState;
+import minecraft.common.world.block.state.IBlockState;
 
 public class WoodLogBlock extends Block {
 
@@ -15,14 +15,14 @@ public class WoodLogBlock extends Block {
 		                            BlockTextures.OAK_LOG_TOP_TEXTURE,
 		                            BlockTextures.OAK_LOG_SIDE_TEXTURE);
 	}
+
+	@Override
+	public IBlockModel getModel(IWorld world, IBlockPosition pos, IBlockState state) {
+		return model;
+	}
 	
 	@Override
 	public boolean isSolid() {
 		return true;
-	}
-	
-	@Override
-	public IBlockModel getModel(IWorld world, IBlockPosition pos, BlockState blockState) {
-		return model;
 	}
 }

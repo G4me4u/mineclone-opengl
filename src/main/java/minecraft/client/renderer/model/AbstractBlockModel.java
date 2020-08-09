@@ -5,7 +5,7 @@ import minecraft.client.graphic.tessellator.VertexAttribBuilder;
 import minecraft.common.world.Direction;
 import minecraft.common.world.World;
 import minecraft.common.world.block.IBlockPosition;
-import minecraft.common.world.block.state.BlockState;
+import minecraft.common.world.block.state.IBlockState;
 
 public abstract class AbstractBlockModel implements IBlockModel {
 
@@ -15,7 +15,7 @@ public abstract class AbstractBlockModel implements IBlockModel {
 		IBlockPosition offsetPos = pos.getOffset(face);
 		
 		if (world.isLoadedBlock(offsetPos)) {
-			BlockState offsetState = world.getBlockState(offsetPos);
+			IBlockState offsetState = world.getBlockState(offsetPos);
 			
 			if (!offsetState.getBlock().isSolid()) {
 				float lightness = getLightness(world, offsetPos);
@@ -31,26 +31,7 @@ public abstract class AbstractBlockModel implements IBlockModel {
 		float z = pos.getZ();
 		
 		switch (face) {
-		case NORTH: // FRONT
-			builder.putFloat3(x + 0.0f, y + 0.0f, z + 1.0f - offset);
-			builder.putFloat2(tex.getU0(), tex.getV0());
-			builder.putFloat(lightness);
-			builder.next();
-			builder.putFloat3(x + 1.0f, y + 0.0f, z + 1.0f - offset);
-			builder.putFloat2(tex.getU1(), tex.getV0());
-			builder.putFloat(lightness);
-			builder.next();
-			builder.putFloat3(x + 1.0f, y + 1.0f, z + 1.0f - offset);
-			builder.putFloat2(tex.getU1(), tex.getV1());
-			builder.putFloat(lightness);
-			builder.next();
-			builder.putFloat3(x + 0.0f, y + 1.0f, z + 1.0f - offset);
-			builder.putFloat2(tex.getU0(), tex.getV1());
-			builder.putFloat(lightness);
-			builder.next();
-
-			break;
-		case SOUTH: // BACK
+		case NORTH: // BACK
 			builder.putFloat3(x + 0.0f, y + 0.0f, z + 0.0f + offset);
 			builder.putFloat2(tex.getU1(), tex.getV0());
 			builder.putFloat(lightness);
@@ -65,6 +46,25 @@ public abstract class AbstractBlockModel implements IBlockModel {
 			builder.next();
 			builder.putFloat3(x + 1.0f, y + 0.0f, z + 0.0f + offset);
 			builder.putFloat2(tex.getU0(), tex.getV0());
+			builder.putFloat(lightness);
+			builder.next();
+
+			break;
+		case SOUTH: // FRONT
+			builder.putFloat3(x + 0.0f, y + 0.0f, z + 1.0f - offset);
+			builder.putFloat2(tex.getU0(), tex.getV0());
+			builder.putFloat(lightness);
+			builder.next();
+			builder.putFloat3(x + 1.0f, y + 0.0f, z + 1.0f - offset);
+			builder.putFloat2(tex.getU1(), tex.getV0());
+			builder.putFloat(lightness);
+			builder.next();
+			builder.putFloat3(x + 1.0f, y + 1.0f, z + 1.0f - offset);
+			builder.putFloat2(tex.getU1(), tex.getV1());
+			builder.putFloat(lightness);
+			builder.next();
+			builder.putFloat3(x + 0.0f, y + 1.0f, z + 1.0f - offset);
+			builder.putFloat2(tex.getU0(), tex.getV1());
 			builder.putFloat(lightness);
 			builder.next();
 
@@ -145,6 +145,8 @@ public abstract class AbstractBlockModel implements IBlockModel {
 			builder.next();
 
 			break;
+		default:
+			throw new IllegalStateException("Unknown face: " + face);
 		}
 	}
 	

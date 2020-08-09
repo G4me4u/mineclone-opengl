@@ -12,6 +12,7 @@ import minecraft.common.world.EntityHitbox;
 import minecraft.common.world.IServerWorld;
 import minecraft.common.world.IWorld;
 import minecraft.common.world.block.state.BlockState;
+import minecraft.common.world.block.state.IBlockState;
 import minecraft.server.world.ServerWorld;
 
 public class Block {
@@ -30,30 +31,42 @@ public class Block {
 	private static ReferenceRegsitry<String, Block> blockRegistry = null;
 	
 	private String name;
-	private final BlockState defaultBlockState;
+	private final IBlockState defaultState;
 	
 	protected Block() {
 		name = null;
-		defaultBlockState = createDefaultState();
-	}
-	
-	protected BlockState createDefaultState() {
-		return BlockState.createStateTree(this);
-	}
-	
-	public void onAdded(BlockState state, IServerWorld world, IBlockPosition blockPos) {
-		world.updateNeighbors(blockPos, state, ServerWorld.BLOCK_FLAG + ServerWorld.STATE_FLAG);
-	}
-	
-	public void onRemoved(BlockState state, IServerWorld world, IBlockPosition blockPos) {
-		world.updateNeighbors(blockPos, state, ServerWorld.BLOCK_FLAG + ServerWorld.STATE_FLAG);
-	}
-	
-	public void onStateReplaced(BlockState state, IServerWorld world, IBlockPosition blockPos) {
 		
+		defaultState = createDefaultState();
 	}
 	
-	public void getEntityHitboxes(IWorld world, IBlockPosition pos, BlockState state, List<EntityHitbox> hitboxes) {
+	public void onAdded(IServerWorld world, IBlockPosition pos, IBlockState state) {
+		world.updateNeighbors(pos, state, ServerWorld.BLOCK_FLAG | ServerWorld.STATE_FLAG);
+	}
+	
+	public void onRemoved(IServerWorld world, IBlockPosition pos, IBlockState state) {
+		world.updateNeighbors(pos, state, ServerWorld.BLOCK_FLAG | ServerWorld.STATE_FLAG);
+	}
+	
+	public void onStateReplaced(IServerWorld world, IBlockPosition pos, IBlockState state) {
+	}
+	
+	public void onBlockUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir, IBlockState neighborState) {
+	}
+	
+	public void onStateUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir, IBlockState neighborState) {
+	}
+	
+	public void onInventoryUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir, IBlockState neighborState) {
+	}
+	
+	public void onRandomUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Random random) {
+	}
+	
+	public boolean hasRandomUpdate() {
+		return false;
+	}
+	
+	public void getEntityHitboxes(IWorld world, IBlockPosition pos, IBlockState state, List<EntityHitbox> hitboxes) {
 		if (hasEntityHitbox(world, pos, state)) {
 			float x = pos.getX();
 			float y = pos.getY();
@@ -63,11 +76,11 @@ public class Block {
 		}
 	}
 
-	protected boolean hasEntityHitbox(IWorld world, IBlockPosition pos, BlockState state) {
+	protected boolean hasEntityHitbox(IWorld world, IBlockPosition pos, IBlockState state) {
 		return isSolid();
 	}
 
-	public IBlockModel getModel(IWorld world, IBlockPosition pos, BlockState blockState) {
+	public IBlockModel getModel(IWorld world, IBlockPosition pos, IBlockState state) {
 		return null;
 	}
 	
@@ -75,43 +88,20 @@ public class Block {
 		return false;
 	}
 	
-	public boolean canGrowVegetation(BlockState state) {
+	public boolean canGrowVegetation(IBlockState state) {
 		return false;
 	}
 	
-	public boolean conductsRedstonePower(BlockState state) {
+	public boolean conductsRedstonePower(IBlockState state) {
 		return isSolid();
 	}
 	
-	public boolean connectsToRedstoneWire(BlockState state, Direction direction) {
+	public boolean connectsToRedstoneWire(IBlockState state, Direction dir) {
 		return false;
 	}
 	
-	public int getPower(BlockState state, IServerWorld world, IBlockPosition blockPos, Direction direction, int type) {
+	public int getPower(IBlockState state, IServerWorld world, IBlockPosition pos, Direction dir, int powerFlags) {
 		return 0;
-	}
-	
-	public void randomUpdate(IServerWorld world, IBlockPosition pos, BlockState blockState, Random random) {
-	}
-	
-	public boolean hasRandomUpdate() {
-		return false;
-	}
-	
-	public BlockState getDefaultState() {
-		return defaultBlockState;
-	}
-	
-	public void onBlockUpdate(BlockState state, IServerWorld world, IBlockPosition blockPos, Direction direction, BlockState neighborState) {
-		
-	}
-	
-	public void onStateUpdate(BlockState state, IServerWorld world, IBlockPosition blockPos, Direction direction, BlockState neighborState) {
-		
-	}
-	
-	public void onInventoryUpdate(BlockState state, IServerWorld world, IBlockPosition blockPos, Direction direction, BlockState neighborState) {
-		
 	}
 	
 	private void setName(String name) {
@@ -122,21 +112,30 @@ public class Block {
 		return name;
 	}
 	
+	protected IBlockState createDefaultState() {
+		return BlockState.createStateTree(this);
+	}
+	
+	public IBlockState getDefaultState() {
+		return defaultState;
+	}
+	
 	public static final void registerBlocks() {
 		if (blockRegistry != null)
 			throw new IllegalStateException("Already registered blocks!");
 		
 		blockRegistry = new ReferenceRegsitry<>();
 	
-		registerBlock(AIR_BLOCK_ID, new Block());
-		registerBlock(DIRT_BLOCK_ID, new DirtBlock());
-		registerBlock(GRASS_BLOCK_ID, new GrassBlock());
-		registerBlock(WOOD_PLANKS_BLOCK_ID, new WoodPlanksBlock());
-		registerBlock(STONE_BLOCK_ID, new BasicSolidBlock(BlockTextures.STONE_TEXTURE));
-		registerBlock(COBBLESTONE_BLOCK_ID, new BasicSolidBlock(BlockTextures.COBBLESTONE_TEXTURE));
-		registerBlock(PLANT_BLOCK_ID, new PlantBlock());
-		registerBlock(LEAVES_BLOCK_ID, new LeavesBlock());
-		registerBlock(WOOD_LOG_BLOCK_ID, new WoodLogBlock());
+		registerBlock(AIR_BLOCK_ID          , new Block());
+		registerBlock(DIRT_BLOCK_ID         , new DirtBlock());
+		registerBlock(GRASS_BLOCK_ID        , new GrassBlock());
+		registerBlock(WOOD_PLANKS_BLOCK_ID  , new WoodPlanksBlock());
+		registerBlock(STONE_BLOCK_ID        , new BasicSolidBlock(BlockTextures.STONE_TEXTURE));
+		registerBlock(COBBLESTONE_BLOCK_ID  , new BasicSolidBlock(BlockTextures.COBBLESTONE_TEXTURE));
+		registerBlock(PLANT_BLOCK_ID        , new PlantBlock());
+		registerBlock(LEAVES_BLOCK_ID       , new LeavesBlock());
+		registerBlock(WOOD_LOG_BLOCK_ID     , new WoodLogBlock());
+		registerBlock(REDSTONE_WIRE_BLOCK_ID, new RedstoneWireBlock());
 	}
 	
 	private static void registerBlock(String name, Block block) {

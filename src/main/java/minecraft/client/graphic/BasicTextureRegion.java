@@ -24,7 +24,7 @@ public class BasicTextureRegion implements ITextureRegion {
 	}
 
 	@Override
-	public ITextureRegion getRegion(float u0, float v0, float u1, float v1) {
+	public ITextureRegion getUVRegion(float u0, float v0, float u1, float v1) {
 		float du = this.u1 - this.u0;
 		float dv = this.v1 - this.v0;
 		
@@ -38,10 +38,22 @@ public class BasicTextureRegion implements ITextureRegion {
 	}
 
 	@Override
+	public ITextureRegion getRegion(int xs0, int ys0, int xs1, int ys1) {
+		float w = (u1 - u0) * texture.getWidth();
+		float h = (v1 - v0) * texture.getHeight();
+	
+		// Note that v0 and v1 are flipped with integer regions.
+		float nu0 = (float)xs0 / w;
+		float nv0 = 1.0f - (float)ys1 / h;
+		float nu1 = (float)xs1 / w;
+		float nv1 = 1.0f - (float)ys0 / h;
+	
+		return new BasicTextureRegion(texture, nu0, nv0, nu1, nv1);
+	}
+
+	@Override
 	public float getAspect() {
-		float du = this.u1 - this.u0;
-		float dv = this.v1 - this.v0;
-		return texture.getAspect() * du / dv;
+		return texture.getAspect() * (u1 - u0) / (v1 - v0);
 	}
 	
 	@Override

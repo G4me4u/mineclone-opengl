@@ -4,23 +4,23 @@ import minecraft.client.input.Keyboard;
 import minecraft.common.world.Blocks;
 import minecraft.common.world.block.WoodPlanksBlock;
 import minecraft.common.world.block.WoodType;
-import minecraft.common.world.block.state.BlockState;
+import minecraft.common.world.block.state.IBlockState;
 
 public class PlayerHotbar {
 
-	private final BlockState[] hotbarBlocks;
+	private final IBlockState[] hotbarBlocks;
 	private int hotbarIndex;
 
 	private boolean wasSwitchingHotbar;
 	
 	public PlayerHotbar() {
-		hotbarBlocks = new BlockState[8];
+		hotbarBlocks = new IBlockState[8];
 		hotbarIndex = 0;
 		
 		hotbarBlocks[0] = Blocks.DIRT_BLOCK.getDefaultState();
 		hotbarBlocks[1] = Blocks.GRASS_BLOCK.getDefaultState();
 		
-		BlockState plank = Blocks.WOOD_PLANKS_BLOCK.getDefaultState();
+		IBlockState plank = Blocks.WOOD_PLANKS_BLOCK.getDefaultState();
 		hotbarBlocks[2] = plank.withProperty(WoodPlanksBlock.WOOD_TYPE_PROPERTY, WoodType.OAK);
 		hotbarBlocks[3] = plank.withProperty(WoodPlanksBlock.WOOD_TYPE_PROPERTY, WoodType.BIRCH);
 		hotbarBlocks[4] = plank.withProperty(WoodPlanksBlock.WOOD_TYPE_PROPERTY, WoodType.ACACIA);
@@ -42,7 +42,7 @@ public class PlayerHotbar {
 		wasSwitchingHotbar = switchingHotbar;
 	}
 	
-	public BlockState getHotbarBlock() {
+	public IBlockState getHotbarBlock() {
 		return hotbarBlocks[hotbarIndex];
 	}
 }

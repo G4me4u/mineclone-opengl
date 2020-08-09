@@ -6,7 +6,9 @@ public interface ITextureRegion {
 
 	public ITexture getTexture();
 	
-	public ITextureRegion getRegion(float u0, float v0, float u1, float v1);
+	public ITextureRegion getUVRegion(float u0, float v0, float u1, float v1);
+
+	public ITextureRegion getRegion(int xs0, int ys0, int xs1, int ys1);
 	
 	default public ITextureRegion getWithAspect(float aspect) {
 		if (aspect < LinMath.EPSILON)
@@ -27,7 +29,7 @@ public interface ITextureRegion {
 		float u1 = u0 + du;
 		float v1 = v0 + dv;
 		
-		return getRegion(u0, v0, u1, v1);
+		return getUVRegion(u0, v0, u1, v1);
 	}
 
 	public float getAspect();

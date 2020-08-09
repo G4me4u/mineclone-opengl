@@ -15,7 +15,7 @@ import minecraft.common.world.block.ImmutableBlockPosition;
 import minecraft.common.world.block.MutableBlockPosition;
 import minecraft.common.world.block.PlantBlock;
 import minecraft.common.world.block.PlantType;
-import minecraft.common.world.block.state.BlockState;
+import minecraft.common.world.block.state.IBlockState;
 import minecraft.common.world.gen.DiamondNoise;
 
 public class ServerWorld extends World implements IServerWorld {
@@ -48,41 +48,41 @@ public class ServerWorld extends World implements IServerWorld {
 	}
 	
 	private void populateChunk(WorldChunk chunk) {
-		MutableBlockPosition blockPos = new MutableBlockPosition();
+		MutableBlockPosition pos = new MutableBlockPosition();
 		
 		int x0 = chunk.getChunkX() * WorldChunk.CHUNK_SIZE;
 		int z0 = chunk.getChunkZ() * WorldChunk.CHUNK_SIZE;
 		int x1 = x0 + WorldChunk.CHUNK_SIZE;
 		int z1 = z0 + WorldChunk.CHUNK_SIZE;
 		
-		for (blockPos.z = z0; blockPos.z < z1; blockPos.z++) {
-			for (blockPos.x = x0; blockPos.x < x1; blockPos.x++) {
-				blockPos.y = chunk.getHighestPoint(blockPos) + 1;
+		for (pos.z = z0; pos.z < z1; pos.z++) {
+			for (pos.x = x0; pos.x < x1; pos.x++) {
+				pos.y = chunk.getHighestPoint(pos) + 1;
 				
 				if (random.nextInt(80) == 0) {
-					growTree(blockPos);
+					growTree(pos);
 
-					blockPos.y--;
+					pos.y--;
 					
-					setBlock(blockPos, Blocks.DIRT_BLOCK, false);
+					setBlock(pos, Blocks.DIRT_BLOCK, false);
 				} else if (random.nextInt(20) == 0) {
-					BlockState plantState = Blocks.PLANT_BLOCK.getDefaultState();
+					IBlockState plantState = Blocks.PLANT_BLOCK.getDefaultState();
 					
-					PlantType type = PlantType.PLANT_TYPES[random.nextInt(PlantType.PLANT_TYPES.length)];
+					PlantType type = PlantType.TYPES[random.nextInt(PlantType.TYPES.length)];
 					plantState = plantState.withProperty(PlantBlock.PLANT_TYPE_PROPERTY, type);
 					
-					setBlockState(blockPos, plantState, false);
+					setBlockState(pos, plantState, false);
 				}
 			}
 		}
 	}
 	
 	@Override
-	public void growTree(IBlockPosition blockPos) {
+	public void growTree(IBlockPosition pos) {
 		int treeHeight = 5 + random.nextInt(3);
 		int trunkHeight = Math.max(1, treeHeight - 5);
 		
-		MutableBlockPosition tmpPos = new MutableBlockPosition(blockPos);
+		MutableBlockPosition tmpPos = new MutableBlockPosition(pos);
 		
 		for (int i = 0; i < treeHeight; i++) {
 			if (i > trunkHeight) {
@@ -90,8 +90,8 @@ public class ServerWorld extends World implements IServerWorld {
 				
 				for (int zo = -3; zo <= 3; zo++) {
 					for (int xo = -3; xo <= 3; xo++) {
-						tmpPos.x = blockPos.getX() + xo;
-						tmpPos.z = blockPos.getZ() + zo;
+						tmpPos.x = pos.getX() + xo;
+						tmpPos.z = pos.getZ() + zo;
 						
 						if (getBlock(tmpPos) == Blocks.AIR_BLOCK) {
 							int distSqr = xo * xo + yo * yo + zo * zo;
@@ -104,8 +104,8 @@ public class ServerWorld extends World implements IServerWorld {
 			}
 
 			if (i < treeHeight - 1) {
-				tmpPos.x = blockPos.getX();
-				tmpPos.z = blockPos.getZ();
+				tmpPos.x = pos.getX();
+				tmpPos.z = pos.getZ();
 				
 				setBlock(tmpPos, Blocks.WOOD_LOG_BLOCK, true);
 			}
@@ -115,20 +115,21 @@ public class ServerWorld extends World implements IServerWorld {
 	}
 	
 	@Override
-	public void setBlockState(IBlockPosition blockPos, BlockState state, boolean updateNeighbors) {
-		WorldChunk chunk = getChunk(blockPos);
+	public void setBlockState(IBlockPosition pos, IBlockState state, boolean updateNeighbors) {
+		WorldChunk chunk = getChunk(pos);
+		
 		if (chunk != null) {
-			BlockState oldState = chunk.getBlockState(blockPos);
+			IBlockState oldState = chunk.getBlockState(pos);
 
 			if (oldState != state) {
-				int oldHighestPoint = chunk.getHighestPoint(blockPos);
+				int oldHighestPoint = chunk.getHighestPoint(pos);
 				
-				if (chunk.setBlockState(blockPos, state)) {
-					int highestPoint = chunk.getHighestPoint(blockPos);
+				if (chunk.setBlockState(pos, state)) {
+					int highestPoint = chunk.getHighestPoint(pos);
 					
 					if (oldHighestPoint != highestPoint) {
-						int x = blockPos.getX();
-						int z = blockPos.getZ();
+						int x = pos.getX();
+						int z = pos.getZ();
 						
 						markRangeDirty(new ImmutableBlockPosition(x, oldHighestPoint, z), 
 						               new ImmutableBlockPosition(x,    highestPoint, z), true);
@@ -137,22 +138,21 @@ public class ServerWorld extends World implements IServerWorld {
 						Block newBlock = state.getBlock();
 						
 						if (oldBlock.isSolid() || newBlock.isSolid()) {
-							markDirty(blockPos, (oldBlock != newBlock));
+							markDirty(pos, (oldBlock != newBlock));
 						} else {
-							markDirty(blockPos, false);
+							markDirty(pos, false);
 						}
 					}
 					
 					if (updateNeighbors) {
-						if (state.isOf(Blocks.AIR_BLOCK)) {
-							oldState.onRemoved(this, blockPos);
-						}
-						if (oldState.isOf(Blocks.AIR_BLOCK)) {
-							state.onAdded(this, blockPos);
-						}
-						if (oldState.getBlock().equals(state.getBlock())) {
-							state.onStateReplaced(this, blockPos);
-						}
+						if (state.isOf(Blocks.AIR_BLOCK))
+							oldState.onRemoved(this, pos);
+						
+						if (oldState.isOf(Blocks.AIR_BLOCK))
+							state.onAdded(this, pos);
+						
+						if (oldState.isOf(state.getBlock()))
+							state.onStateReplaced(this, pos);
 					}
 				}
 			}
@@ -160,12 +160,12 @@ public class ServerWorld extends World implements IServerWorld {
 	}
 	
 	@Override
-	public void setBlock(IBlockPosition blockPos, Block block, boolean updateNeighbors) {
-		setBlockState(blockPos, block.getDefaultState(), updateNeighbors);
+	public void setBlock(IBlockPosition pos, Block block, boolean updateNeighbors) {
+		setBlockState(pos, block.getDefaultState(), updateNeighbors);
 	}
 	
 	@Override
-	public void updateNeighbors(IBlockPosition blockPos, BlockState state, int flags) {
+	public void updateNeighbors(IBlockPosition pos, IBlockState state, int flags) {
 		List<Integer> usedFlags = new ArrayList<>();
 		if ((flags | BLOCK_FLAG) != 0) {
 			usedFlags.add(BLOCK_FLAG);
@@ -178,25 +178,25 @@ public class ServerWorld extends World implements IServerWorld {
 		}
 		
 		for (int flag : usedFlags) {
-			for (Direction direction : Direction.DIRECTIONS) {
-				updateNeighbor(blockPos.getOffset(direction), direction.getOpposite(), state, flag);
+			for (Direction dir : Direction.DIRECTIONS) {
+				updateNeighbor(pos.getOffset(dir), dir.getOpposite(), state, flag);
 			}
 		}
 	}
 	
 	@Override
-	public void updateNeighbor(IBlockPosition blockPos, Direction fromDirection, BlockState neighborState, int flag) {
-		BlockState state = getBlockState(blockPos);
+	public void updateNeighbor(IBlockPosition pos, Direction fromDir, IBlockState neighborState, int flag) {
+		IBlockState state = getBlockState(pos);
 		
 		switch (flag) {
 		case BLOCK_FLAG:
-			state.onBlockUpdate(this, blockPos, fromDirection, neighborState);
+			state.onBlockUpdate(this, pos, fromDir, neighborState);
 			break;
 		case STATE_FLAG:
-			state.onStateUpdate(this, blockPos, fromDirection, neighborState);
+			state.onStateUpdate(this, pos, fromDir, neighborState);
 			break;
 		case INVENTORY_FLAG:
-			state.onInventoryUpdate(this, blockPos, fromDirection, neighborState);
+			state.onInventoryUpdate(this, pos, fromDir, neighborState);
 			break;
 		default:
 			break;
@@ -207,8 +207,8 @@ public class ServerWorld extends World implements IServerWorld {
 		app.getWorldRenderer().markRangeDirty(p0, p1, includeBorders);
 	}
 
-	private void markDirty(IBlockPosition blockPos, boolean includeBorders) {
-		app.getWorldRenderer().markDirty(blockPos, includeBorders);
+	private void markDirty(IBlockPosition pos, boolean includeBorders) {
+		app.getWorldRenderer().markDirty(pos, includeBorders);
 	}
 	
 	@Override
@@ -230,11 +230,10 @@ public class ServerWorld extends World implements IServerWorld {
 						pos.y = random.nextInt(WORLD_HEIGHT);
 						pos.z = random.nextInt(WorldChunk.CHUNK_SIZE) + chunkZ * WorldChunk.CHUNK_SIZE;
 
-						BlockState state = chunk.getBlockState(pos);
-						Block block = state.getBlock();
+						IBlockState state = chunk.getBlockState(pos);
 						
-						if (block.hasRandomUpdate())
-							block.randomUpdate(this, pos, state, random);
+						if (state.getBlock().hasRandomUpdate())
+							state.onRandomUpdate(this, pos, random);
 					}
 				}
 			}

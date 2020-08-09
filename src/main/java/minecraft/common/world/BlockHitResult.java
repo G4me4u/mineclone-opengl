@@ -4,7 +4,7 @@ import minecraft.common.world.block.IBlockPosition;
 
 public class BlockHitResult {
 
-	public final IBlockPosition blockPos;
+	public final IBlockPosition pos;
 	
 	public final float x;
 	public final float y;
@@ -12,8 +12,8 @@ public class BlockHitResult {
 	
 	public final Direction face;
 	
-	public BlockHitResult(IBlockPosition blockPos, float x, float y, float z, Direction face) {
-		this.blockPos = blockPos;
+	public BlockHitResult(IBlockPosition pos, float x, float y, float z, Direction face) {
+		this.pos = pos;
 		
 		this.x = x;
 		this.y = y;

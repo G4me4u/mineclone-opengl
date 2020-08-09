@@ -7,9 +7,8 @@ import minecraft.common.IResource;
 import minecraft.common.math.Vec3;
 import minecraft.common.world.World;
 import minecraft.common.world.WorldChunk;
-import minecraft.common.world.block.Block;
 import minecraft.common.world.block.MutableBlockPosition;
-import minecraft.common.world.block.state.BlockState;
+import minecraft.common.world.block.state.IBlockState;
 
 public class ViewChunk implements IResource {
 
@@ -67,10 +66,8 @@ public class ViewChunk implements IResource {
 						pos.y = yc + yo;
 						pos.z = zc + zo;
 						
-						BlockState blockState = chunk.getBlockState(pos);
-						Block block = blockState.getBlock();
-						
-						IBlockModel blockModel = block.getModel(world, pos, blockState);
+						IBlockState state = chunk.getBlockState(pos);
+						IBlockModel blockModel = state.getModel(world, pos);
 						
 						if (blockModel != null)
 							blockModel.tessellate(world, pos, builder);

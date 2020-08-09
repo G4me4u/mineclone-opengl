@@ -16,7 +16,7 @@ import minecraft.common.world.World;
 import minecraft.common.world.WorldChunk;
 import minecraft.common.world.block.Block;
 import minecraft.common.world.block.IBlockPosition;
-import minecraft.common.world.block.state.BlockState;
+import minecraft.common.world.block.state.IBlockState;
 
 public class PlayerEntity extends Entity {
 
@@ -68,11 +68,11 @@ public class PlayerEntity extends Entity {
 					boolean success = false;
 					
 					if (remove) {
-						((IServerWorld)world).setBlock(hitResult.blockPos, Blocks.AIR_BLOCK, true);
+						((IServerWorld)world).setBlock(hitResult.pos, Blocks.AIR_BLOCK, true);
 						success = true;
 					} else {
-						IBlockPosition placePos = hitResult.blockPos.getOffset(hitResult.face);
-						BlockState placeState = hotbar.getHotbarBlock();
+						IBlockPosition placePos = hitResult.pos.getOffset(hitResult.face);
+						IBlockState placeState = hotbar.getHotbarBlock();
 						
 						if (!isBlockInsidePlayer(placeState, placePos)) {
 							((IServerWorld)world).setBlockState(placePos, placeState, true);
@@ -93,11 +93,11 @@ public class PlayerEntity extends Entity {
 		super.update();
 	}
 	
-	private boolean isBlockInsidePlayer(BlockState state, IBlockPosition blockPos) {
+	private boolean isBlockInsidePlayer(IBlockState state, IBlockPosition pos) {
 		Block block = state.getBlock();
 
 		List<EntityHitbox> hitboxes = new ArrayList<>();
-		block.getEntityHitboxes(world, blockPos, state, hitboxes);
+		block.getEntityHitboxes(world, pos, state, hitboxes);
 		
 		EntityHitbox playerHitbox = getHitbox();
 

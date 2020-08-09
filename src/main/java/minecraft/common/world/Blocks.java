@@ -16,15 +16,15 @@ public class Blocks {
 	public static final Block REDSTONE_WIRE_BLOCK;
 	
 	static {
-		AIR_BLOCK = Block.getBlock(Block.AIR_BLOCK_ID);
-		DIRT_BLOCK = Block.getBlock(Block.DIRT_BLOCK_ID);
-		GRASS_BLOCK = Block.getBlock(Block.GRASS_BLOCK_ID);
-		WOOD_PLANKS_BLOCK = Block.getBlock(Block.WOOD_PLANKS_BLOCK_ID);
-		STONE_BLOCK = Block.getBlock(Block.STONE_BLOCK_ID);
-		COBBLESTONE_BLOCK = Block.getBlock(Block.COBBLESTONE_BLOCK_ID);
-		PLANT_BLOCK = Block.getBlock(Block.PLANT_BLOCK_ID);
-		LEAVES_BLOCK = Block.getBlock(Block.LEAVES_BLOCK_ID);
-		WOOD_LOG_BLOCK = Block.getBlock(Block.WOOD_LOG_BLOCK_ID);
+		AIR_BLOCK           = Block.getBlock(Block.AIR_BLOCK_ID);
+		DIRT_BLOCK          = Block.getBlock(Block.DIRT_BLOCK_ID);
+		GRASS_BLOCK         = Block.getBlock(Block.GRASS_BLOCK_ID);
+		WOOD_PLANKS_BLOCK   = Block.getBlock(Block.WOOD_PLANKS_BLOCK_ID);
+		STONE_BLOCK         = Block.getBlock(Block.STONE_BLOCK_ID);
+		COBBLESTONE_BLOCK   = Block.getBlock(Block.COBBLESTONE_BLOCK_ID);
+		PLANT_BLOCK         = Block.getBlock(Block.PLANT_BLOCK_ID);
+		LEAVES_BLOCK        = Block.getBlock(Block.LEAVES_BLOCK_ID);
+		WOOD_LOG_BLOCK      = Block.getBlock(Block.WOOD_LOG_BLOCK_ID);
 		REDSTONE_WIRE_BLOCK = Block.getBlock(Block.REDSTONE_WIRE_BLOCK_ID);
 	}
 }

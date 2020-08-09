@@ -1,5 +1,8 @@
 package minecraft.server.world;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import minecraft.client.MinecraftClient;
 import minecraft.common.world.Blocks;
 import minecraft.common.world.Direction;
@@ -18,6 +21,7 @@ import minecraft.common.world.gen.DiamondNoise;
 public class ServerWorld extends World implements IServerWorld {
 	
 	public static final int NOTHING_FLAG = 0;
+	
 	public static final int BLOCK_FLAG = 1;
 	public static final int STATE_FLAG = 2;
 	public static final int INVENTORY_FLAG = 4;
@@ -60,14 +64,14 @@ public class ServerWorld extends World implements IServerWorld {
 
 					blockPos.y--;
 					
-					setBlock(blockPos, Blocks.DIRT_BLOCK, NOTHING_FLAG);
+					setBlock(blockPos, Blocks.DIRT_BLOCK, false);
 				} else if (random.nextInt(20) == 0) {
 					BlockState plantState = Blocks.PLANT_BLOCK.getDefaultState();
 					
 					PlantType type = PlantType.PLANT_TYPES[random.nextInt(PlantType.PLANT_TYPES.length)];
 					plantState = plantState.withProperty(PlantBlock.PLANT_TYPE_PROPERTY, type);
 					
-					setBlockState(blockPos, plantState, NOTHING_FLAG);
+					setBlockState(blockPos, plantState, false);
 				}
 			}
 		}
@@ -93,7 +97,7 @@ public class ServerWorld extends World implements IServerWorld {
 							int distSqr = xo * xo + yo * yo + zo * zo;
 							
 							if (distSqr < 3 * 2 * 3)
-								setBlock(tmpPos, Blocks.LEAVES_BLOCK, BLOCK_FLAG + STATE_FLAG);
+								setBlock(tmpPos, Blocks.LEAVES_BLOCK, true);
 						}
 					}
 				}
@@ -103,7 +107,7 @@ public class ServerWorld extends World implements IServerWorld {
 				tmpPos.x = blockPos.getX();
 				tmpPos.z = blockPos.getZ();
 				
-				setBlock(tmpPos, Blocks.WOOD_LOG_BLOCK, BLOCK_FLAG + STATE_FLAG);
+				setBlock(tmpPos, Blocks.WOOD_LOG_BLOCK, true);
 			}
 
 			tmpPos.y++;
@@ -111,7 +115,7 @@ public class ServerWorld extends World implements IServerWorld {
 	}
 	
 	@Override
-	public void setBlockState(IBlockPosition blockPos, BlockState state, int flags) {
+	public void setBlockState(IBlockPosition blockPos, BlockState state, boolean updateNeighbors) {
 		WorldChunk chunk = getChunk(blockPos);
 		if (chunk != null) {
 			BlockState oldState = chunk.getBlockState(blockPos);
@@ -139,8 +143,16 @@ public class ServerWorld extends World implements IServerWorld {
 						}
 					}
 					
-					if (flags != NOTHING_FLAG) {
-						updateNeighbors(blockPos, state, flags);
+					if (updateNeighbors) {
+						if (state.isOf(Blocks.AIR_BLOCK)) {
+							oldState.onRemoved(this, blockPos);
+						}
+						if (oldState.isOf(Blocks.AIR_BLOCK)) {
+							state.onAdded(this, blockPos);
+						}
+						if (oldState.getBlock().equals(state.getBlock())) {
+							state.onStateReplaced(this, blockPos);
+						}
 					}
 				}
 			}
@@ -148,30 +160,46 @@ public class ServerWorld extends World implements IServerWorld {
 	}
 	
 	@Override
-	public void setBlock(IBlockPosition blockPos, Block block, int flags) {
-		setBlockState(blockPos, block.getDefaultState(), flags);
+	public void setBlock(IBlockPosition blockPos, Block block, boolean updateNeighbors) {
+		setBlockState(blockPos, block.getDefaultState(), updateNeighbors);
 	}
 	
 	@Override
 	public void updateNeighbors(IBlockPosition blockPos, BlockState state, int flags) {
-		IBlockPosition neighborPos;
-		BlockState neighborState;
+		List<Integer> usedFlags = new ArrayList<>();
+		if ((flags | BLOCK_FLAG) != 0) {
+			usedFlags.add(BLOCK_FLAG);
+		}
+		if ((flags | STATE_FLAG) != 0) {
+			usedFlags.add(STATE_FLAG);
+		}
+		if ((flags | INVENTORY_FLAG) != 0) {
+			usedFlags.add(INVENTORY_FLAG);
+		}
 		
-		for (Direction direction : Direction.DIRECTIONS) {
-			neighborPos = blockPos.getOffset(direction);
-			neighborState = getBlockState(neighborPos);
-			
-			if ((flags | BLOCK_FLAG) > 0) {
-				neighborState.onBlockUpdate(this, neighborPos, direction.getOpposite(), state);
+		for (int flag : usedFlags) {
+			for (Direction direction : Direction.DIRECTIONS) {
+				updateNeighbor(blockPos.getOffset(direction), direction.getOpposite(), state, flag);
 			}
-			
-			if ((flags | STATE_FLAG) > 0) {
-				neighborState.onStateUpdate(this, neighborPos, direction.getOpposite(), state);
-			}
-			
-			if ((flags | INVENTORY_FLAG) > 0) {
-				neighborState.onInventoryUpdate(this, neighborPos, direction.getOpposite(), state);
-			}
+		}
+	}
+	
+	@Override
+	public void updateNeighbor(IBlockPosition blockPos, Direction fromDirection, BlockState neighborState, int flag) {
+		BlockState state = getBlockState(blockPos);
+		
+		switch (flag) {
+		case BLOCK_FLAG:
+			state.onBlockUpdate(this, blockPos, fromDirection, neighborState);
+			break;
+		case STATE_FLAG:
+			state.onStateUpdate(this, blockPos, fromDirection, neighborState);
+			break;
+		case INVENTORY_FLAG:
+			state.onInventoryUpdate(this, blockPos, fromDirection, neighborState);
+			break;
+		default:
+			break;
 		}
 	}
 	

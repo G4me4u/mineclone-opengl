@@ -1,8 +1,5 @@
 package minecraft.server.world;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import minecraft.common.world.Blocks;
 import minecraft.common.world.Direction;
 import minecraft.common.world.IServerWorld;
@@ -135,42 +132,59 @@ public class ServerWorld extends World implements IServerWorld {
 	}
 	
 	@Override
-	public void updateNeighbors(IBlockPosition pos, IBlockState state, int flags) {
-		List<Integer> usedFlags = new ArrayList<>();
-		if ((flags | BLOCK_UPDATE_FLAG) != 0) {
-			usedFlags.add(BLOCK_UPDATE_FLAG);
+	public void updateNeighbors(IBlockPosition blockPos, IBlockState state, int flags) {
+		if ((flags & BLOCK_UPDATE_FLAG) != 0) {
+			dispatchBlockUpdates(blockPos, state);
 		}
-		if ((flags | STATE_UPDATE_FLAG) != 0) {
-			usedFlags.add(STATE_UPDATE_FLAG);
+		if ((flags & STATE_UPDATE_FLAG) != 0) {
+			dispatchStateUpdates(blockPos, state);
 		}
-		if ((flags | INVENTORY_UPDATE_FLAG) != 0) {
-			usedFlags.add(INVENTORY_UPDATE_FLAG);
+		if ((flags & INVENTORY_UPDATE_FLAG) != 0) {
+			dispatchInventoryUpdates(blockPos, state);
 		}
-		
-		for (int flag : usedFlags) {
-			for (Direction dir : Direction.DIRECTIONS) {
-				updateNeighbor(pos.offset(dir), dir.getOpposite(), state, flag);
-			}
+	}
+	
+	private void dispatchBlockUpdates(IBlockPosition blockPos, IBlockState state) {
+		for (Direction dir : Direction.DIRECTIONS) {
+			dispatchBlockUpdate(blockPos.offset(dir), dir.getOpposite(), state);
+		}
+	}
+	
+	private void dispatchStateUpdates(IBlockPosition blockPos, IBlockState state) {
+		for (Direction dir : Direction.DIRECTIONS) {
+			dispatchStateUpdate(blockPos.offset(dir), dir.getOpposite(), state);
+		}
+	}
+	
+	private void dispatchInventoryUpdates(IBlockPosition blockPos, IBlockState state) {
+		for (Direction dir : Direction.DIRECTIONS) {
+			dispatchInventoryUpdate(blockPos.offset(dir), dir.getOpposite(), state);
 		}
 	}
 	
 	@Override
-	public void updateNeighbor(IBlockPosition pos, Direction fromDir, IBlockState neighborState, int flag) {
-		IBlockState state = getBlockState(pos);
-		
-		switch (flag) {
-		case BLOCK_UPDATE_FLAG:
-			state.onBlockUpdate(this, pos, fromDir, neighborState);
-			break;
-		case STATE_UPDATE_FLAG:
-			state.onStateUpdate(this, pos, fromDir, neighborState);
-			break;
-		case INVENTORY_UPDATE_FLAG:
-			state.onInventoryUpdate(this, pos, fromDir, neighborState);
-			break;
-		default:
-			break;
+	public void updateNeighbor(IBlockPosition blockPos, Direction fromDir, IBlockState neighborState, int flags) {
+		if ((flags & BLOCK_UPDATE_FLAG) != 0) {
+			dispatchBlockUpdate(blockPos, fromDir, neighborState);
 		}
+		if ((flags & STATE_UPDATE_FLAG) != 0) {
+			dispatchStateUpdate(blockPos, fromDir, neighborState);
+		}
+		if ((flags & INVENTORY_UPDATE_FLAG) != 0) {
+			dispatchInventoryUpdate(blockPos, fromDir, neighborState);
+		}
+	}
+	
+	private void dispatchBlockUpdate(IBlockPosition blockPos, Direction fromDir, IBlockState neighborState) {
+		getBlockState(blockPos).onBlockUpdate(this, blockPos, fromDir, neighborState);
+	}
+	
+	private void dispatchStateUpdate(IBlockPosition blockPos, Direction fromDir, IBlockState neighborState) {
+		getBlockState(blockPos).onStateUpdate(this, blockPos, fromDir, neighborState);
+	}
+	
+	private void dispatchInventoryUpdate(IBlockPosition blockPos, Direction fromDir, IBlockState neighborState) {
+		getBlockState(blockPos).onInventoryUpdate(this, blockPos, fromDir, neighborState);
 	}
 	
 	@Override

@@ -16,8 +16,8 @@ public class RedstoneWireBlock extends Block {
 	public static final IBlockProperty<Integer> POWER_PROPERTY = new IntBlockProperty("power", 16);
 	public static final IBlockProperty<WireConnection> WIRE_CONNECTION_NORTH = new EnumBlockProperty<>("north", WireConnection.values());
 	public static final IBlockProperty<WireConnection> WIRE_CONNECTION_SOUTH = new EnumBlockProperty<>("south", WireConnection.values());
-	public static final IBlockProperty<WireConnection> WIRE_CONNECTION_WEST = new EnumBlockProperty<>("west", WireConnection.values());
-	public static final IBlockProperty<WireConnection> WIRE_CONNECTION_EAST = new EnumBlockProperty<>("east", WireConnection.values());
+	public static final IBlockProperty<WireConnection> WIRE_CONNECTION_WEST  = new EnumBlockProperty<>("west",  WireConnection.values());
+	public static final IBlockProperty<WireConnection> WIRE_CONNECTION_EAST  = new EnumBlockProperty<>("east",  WireConnection.values());
 	
 	public static final Map<Direction, IBlockProperty<WireConnection>> WIRE_CONNECTIONS = new EnumMap<>(Direction.class);
 	
@@ -51,10 +51,10 @@ public class RedstoneWireBlock extends Block {
 	@Override
 	protected BlockState createDefaultState() {
 		return BlockState.createStateTree(this, POWER_PROPERTY,
-												WIRE_CONNECTION_NORTH,
-												WIRE_CONNECTION_SOUTH,
-												WIRE_CONNECTION_WEST,
-												WIRE_CONNECTION_EAST);
+		                                        WIRE_CONNECTION_NORTH,
+		                                        WIRE_CONNECTION_SOUTH,
+		                                        WIRE_CONNECTION_WEST,
+		                                        WIRE_CONNECTION_EAST);
 	}
 	
 	@Override

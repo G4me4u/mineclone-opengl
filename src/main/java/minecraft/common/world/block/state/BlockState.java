@@ -37,12 +37,40 @@ public class BlockState {
 		values = null;
 	}
 	
+	public void onAdded(IServerWorld world, IBlockPosition blockPos) {
+		block.onAdded(this, world, blockPos);
+	}
+	
+	public void onRemoved(IServerWorld world, IBlockPosition blockPos) {
+		block.onRemoved(this, world, blockPos);
+	}
+	
+	public void onStateReplaced(IServerWorld world, IBlockPosition blockPos) {
+		block.onStateReplaced(this, world, blockPos);
+	}
+	
 	public boolean canGrowVegetation() {
 		return block.canGrowVegetation(this);
 	}
-
+	
+	public boolean conductsRedstonePower() {
+		return block.conductsRedstonePower(this);
+	}
+	
+	public boolean connectsToRedstoneWire(Direction direction) {
+		return block.connectsToRedstoneWire(this, direction);
+	}
+	
+	public int getPower(IServerWorld world, IBlockPosition blockPos, Direction direction, int type) {
+		return block.getPower(this, world, blockPos, direction, type);
+	}
+	
 	public Block getBlock() {
 		return block;
+	}
+	
+	public boolean isOf(Block block) {
+		return this.block.equals(block);
 	}
 	
 	public void onBlockUpdate(IServerWorld world, IBlockPosition blockPos, Direction direction, BlockState sourceState) {

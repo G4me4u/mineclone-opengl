@@ -17,7 +17,6 @@ import minecraft.common.world.WorldChunk;
 import minecraft.common.world.block.Block;
 import minecraft.common.world.block.IBlockPosition;
 import minecraft.common.world.block.state.BlockState;
-import minecraft.server.world.ServerWorld;
 
 public class PlayerEntity extends Entity {
 
@@ -69,14 +68,14 @@ public class PlayerEntity extends Entity {
 					boolean success = false;
 					
 					if (remove) {
-						((IServerWorld)world).setBlock(hitResult.blockPos, Blocks.AIR_BLOCK, ServerWorld.BLOCK_FLAG + ServerWorld.STATE_FLAG);
+						((IServerWorld)world).setBlock(hitResult.blockPos, Blocks.AIR_BLOCK, true);
 						success = true;
 					} else {
 						IBlockPosition placePos = hitResult.blockPos.getOffset(hitResult.face);
 						BlockState placeState = hotbar.getHotbarBlock();
 						
 						if (!isBlockInsidePlayer(placeState, placePos)) {
-							((IServerWorld)world).setBlockState(placePos, placeState, ServerWorld.BLOCK_FLAG + ServerWorld.STATE_FLAG);
+							((IServerWorld)world).setBlockState(placePos, placeState, true);
 							success = true;
 						}
 					}

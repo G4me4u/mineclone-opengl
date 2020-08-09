@@ -10,7 +10,7 @@ public class DirtBlock extends BasicSolidBlock {
 	}
 	
 	@Override
-	public boolean canGrowVegetation(BlockState blockState) {
+	public boolean canGrowVegetation(BlockState state) {
 		return true;
 	}
 }

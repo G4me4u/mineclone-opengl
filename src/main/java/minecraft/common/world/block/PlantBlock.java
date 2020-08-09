@@ -11,7 +11,6 @@ import minecraft.common.world.IWorld;
 import minecraft.common.world.block.state.BlockState;
 import minecraft.common.world.block.state.EnumBlockProperty;
 import minecraft.common.world.block.state.IBlockProperty;
-import minecraft.server.world.ServerWorld;
 
 public class PlantBlock extends Block {
 
@@ -32,11 +31,6 @@ public class PlantBlock extends Block {
 	public IBlockModel getModel(IWorld world, IBlockPosition pos, BlockState blockState) {
 		return models[blockState.getValue(PLANT_TYPE_PROPERTY).getIndex()];
 	}
-
-	@Override
-	public boolean isSolid() {
-		return false;
-	}
 	
 	@Override
 	protected BlockState createDefaultState() {
@@ -47,7 +41,7 @@ public class PlantBlock extends Block {
 	public void onBlockUpdate(BlockState state, IServerWorld world, IBlockPosition blockPos, Direction direction, BlockState sourceState) {
 		if (direction == Direction.DOWN) {
 			if (!world.getBlockState(blockPos.getOffset(direction)).canGrowVegetation()) {
-				world.setBlock(blockPos, Blocks.AIR_BLOCK, ServerWorld.BLOCK_FLAG + ServerWorld.STATE_FLAG);
+				world.setBlock(blockPos, Blocks.AIR_BLOCK, true);
 			}
 		}
 	}

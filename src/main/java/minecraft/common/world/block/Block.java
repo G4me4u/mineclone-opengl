@@ -12,18 +12,20 @@ import minecraft.common.world.EntityHitbox;
 import minecraft.common.world.IServerWorld;
 import minecraft.common.world.IWorld;
 import minecraft.common.world.block.state.BlockState;
+import minecraft.server.world.ServerWorld;
 
 public class Block {
 
-	public static final String AIR_BLOCK_ID         = "air";
-	public static final String DIRT_BLOCK_ID        = "dirt";
-	public static final String GRASS_BLOCK_ID       = "grass";
-	public static final String WOOD_PLANKS_BLOCK_ID = "planks";
-	public static final String STONE_BLOCK_ID       = "stone";
-	public static final String COBBLESTONE_BLOCK_ID = "cobblestone";
-	public static final String PLANT_BLOCK_ID       = "plant";
-	public static final String LEAVES_BLOCK_ID      = "leaves";
-	public static final String WOOD_LOG_BLOCK_ID    = "log";
+	public static final String AIR_BLOCK_ID         	= "air";
+	public static final String DIRT_BLOCK_ID        	= "dirt";
+	public static final String GRASS_BLOCK_ID       	= "grass";
+	public static final String WOOD_PLANKS_BLOCK_ID 	= "planks";
+	public static final String STONE_BLOCK_ID       	= "stone";
+	public static final String COBBLESTONE_BLOCK_ID 	= "cobblestone";
+	public static final String PLANT_BLOCK_ID       	= "plant";
+	public static final String LEAVES_BLOCK_ID      	= "leaves";
+	public static final String WOOD_LOG_BLOCK_ID    	= "log";
+	public static final String REDSTONE_WIRE_BLOCK_ID	= "redstone_wire";
 	
 	private static ReferenceRegsitry<String, Block> blockRegistry = null;
 	
@@ -37,6 +39,18 @@ public class Block {
 	
 	protected BlockState createDefaultState() {
 		return BlockState.createStateTree(this);
+	}
+	
+	public void onAdded(BlockState state, IServerWorld world, IBlockPosition blockPos) {
+		world.updateNeighbors(blockPos, state, ServerWorld.BLOCK_FLAG + ServerWorld.STATE_FLAG);
+	}
+	
+	public void onRemoved(BlockState state, IServerWorld world, IBlockPosition blockPos) {
+		world.updateNeighbors(blockPos, state, ServerWorld.BLOCK_FLAG + ServerWorld.STATE_FLAG);
+	}
+	
+	public void onStateReplaced(BlockState state, IServerWorld world, IBlockPosition blockPos) {
+		
 	}
 	
 	public void getEntityHitboxes(IWorld world, IBlockPosition pos, BlockState state, List<EntityHitbox> hitboxes) {
@@ -61,8 +75,20 @@ public class Block {
 		return false;
 	}
 	
-	public boolean canGrowVegetation(BlockState blockState) {
+	public boolean canGrowVegetation(BlockState state) {
 		return false;
+	}
+	
+	public boolean conductsRedstonePower(BlockState state) {
+		return isSolid();
+	}
+	
+	public boolean connectsToRedstoneWire(BlockState state, Direction direction) {
+		return false;
+	}
+	
+	public int getPower(BlockState state, IServerWorld world, IBlockPosition blockPos, Direction direction, int type) {
+		return 0;
 	}
 	
 	public void randomUpdate(IServerWorld world, IBlockPosition pos, BlockState blockState, Random random) {

@@ -1,6 +1,8 @@
 package minecraft.common.world;
 
-public enum Axis {
+import minecraft.common.world.block.state.IIndexedValue;
+
+public enum Axis implements IIndexedValue {
 	
 	X("x", 0, true),
 	Y("y", 1, false),
@@ -27,12 +29,13 @@ public enum Axis {
 		this.horizontal = horizontal;
 	}
 	
-	public int getIndex() {
-		return index;
-	}
-	
 	public String getName() {
 		return name;
+	}
+
+	@Override
+	public int getIndex() {
+		return index;
 	}
 	
 	public boolean isHorizontal() {

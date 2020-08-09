@@ -1,10 +1,12 @@
 package minecraft.common.world.block;
 
-public enum WireConnection {
+import minecraft.common.world.block.state.IIndexedValue;
+
+public enum WireConnection implements IIndexedValue {
 	
-	NONE(0, "none"),
-	SIDE(1, "side"),
-	UP(2, "up");
+	NONE("none", 0),
+	SIDE("side", 1),
+	UP("up", 2);
 	
 	public static final WireConnection[] CONNECTIONS;
 	
@@ -15,19 +17,20 @@ public enum WireConnection {
 			CONNECTIONS[connection.index] = connection;
 	}
 	
-	private final int index;
 	private final String name;
+	private final int index;
 	
-	private WireConnection(int index, String name) {
-		this.index = index;
+	private WireConnection(String name, int index) {
 		this.name = name;
-	}
-	
-	public int getIndex() {
-		return index;
+		this.index = index;
 	}
 	
 	public String getName() {
 		return name;
+	}
+
+	@Override
+	public int getIndex() {
+		return index;
 	}
 }

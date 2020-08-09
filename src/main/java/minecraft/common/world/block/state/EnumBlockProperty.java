@@ -2,7 +2,7 @@ package minecraft.common.world.block.state;
 
 import java.util.Arrays;
 
-public final class EnumBlockProperty<T extends Enum<T>> implements IBlockProperty<T> {
+public final class EnumBlockProperty<T extends Enum<T> & IIndexedValue> implements IBlockProperty<T> {
 
 	private final String name;
 	private final T[] values;
@@ -10,12 +10,24 @@ public final class EnumBlockProperty<T extends Enum<T>> implements IBlockPropert
 	private final int hash;
 	
 	public EnumBlockProperty(String name, T[] values) {
+		if (!isValidOrder(values))
+			throw new IllegalArgumentException("Value order is not valid!");
+		
 		this.name = name;
 		this.values = values;
 	
 		hash = name.hashCode() * 31 + Arrays.hashCode(values);
 	}
 	
+	private static <T extends IIndexedValue> boolean isValidOrder(T[] values) {
+		for (int i = 0; i < values.length; i++) {
+			if (i != values[i].getIndex())
+				return false;
+		}
+		
+		return true;
+	}
+
 	@Override
 	public String getName() {
 		return name;
@@ -23,12 +35,11 @@ public final class EnumBlockProperty<T extends Enum<T>> implements IBlockPropert
 
 	@Override
 	public int getValueIndex(T value) {
-		for (int i = 0; i < values.length; i++) {
-			if (values[i] == value)
-				return i;
-		}
+		int index = value.getIndex();
+		if (index < 0 || index >= values.length)
+			throw new IllegalArgumentException(value + " is not part of property " + name);
 		
-		throw new IllegalArgumentException("Invalid enum type! " + value);
+		return index;
 	}
 	
 	@Override

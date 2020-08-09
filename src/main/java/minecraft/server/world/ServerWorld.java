@@ -145,12 +145,10 @@ public class ServerWorld extends World implements IServerWorld {
 					}
 					
 					if (updateNeighbors) {
-						if (state.isOf(Blocks.AIR_BLOCK))
+						if (state.isAir())
 							oldState.onRemoved(this, pos);
-						
-						if (oldState.isOf(Blocks.AIR_BLOCK))
+						if (oldState.isAir())
 							state.onAdded(this, pos);
-						
 						if (oldState.isOf(state.getBlock()))
 							state.onStateReplaced(this, pos);
 					}

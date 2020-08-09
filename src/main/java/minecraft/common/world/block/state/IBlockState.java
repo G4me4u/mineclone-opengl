@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Random;
 
 import minecraft.client.renderer.model.IBlockModel;
+import minecraft.common.world.Blocks;
 import minecraft.common.world.Direction;
 import minecraft.common.world.EntityHitbox;
 import minecraft.common.world.IServerWorld;
@@ -65,6 +66,10 @@ public interface IBlockState {
 	
 	default public int getPower(IServerWorld world, IBlockPosition pos, Direction dir, int powerFlags) {
 		return getBlock().getPower(this, world, pos, dir, powerFlags);
+	}
+	
+	default public boolean isAir() {
+		return isOf(Blocks.AIR_BLOCK);
 	}
 	
 	default public boolean isOf(Block block) {

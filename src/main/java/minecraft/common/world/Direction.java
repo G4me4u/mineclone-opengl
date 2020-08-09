@@ -3,8 +3,9 @@ package minecraft.common.world;
 import java.util.Arrays;
 
 import minecraft.common.math.Vec3;
+import minecraft.common.world.block.state.IIndexedValue;
 
-public enum Direction {
+public enum Direction implements IIndexedValue {
 
 	NORTH("north", 0, 1, 3, 2, Axis.Z, -1),
 	SOUTH("south", 1, 0, 2, 3, Axis.Z,  1),
@@ -55,6 +56,7 @@ public enum Direction {
 		return name;
 	}
 	
+	@Override
 	public int getIndex() {
 		return index;
 	}

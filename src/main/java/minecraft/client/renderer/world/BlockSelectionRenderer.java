@@ -19,10 +19,7 @@ import minecraft.common.IResource;
 import minecraft.common.math.Mat4;
 import minecraft.common.math.Vec3;
 import minecraft.common.world.BlockHitResult;
-import minecraft.common.world.Blocks;
 import minecraft.common.world.World;
-import minecraft.common.world.block.IBlockPosition;
-import minecraft.common.world.block.state.IBlockState;
 
 public class BlockSelectionRenderer implements IResource {
 	
@@ -144,30 +141,25 @@ public class BlockSelectionRenderer implements IResource {
 		BlockHitResult res = world.castBlockRay(viewMatrix.m30, viewMatrix.m31, viewMatrix.m32, forward);
 
 		if (res != null) {
-			IBlockPosition pos = res.pos;
-			IBlockState state = world.getBlockState(pos);
+			shader.setProjViewMat(camera);
 			
-			if (state.isOf(Blocks.AIR_BLOCK)) {
-				shader.setProjViewMat(camera);
-				
-				Mat4 modlMat = new Mat4();
-				modlMat.translate(pos.getX(), pos.getY(), pos.getZ());
-				modlMat.scale(SELECTION_SCALE).translate((1.0f - SELECTION_SCALE) * 0.5f);
-				
-				shader.setModlMat(modlMat);
-				
-				float t = ((float)Math.sin(prevTime + (time - prevTime) * dt) + 1.0f) * 0.5f;
-				float a = 0x40 / 255.0f + 0x3F / 255.0f * t;
+			Mat4 modlMat = new Mat4();
+			modlMat.translate(res.pos.getX(), res.pos.getY(), res.pos.getZ());
+			modlMat.scale(SELECTION_SCALE).translate((1.0f - SELECTION_SCALE) * 0.5f);
+			
+			shader.setModlMat(modlMat);
+			
+			float t = ((float)Math.sin(prevTime + (time - prevTime) * dt) + 1.0f) * 0.5f;
+			float a = 0x40 / 255.0f + 0x3F / 255.0f * t;
 
-				shader.setSelectionColor(SELECTION_COLOR_R, SELECTION_COLOR_G, SELECTION_COLOR_B, a);
-				
-				vertexArray.bind();
-				shader.bind();
+			shader.setSelectionColor(SELECTION_COLOR_R, SELECTION_COLOR_G, SELECTION_COLOR_B, a);
+			
+			vertexArray.bind();
+			shader.bind();
 
-				glEnable(GL_BLEND);
-				glDrawArrays(GL_TRIANGLES, 0, CUBE_NUM_VERTICES);
-				glDisable(GL_BLEND);
-			}
+			glEnable(GL_BLEND);
+			glDrawArrays(GL_TRIANGLES, 0, CUBE_NUM_VERTICES);
+			glDisable(GL_BLEND);
 		}
 	}
 

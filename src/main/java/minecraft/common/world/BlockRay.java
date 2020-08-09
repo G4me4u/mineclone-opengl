@@ -65,7 +65,7 @@ public class BlockRay {
 				
 				IBlockState state = world.getBlockState(pos);
 				
-				if (!state.isOf(Blocks.AIR_BLOCK)) {
+				if (!state.isAir()) {
 					Vec3 hitOffset = new Vec3(x - xx - 0.5f, y - yy - 0.5f, z - zz - 0.5f);
 					Direction face = Direction.fromVector(hitOffset);
 					

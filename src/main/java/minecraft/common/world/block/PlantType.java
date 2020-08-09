@@ -1,11 +1,13 @@
 package minecraft.common.world.block;
 
-public enum PlantType {
+import minecraft.common.world.block.state.IIndexedValue;
 
-	GRASS(0, "grass"),
-	FORGETMENOT(1, "forgetmenot"),
-	MARIGOLD(2, "marigold"),
-	DAISY(3, "daisy");
+public enum PlantType  implements IIndexedValue {
+
+	GRASS("grass", 0),
+	FORGETMENOT("forgetmenot", 1),
+	MARIGOLD("marigold", 2),
+	DAISY("daisy", 3);
 
 	public static final PlantType[] TYPES;
 
@@ -16,19 +18,20 @@ public enum PlantType {
 			TYPES[type.getIndex()] = type;
 	}
 	
-	private final int index;
 	private final String name;
+	private final int index;
 	
-	private PlantType(int index, String name) {
-		this.index = index;
+	private PlantType(String name, int index) {
 		this.name = name;
-	}
-	
-	public int getIndex() {
-		return index;
+		this.index = index;
 	}
 	
 	public String getName() {
 		return name;
+	}
+	
+	@Override
+	public int getIndex() {
+		return index;
 	}
 }

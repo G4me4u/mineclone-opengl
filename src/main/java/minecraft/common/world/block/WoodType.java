@@ -1,10 +1,12 @@
 package minecraft.common.world.block;
 
-public enum WoodType {
+import minecraft.common.world.block.state.IIndexedValue;
 
-	OAK(0, "oak"),
-	BIRCH(1, "birch"),
-	ACACIA(2, "acacia");
+public enum WoodType implements IIndexedValue {
+
+	OAK("oak", 0),
+	BIRCH("birch", 1),
+	ACACIA("acacia", 2);
 
 	public static final WoodType[] TYPES;
 
@@ -15,19 +17,20 @@ public enum WoodType {
 			TYPES[type.getIndex()] = type;
 	}
 	
-	private final int index;
 	private final String name;
+	private final int index;
 	
-	private WoodType(int index, String name) {
-		this.index = index;
+	private WoodType(String name, int index) {
 		this.name = name;
-	}
-	
-	public int getIndex() {
-		return index;
+		this.index = index;
 	}
 	
 	public String getName() {
 		return name;
+	}
+	
+	@Override
+	public int getIndex() {
+		return index;
 	}
 }

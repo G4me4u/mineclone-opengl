@@ -173,8 +173,11 @@ public class WireHandler {
 			
 			IBlockState state = node.state.with(POWER, node.power);
 			
-			if (state != node.state)
+			if (state != node.state) {
+				node.state = state;
+				
 				world.setBlockState(node.pos, state, false);
+			}
 		}
 	}
 	

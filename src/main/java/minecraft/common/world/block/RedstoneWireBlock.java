@@ -6,6 +6,7 @@ import java.util.Map;
 import minecraft.common.world.Blocks;
 import minecraft.common.world.Direction;
 import minecraft.common.world.IServerWorld;
+import minecraft.common.world.block.handler.RedstoneWireHandler;
 import minecraft.common.world.block.state.BlockState;
 import minecraft.common.world.block.state.EnumBlockProperty;
 import minecraft.common.world.block.state.IBlockProperty;
@@ -39,7 +40,8 @@ public class RedstoneWireBlock extends Block {
 		
 		for (Direction vertical : Direction.VERTICAL_DIRECTIONS) {
 			for (Direction horizontal : Direction.HORIZONTAL_DIRECTIONS) {
-				world.updateNeighbor(pos.offset(vertical).offset(horizontal), horizontal.getOpposite(), state, IServerWorld.STATE_UPDATE_FLAG);
+				IBlockPosition neighborPos = pos.offset(vertical).offset(horizontal);
+				world.updateNeighbor(neighborPos, horizontal.getOpposite(), state, IServerWorld.STATE_UPDATE_FLAG);
 			}
 		}
 	}
@@ -66,6 +68,26 @@ public class RedstoneWireBlock extends Block {
 
 	@Override
 	public void onBlockUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir, IBlockState neighborState) {
+		int power = state.getValue(POWER);
+		int sourcePower = world.getPowerFrom(pos, dir, IServerWorld.STRONG_POWER_FLAGS);
+		
+		if (power != sourcePower) {
+			RedstoneWireHandler wireHandler;
+			if (sourcePower > power) {
+				wireHandler = new RedstoneWireHandler(world, state, pos, power, sourcePower);
+			} else {
+				int otherPower = world.getPowerExceptFrom(pos, dir, IServerWorld.STRONG_POWER_FLAGS);
+				int powerReceived = sourcePower > otherPower ? sourcePower : otherPower;
+				
+				if (powerReceived == power) {
+					return;
+				}
+				
+				wireHandler = new RedstoneWireHandler(world, state, pos, power, powerReceived);
+			}
+			
+			wireHandler.setPowerLevels();
+		}
 	}
 	
 	@Override

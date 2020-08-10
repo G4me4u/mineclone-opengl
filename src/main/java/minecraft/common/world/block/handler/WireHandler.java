@@ -60,12 +60,6 @@ public class WireHandler {
 		
 		if (depth != 0) {
 			buildGraph(sourcePos, sourceState, depth);
-			findExternalPower(sourcePower);
-			
-			// The cached node positions are no longer required.
-			nodePositions.clear();
-			
-			relaxGraphPower();
 			replaceGraphStates();
 			
 			// TODO: implement updates.
@@ -85,18 +79,26 @@ public class WireHandler {
 			int breathEnd = nodeCount;
 			
 			while (nodeIndex < breathEnd)
-				addConnections(nodes[nodeIndex++]);
+				findConnections(nodes[nodeIndex++]);
 		}
+		
+		resolveExternalPower();
+		// The cached node positions are no longer required.
+		nodePositions.clear();
+		
+		relaxGraphPower();
 	}
 	
-	private void addConnections(WireNode node) {
+	private void findConnections(WireNode node) {
 		node.connectionCount = 0;
 		
+		node.power = 0;
+		
 		for (Direction dir : Direction.HORIZONTAL_DIRECTIONS)
-			addConnectionsTo(node, dir);
+			findConnectionsTo(node, dir);
 	}
 
-	private void addConnectionsTo(WireNode node, Direction dir) {
+	private void findConnectionsTo(WireNode node, Direction dir) {
 		WireConnection connection = node.state.get(CONNECTION_PROPERTIES.get(dir));
 	
 		if (connection != WireConnection.NONE) {
@@ -110,8 +112,17 @@ public class WireHandler {
 					return;
 				}
 				
-				if (!sideState.isAligned(Direction.DOWN))
-					addNode(node, sidePos.down());
+				if (!sideState.isAligned(Direction.DOWN)) {
+					IBlockState belowState = world.getBlockState(node.pos.down());
+
+					if (belowState.isAligned(dir)) {
+						addNode(node, sidePos.down());
+					} else {
+						// TODO: consider this:
+						//   We can potentially receive external power from
+						//   the state at sidePos.down(), if it is a wire.
+					}
+				}
 			}
 			
 			IBlockState aboveState = world.getBlockState(node.pos.up());
@@ -127,7 +138,7 @@ public class WireHandler {
 		if (state.isOf(wireBlock))
 			addNode(source, pos, state);
 	}
-	
+
 	private void addNode(WireNode source, IBlockPosition pos, IBlockState state) {
 		if (nodePositions.add(pos)) {
 			if (nodeCount >= nodes.length)
@@ -142,7 +153,7 @@ public class WireHandler {
 		}
 	}
 	
-	private void findExternalPower(int sourcePower) {
+	private void resolveExternalPower() {
 		// TODO: update graph power.
 		//nodes[0].setExternalPower(sourcePower);
 		// powerNodes.add(node)

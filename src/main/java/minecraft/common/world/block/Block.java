@@ -96,6 +96,10 @@ public class Block {
 		return false;
 	}
 	
+	public boolean hasAlignedTop(IBlockState state) {
+		return isSolid();
+	}
+	
 	public boolean isPowerComponent() {
 		return false;
 	}

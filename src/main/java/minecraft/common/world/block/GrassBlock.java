@@ -22,6 +22,14 @@ public class GrassBlock extends Block {
 	}
 	
 	@Override
+	public IBlockState getPlacementState(IBlockState state, IServerWorld world, IBlockPosition pos) {
+		if (isValidGrassCondition(world, pos))
+			return state;
+		
+		return Blocks.DIRT_BLOCK.getDefaultState().getPlacementState(world, pos);
+	}
+	
+	@Override
 	public void onBlockUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction fromDir, IBlockState fromState) {
 		if (fromDir == Direction.UP && !isValidGrassCondition(world, pos))
 			world.setBlock(pos, Blocks.DIRT_BLOCK, true);
@@ -41,13 +49,13 @@ public class GrassBlock extends Block {
 		if (xo != 0 && yo != 0 && zo != 0) {
 			IBlockPosition dirtPos = pos.offset(xo, yo, zo);
 			
-			if (world.getBlock(dirtPos) == Blocks.DIRT_BLOCK && isValidGrassCondition(world, dirtPos))
+			if (world.getBlockState(dirtPos).isOf(Blocks.DIRT_BLOCK) && isValidGrassCondition(world, dirtPos))
 				world.setBlock(dirtPos, Blocks.GRASS_BLOCK, true);
 		}
 	}
 	
 	private boolean isValidGrassCondition(IWorld world, IBlockPosition pos) {
-		return !world.getBlock(pos.offset(Direction.UP)).isSolid();
+		return !world.getBlock(pos.up()).isSolid();
 	}
 	
 	@Override

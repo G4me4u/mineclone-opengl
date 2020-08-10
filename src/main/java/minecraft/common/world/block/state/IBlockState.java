@@ -60,6 +60,10 @@ public interface IBlockState {
 		return getBlock().canGrowVegetation(this);
 	}
 	
+	default public boolean hasAlignedTop() {
+		return getBlock().hasAlignedTop(this);
+	}
+	
 	default public boolean canPowerIndirectly() {
 		return getBlock().canPowerIndirectly(this);
 	}

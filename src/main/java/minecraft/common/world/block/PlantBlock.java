@@ -36,7 +36,7 @@ public class PlantBlock extends Block {
 	
 	@Override
 	public IBlockModel getModel(IWorld world, IBlockPosition pos, IBlockState state) {
-		return models[state.getValue(PLANT_TYPE).getIndex()];
+		return models[state.get(PLANT_TYPE).getIndex()];
 	}
 	
 	@Override

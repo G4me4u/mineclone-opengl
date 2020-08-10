@@ -60,12 +60,12 @@ public interface IBlockState {
 		return getBlock().canGrowVegetation(this);
 	}
 	
-	default public boolean hasAlignedTop() {
-		return getBlock().hasAlignedTop(this);
+	default public boolean isAligned(Direction dir) {
+		return getBlock().hasAligned(this, dir);
 	}
 	
-	default public boolean canPowerIndirectly() {
-		return getBlock().canPowerIndirectly(this);
+	default public boolean canPowerIndirectly(Direction dir) {
+		return getBlock().canPowerIndirectly(this, dir);
 	}
 	
 	default public boolean canConnectToWire(Direction dir) {
@@ -90,16 +90,16 @@ public interface IBlockState {
 
 	public Block getBlock();
 	
-	public <T> T getValue(IBlockProperty<T> property);
+	public <T> T get(IBlockProperty<T> property);
 
-	public <T> IBlockState withProperty(IBlockProperty<T> property, T value);
+	public <T> IBlockState with(IBlockProperty<T> property, T value);
 	
-	public <T> IBlockState incrementProperty(IBlockProperty<T> property);
+	public <T> IBlockState increment(IBlockProperty<T> property);
 
-	public <T> IBlockState decrementProperty(IBlockProperty<T> property);
+	public <T> IBlockState decrement(IBlockProperty<T> property);
 	
-	public IBlockState incrementState();
+	public IBlockState next();
 
-	public IBlockState decrementState();
+	public IBlockState prev();
 
 }

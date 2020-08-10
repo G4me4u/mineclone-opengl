@@ -35,13 +35,17 @@ public class RedstoneWireBlock extends Block {
 	
 	@Override
 	public IBlockState getPlacementState(IBlockState state, IServerWorld world, IBlockPosition pos) {
-		if (!world.getBlockState(pos.down()).hasAlignedTop())
+		if (!isWireSupported(world, pos))
 			return Blocks.AIR_BLOCK.getDefaultState();
 		
 		for (Direction dir : Direction.HORIZONTAL_DIRECTIONS)
 			state = updateStateConnection(world, pos, state, dir);
 		
 		return resolveWireState(state);
+	}
+	
+	private boolean isWireSupported(IServerWorld world, IBlockPosition pos) {
+		return world.getBlockState(pos.down()).isAligned(Direction.UP);
 	}
 
 	@Override
@@ -76,11 +80,21 @@ public class RedstoneWireBlock extends Block {
 					newState = resolveWireState(newState);
 				}
 			}
-		} else if (fromDir != Direction.UP || fromState.canPowerIndirectly()) {
-			// Either the supporting block below has changed, or
-			// the block above is obstructing connections.
-			if (!fromState.isOf(Blocks.REDSTONE_WIRE_BLOCK))
-				newState = getPlacementState(state, world, pos);
+		} else if (!fromState.isOf(Blocks.REDSTONE_WIRE_BLOCK)) {
+			if (fromDir == Direction.DOWN) {
+				// Update might come from the supporting block
+				if (!isWireSupported(world, pos))
+					newState = Blocks.AIR_BLOCK.getDefaultState();
+			} else {
+				// The aligned faces of the top block might have changed.
+				// Make sure we update the appropriate directions.
+				for (Direction dir : Direction.HORIZONTAL_DIRECTIONS) {
+					if (newState.get(CONNECTION_PROPERTIES.get(dir)) == WireConnection.SIDE)
+						newState = updateStateConnection(world, pos, newState, dir);
+				}
+				
+				newState = resolveWireState(newState);
+			}
 		}
 
 		if (state != newState)
@@ -89,24 +103,27 @@ public class RedstoneWireBlock extends Block {
 	
 	private IBlockState updateStateConnection(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir) {
 		WireConnection connection = getWireConnection(world, pos, dir);
-		return state.withProperty(CONNECTION_PROPERTIES.get(dir), connection);
+		return state.with(CONNECTION_PROPERTIES.get(dir), connection);
 	}
 	
 	private WireConnection getWireConnection(IServerWorld world, IBlockPosition pos, Direction dir) {
 		IBlockPosition sidePos = pos.offset(dir);
 		IBlockState sideState = world.getBlockState(sidePos);
 		
-		if (sideState.canPowerIndirectly()) {
+		if (sideState.isAligned(dir.getOpposite())) {
 			IBlockState aboveState = world.getBlockState(pos.up());
 			
-			if (!aboveState.canPowerIndirectly()) {
+			if (!aboveState.isAligned(Direction.DOWN) && !aboveState.isAligned(dir)) {
 				IBlockState diagonalState = world.getBlockState(sidePos.up());
 				
 				if (diagonalState.isOf(Blocks.REDSTONE_WIRE_BLOCK))
 					return WireConnection.UP;
 			}
-		} else if (world.getBlockState(sidePos.down()).isOf(Blocks.REDSTONE_WIRE_BLOCK)) {
-			return WireConnection.SIDE;
+		} else if (!sideState.isAligned(Direction.DOWN)) {
+			IBlockState diagonalState = world.getBlockState(sidePos.down());
+			
+			if (diagonalState.isOf(Blocks.REDSTONE_WIRE_BLOCK))
+				return WireConnection.SIDE;
 		}
 		
 		if (sideState.canConnectToWire(dir.getOpposite()))
@@ -119,7 +136,7 @@ public class RedstoneWireBlock extends Block {
 		Direction connectionDir = null;
 		
 		for (Direction dir : Direction.HORIZONTAL_DIRECTIONS) {
-			WireConnection connection = state.getValue(CONNECTION_PROPERTIES.get(dir));
+			WireConnection connection = state.get(CONNECTION_PROPERTIES.get(dir));
 			
 			if (connection != WireConnection.NONE) {
 				if (connectionDir != null) {
@@ -134,11 +151,11 @@ public class RedstoneWireBlock extends Block {
 		
 		if (connectionDir == null) {
 			for (Direction dir : Direction.HORIZONTAL_DIRECTIONS)
-				state = state.withProperty(CONNECTION_PROPERTIES.get(dir), WireConnection.SIDE);
+				state = state.with(CONNECTION_PROPERTIES.get(dir), WireConnection.SIDE);
 		} else {
 			Direction dir = connectionDir.getOpposite();
 			
-			state = state.withProperty(CONNECTION_PROPERTIES.get(dir), WireConnection.SIDE);
+			state = state.with(CONNECTION_PROPERTIES.get(dir), WireConnection.SIDE);
 		}
 		
 		return state;

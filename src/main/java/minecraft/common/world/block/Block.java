@@ -96,7 +96,7 @@ public class Block {
 		return false;
 	}
 	
-	public boolean hasAlignedTop(IBlockState state) {
+	public boolean hasAligned(IBlockState state, Direction dir) {
 		return isSolid();
 	}
 	
@@ -104,7 +104,7 @@ public class Block {
 		return false;
 	}
 	
-	public boolean canPowerIndirectly(IBlockState state) {
+	public boolean canPowerIndirectly(IBlockState state, Direction dir) {
 		return isSolid();
 	}
 	
@@ -113,13 +113,14 @@ public class Block {
 	}
 	
 	public int getOutputPowerFlags(IBlockState state, Direction dir) {
-		return canPowerIndirectly(state) ? IServerWorld.INDIRECT_POWER_FLAGS : IServerWorld.NO_FLAGS;
+		return canPowerIndirectly(state, dir) ? IServerWorld.INDIRECT_POWER_FLAGS : IServerWorld.NO_FLAGS;
 	}
 
 	public int getPowerTo(IBlockState state, IServerWorld world, IBlockPosition pos, Direction dir, int powerFlags) {
-		if (canPowerIndirectly(state) && (powerFlags & IServerWorld.INDIRECT_POWER_FLAGS) != 0) {
+		if (canPowerIndirectly(state, dir) && (powerFlags & IServerWorld.INDIRECT_POWER_FLAGS) != 0) {
 			if ((powerFlags & IServerWorld.INDIRECT_WEAK_POWER_FLAG) != 0)
 				return world.getPowerExceptFrom(pos, dir, IServerWorld.DIRECT_POWER_FLAGS);
+			
 			return world.getPowerExceptFrom(pos, dir, IServerWorld.DIRECT_STRONG_POWER_FLAG);
 		}
 		

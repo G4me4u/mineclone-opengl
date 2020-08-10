@@ -57,7 +57,7 @@ public class ServerWorld extends World implements IServerWorld {
 					IBlockState plantState = Blocks.PLANT_BLOCK.getDefaultState();
 					
 					PlantType type = PlantType.TYPES[random.nextInt(PlantType.TYPES.length)];
-					plantState = plantState.withProperty(PlantBlock.PLANT_TYPE, type);
+					plantState = plantState.with(PlantBlock.PLANT_TYPE, type);
 					
 					setBlockState(pos, plantState, false);
 				}

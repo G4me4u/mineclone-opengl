@@ -44,11 +44,11 @@ public class Block {
 	}
 	
 	public void onAdded(IServerWorld world, IBlockPosition pos, IBlockState state) {
-		world.updateNeighbors(pos, state, ServerWorld.COMMON_UPDATE_FLAGS);
+		world.updateNeighbors(pos, ServerWorld.COMMON_UPDATE_FLAGS);
 	}
 	
 	public void onRemoved(IServerWorld world, IBlockPosition pos, IBlockState state) {
-		world.updateNeighbors(pos, state, ServerWorld.COMMON_UPDATE_FLAGS);
+		world.updateNeighbors(pos, ServerWorld.COMMON_UPDATE_FLAGS);
 	}
 	
 	public void onStateReplaced(IServerWorld world, IBlockPosition pos, IBlockState state) {

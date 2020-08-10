@@ -38,7 +38,7 @@ public interface IServerWorld extends IWorld {
 	
 	public boolean setBlock(IBlockPosition pos, Block block, boolean updateNeighbors);
 	
-	public void updateNeighbors(IBlockPosition pos, IBlockState state, int updateFlags);
+	public void updateNeighbors(IBlockPosition pos, int updateFlags);
 	
 	public void updateNeighbor(IBlockPosition pos, Direction fromDir, IBlockState neighborState, int updateFlags);
 

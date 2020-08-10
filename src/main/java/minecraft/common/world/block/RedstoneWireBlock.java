@@ -42,6 +42,18 @@ public class RedstoneWireBlock extends Block {
 		
 		return resolveWireState(state);
 	}
+
+	@Override
+	public void onStateReplaced(IServerWorld world, IBlockPosition pos, IBlockState state) {
+		world.updateNeighbors(pos, IServerWorld.STATE_UPDATE_FLAG);
+		
+		for (Direction vertical : Direction.VERTICAL_DIRECTIONS) {
+			IBlockPosition vpos = pos.offset(vertical);
+			
+			for (Direction horizontal : Direction.HORIZONTAL_DIRECTIONS)
+				world.updateNeighbor(vpos.offset(horizontal), horizontal.getOpposite(), state, IServerWorld.STATE_UPDATE_FLAG);
+		}
+	}
 	
 	private WireConnection getWireConnection(IServerWorld world, IBlockPosition pos, Direction dir) {
 		IBlockPosition sidePos = pos.offset(dir);

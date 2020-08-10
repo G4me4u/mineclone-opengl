@@ -132,59 +132,56 @@ public class ServerWorld extends World implements IServerWorld {
 	}
 	
 	@Override
-	public void updateNeighbors(IBlockPosition blockPos, IBlockState state, int flags) {
-		if ((flags & BLOCK_UPDATE_FLAG) != 0) {
-			dispatchBlockUpdates(blockPos, state);
-		}
-		if ((flags & STATE_UPDATE_FLAG) != 0) {
-			dispatchStateUpdates(blockPos, state);
-		}
-		if ((flags & INVENTORY_UPDATE_FLAG) != 0) {
-			dispatchInventoryUpdates(blockPos, state);
-		}
+	public void updateNeighbors(IBlockPosition pos, int flags) {
+		IBlockState fromState = getBlockState(pos);
+		
+		if ((flags & BLOCK_UPDATE_FLAG) != 0)
+			dispatchBlockUpdates(pos, fromState);
+		
+		if ((flags & STATE_UPDATE_FLAG) != 0)
+			dispatchStateUpdates(pos, fromState);
+		
+		if ((flags & INVENTORY_UPDATE_FLAG) != 0)
+			dispatchInventoryUpdates(pos, fromState);
 	}
 	
-	private void dispatchBlockUpdates(IBlockPosition blockPos, IBlockState state) {
-		for (Direction dir : Direction.DIRECTIONS) {
-			dispatchBlockUpdate(blockPos.offset(dir), dir.getOpposite(), state);
-		}
+	private void dispatchBlockUpdates(IBlockPosition pos, IBlockState fromState) {
+		for (Direction dir : Direction.DIRECTIONS)
+			dispatchBlockUpdate(pos.offset(dir), dir.getOpposite(), fromState);
 	}
 	
-	private void dispatchStateUpdates(IBlockPosition blockPos, IBlockState state) {
-		for (Direction dir : Direction.DIRECTIONS) {
-			dispatchStateUpdate(blockPos.offset(dir), dir.getOpposite(), state);
-		}
+	private void dispatchStateUpdates(IBlockPosition pos, IBlockState fromState) {
+		for (Direction dir : Direction.DIRECTIONS)
+			dispatchStateUpdate(pos.offset(dir), dir.getOpposite(), fromState);
 	}
 	
-	private void dispatchInventoryUpdates(IBlockPosition blockPos, IBlockState state) {
-		for (Direction dir : Direction.DIRECTIONS) {
-			dispatchInventoryUpdate(blockPos.offset(dir), dir.getOpposite(), state);
-		}
+	private void dispatchInventoryUpdates(IBlockPosition pos, IBlockState fromState) {
+		for (Direction dir : Direction.DIRECTIONS)
+			dispatchInventoryUpdate(pos.offset(dir), dir.getOpposite(), fromState);
 	}
 	
 	@Override
-	public void updateNeighbor(IBlockPosition blockPos, Direction fromDir, IBlockState neighborState, int flags) {
-		if ((flags & BLOCK_UPDATE_FLAG) != 0) {
-			dispatchBlockUpdate(blockPos, fromDir, neighborState);
-		}
-		if ((flags & STATE_UPDATE_FLAG) != 0) {
-			dispatchStateUpdate(blockPos, fromDir, neighborState);
-		}
-		if ((flags & INVENTORY_UPDATE_FLAG) != 0) {
-			dispatchInventoryUpdate(blockPos, fromDir, neighborState);
-		}
+	public void updateNeighbor(IBlockPosition pos, Direction fromDir, IBlockState fromState, int updateFlags) {
+		if ((updateFlags & BLOCK_UPDATE_FLAG) != 0)
+			dispatchBlockUpdate(pos, fromDir, fromState);
+		
+		if ((updateFlags & STATE_UPDATE_FLAG) != 0)
+			dispatchStateUpdate(pos, fromDir, fromState);
+
+		if ((updateFlags & INVENTORY_UPDATE_FLAG) != 0)
+			dispatchInventoryUpdate(pos, fromDir, fromState);
 	}
 	
-	private void dispatchBlockUpdate(IBlockPosition blockPos, Direction fromDir, IBlockState neighborState) {
-		getBlockState(blockPos).onBlockUpdate(this, blockPos, fromDir, neighborState);
+	private void dispatchBlockUpdate(IBlockPosition pos, Direction fromDir, IBlockState fromState) {
+		getBlockState(pos).onBlockUpdate(this, pos, fromDir, fromState);
+	}
+
+	private void dispatchStateUpdate(IBlockPosition pos, Direction fromDir, IBlockState fromState) {
+		getBlockState(pos).onStateUpdate(this, pos, fromDir, fromState);
 	}
 	
-	private void dispatchStateUpdate(IBlockPosition blockPos, Direction fromDir, IBlockState neighborState) {
-		getBlockState(blockPos).onStateUpdate(this, blockPos, fromDir, neighborState);
-	}
-	
-	private void dispatchInventoryUpdate(IBlockPosition blockPos, Direction fromDir, IBlockState neighborState) {
-		getBlockState(blockPos).onInventoryUpdate(this, blockPos, fromDir, neighborState);
+	private void dispatchInventoryUpdate(IBlockPosition pos, Direction fromDir, IBlockState fromState) {
+		getBlockState(pos).onInventoryUpdate(this, pos, fromDir, fromState);
 	}
 	
 	@Override

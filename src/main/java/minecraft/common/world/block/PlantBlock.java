@@ -29,8 +29,8 @@ public class PlantBlock extends Block {
 	}
 
 	@Override
-	public void onBlockUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir, IBlockState sourceState) {
-		if (dir == Direction.DOWN && !world.getBlockState(pos.offset(dir)).canGrowVegetation())
+	public void onBlockUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction fromDir, IBlockState fromState) {
+		if (fromDir == Direction.DOWN && !world.getBlockState(pos.offset(fromDir)).canGrowVegetation())
 			world.setBlock(pos, Blocks.AIR_BLOCK, true);
 	}
 	

@@ -33,48 +33,91 @@ public class RedstoneWireBlock extends Block {
 	public RedstoneWireBlock() {
 	}
 	
+	@Override
+	public IBlockState getPlacementState(IBlockState state, IServerWorld world, IBlockPosition pos) {
+		for (Direction dir : Direction.HORIZONTAL_DIRECTIONS) {
+			WireConnection connection = getWireConnection(world, pos, dir);
+			state = state.withProperty(CONNECTION_PROPERTIES.get(dir), connection);
+		}
+		
+		return resolveWireState(state);
+	}
+	
 	private WireConnection getWireConnection(IServerWorld world, IBlockPosition pos, Direction dir) {
 		IBlockPosition sidePos = pos.offset(dir);
 		IBlockState sideState = world.getBlockState(sidePos);
 		
-		if (sideState.conductsPower()) {
-			IBlockPosition upPos = pos.up();
-			IBlockPosition sideUpPos = sidePos.up();
+		if (sideState.canPowerIndirectly()) {
+			IBlockState aboveState = world.getBlockState(pos.up());
 			
-			if (!world.getBlockState(upPos).conductsPower() && world.getBlock(sideUpPos) == Blocks.REDSTONE_WIRE_BLOCK) {
-				return WireConnection.UP;
+			if (!aboveState.canPowerIndirectly()) {
+				IBlockState diagonalState = world.getBlockState(sidePos.up());
+				
+				if (diagonalState.isOf(Blocks.REDSTONE_WIRE_BLOCK))
+					return WireConnection.UP;
 			}
-		} else if (world.getBlock(sidePos.down()) == Blocks.REDSTONE_WIRE_BLOCK) {
+		} else if (world.getBlockState(sidePos.down()).isOf(Blocks.REDSTONE_WIRE_BLOCK)) {
 			return WireConnection.SIDE;
 		}
-		if (sideState.connectsToWire(dir.getOpposite())) {
+		
+		if (sideState.canConnectToWire(dir.getOpposite()))
 			return WireConnection.SIDE;
-		}
+		
 		return WireConnection.NONE;
 	}
-
-	@Override
-	public void onBlockUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir, IBlockState neighborState) {
+	
+	private IBlockState resolveWireState(IBlockState state) {
+		Direction connectionDir = null;
+		
+		for (Direction dir : Direction.HORIZONTAL_DIRECTIONS) {
+			WireConnection connection = state.getValue(CONNECTION_PROPERTIES.get(dir));
+			
+			if (connection != WireConnection.NONE) {
+				if (connectionDir != null) {
+					// There is only something to resolve, if there is
+					// exactly zero or one connection in the state.
+					return state;
+				}
+				
+				connectionDir = dir;
+			}
+		}
+		
+		if (connectionDir == null) {
+			state = state.withProperty(NORTH_CONNECTION, WireConnection.SIDE);
+			state = state.withProperty(SOUTH_CONNECTION, WireConnection.SIDE);
+			state = state.withProperty(WEST_CONNECTION , WireConnection.SIDE);
+			state = state.withProperty(EAST_CONNECTION , WireConnection.SIDE);
+		} else {
+			Direction dir = connectionDir.getOpposite();
+			
+			state = state.withProperty(CONNECTION_PROPERTIES.get(dir), WireConnection.SIDE);
+		}
+		
+		return state;
 	}
 	
 	@Override
-	public void onStateUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir, IBlockState neighborState) {
-		if (dir.getAxis().isHorizontal()) {
-			IBlockProperty<WireConnection> connectionProperty = CONNECTION_PROPERTIES.get(dir);
-			WireConnection newConnection = getWireConnection(world, pos, dir);
+	public void onBlockUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction fromDir, IBlockState fromState) {
+	}
+	
+	@Override
+	public void onStateUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction fromDir, IBlockState fromState) {
+		if (fromDir.getAxis().isHorizontal() && fromState.isOf(Blocks.REDSTONE_WIRE_BLOCK)) {
+			IBlockProperty<WireConnection> property = CONNECTION_PROPERTIES.get(fromDir);
+			WireConnection newConnection = getWireConnection(world, pos, fromDir);
 			
-			if (state.getValue(connectionProperty) != newConnection) {
-				IBlockState newState = state.withProperty(connectionProperty, newConnection);
+			if (newConnection != state.getValue(property)) {
+				state = state.withProperty(property, newConnection);
 				
-				WireConnection sideConnectionCW = state.getValue(CONNECTION_PROPERTIES.get(dir.rotateCW()));
-				WireConnection sideConnectionCCW = state.getValue(CONNECTION_PROPERTIES.get(dir.rotateCCW()));
+				Direction dir = fromDir.rotateCCW();
 				
-				if (sideConnectionCW == WireConnection.NONE && sideConnectionCCW == WireConnection.NONE) {
-					newConnection = newConnection == WireConnection.UP ? WireConnection.SIDE : newConnection;
-					newState = newState.withProperty(CONNECTION_PROPERTIES.get(dir.getOpposite()), newConnection);
-				}
+				do {
+					WireConnection connection = getWireConnection(world, pos, dir);
+					state = state.withProperty(CONNECTION_PROPERTIES.get(dir), connection);
+				} while ((dir = dir.rotateCCW()) != fromDir);
 				
-				world.setBlockState(pos, newState, true);
+				world.setBlockState(pos, resolveWireState(state), true);
 			}
 		}
 	}
@@ -82,26 +125,5 @@ public class RedstoneWireBlock extends Block {
 	@Override
 	protected IBlockState createDefaultState() {
 		return BlockState.createStateTree(this, POWER, NORTH_CONNECTION, SOUTH_CONNECTION, WEST_CONNECTION, EAST_CONNECTION);
-	}
-	
-	@Override
-	public IBlockState getPlacementState(IBlockState state, IServerWorld world, IBlockPosition pos) {
-		Direction currentDir = null;
-		int connectionCount = 0;
-		for (Direction dir : Direction.HORIZONTAL_DIRECTIONS) {
-			WireConnection connection = getWireConnection(world, pos, dir);
-			
-			if (connection != WireConnection.NONE) {
-				connectionCount++;
-				currentDir = dir;
-				IBlockProperty<WireConnection> connectionProperty = CONNECTION_PROPERTIES.get(dir);
-				state = state.withProperty(connectionProperty, connection);
-			}
-		}
-		if (connectionCount == 1) {
-			state = state.withProperty(CONNECTION_PROPERTIES.get(currentDir.getOpposite()), WireConnection.SIDE);
-		}
-		
-		return state;
 	}
 }

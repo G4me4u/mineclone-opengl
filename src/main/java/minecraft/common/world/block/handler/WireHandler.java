@@ -71,7 +71,10 @@ public class WireHandler {
 	private void buildGraph(IBlockPosition sourcePos, IBlockState sourceState, int depth) {
 		int nodeIndex = 0;
 
-		nodes[nodeIndex].setState(sourcePos, sourceState);
+		WireNode sourceNode = nodes[nodeIndex];
+		sourceNode.pos = sourcePos;
+		sourceNode.state = sourceState;
+		
 		nodeCount = 1;
 		
 		for (int d = 0; d < depth && nodeIndex < nodeCount; d++) {
@@ -83,6 +86,8 @@ public class WireHandler {
 	}
 	
 	private void addConnections(WireNode node) {
+		node.connectionCount = 0;
+		
 		for (Direction dir : Direction.HORIZONTAL_DIRECTIONS)
 			addConnectionsTo(node, dir);
 	}
@@ -119,15 +124,17 @@ public class WireHandler {
 			addNode(source, pos, state);
 	}
 	
-	private void addNode(WireNode source, IBlockPosition pos, IBlockState wireState) {
+	private void addNode(WireNode source, IBlockPosition pos, IBlockState state) {
 		if (nodePositions.add(pos)) {
 			if (nodeCount >= nodes.length)
 				reallocNodes(nodes.length << 1);
 			
 			WireNode node = nodes[nodeCount++];
-			node.setState(pos, wireState);
 			
-			source.addConnection(node);
+			node.pos = pos;
+			node.state = state;
+			
+			source.connections[source.connectionCount++] = node;
 		}
 	}
 	
@@ -183,17 +190,6 @@ public class WireHandler {
 		
 		private WireNode() {
 			connections = new WireNode[MAX_WIRE_CONNECTIONS];
-		}
-		
-		public void setState(IBlockPosition pos, IBlockState state) {
-			connectionCount = 0;
-
-			this.pos = pos;
-			this.state = state;
-		}
-		
-		public void addConnection(WireNode connection) {
-			connections[connectionCount++] = connection;
 		}
 		
 		@Override

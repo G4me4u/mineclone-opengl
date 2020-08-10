@@ -40,20 +40,20 @@ public class BlockState implements IBlockState {
 	}
 	
 	@Override
-	public <T> T getValue(IBlockProperty<T> property) {
+	public <T> T get(IBlockProperty<T> property) {
 		int index = getPropertyInfo(property).getIndex();
 		return property.getValue(values[index]);
 	}
 
 	@Override
-	public <T> IBlockState withProperty(IBlockProperty<T> property, T value) {
+	public <T> IBlockState with(IBlockProperty<T> property, T value) {
 		PropertyInfo propertyInfo = getPropertyInfo(property);
 		int diff = property.getValueIndex(value) - values[propertyInfo.getIndex()];
 		return states[stateIndex + diff * propertyInfo.stride];
 	}
 	
 	@Override
-	public <T> IBlockState incrementProperty(IBlockProperty<T> property) {
+	public <T> IBlockState increment(IBlockProperty<T> property) {
 		int index = stateIndex + getPropertyInfo(property).stride;
 		if (index >= states.length)
 			index -= states.length;
@@ -62,7 +62,7 @@ public class BlockState implements IBlockState {
 	}
 
 	@Override
-	public <T> IBlockState decrementProperty(IBlockProperty<T> property) {
+	public <T> IBlockState decrement(IBlockProperty<T> property) {
 		int index = stateIndex - getPropertyInfo(property).stride;
 		if (index < 0)
 			index += states.length;
@@ -71,7 +71,7 @@ public class BlockState implements IBlockState {
 	}
 	
 	@Override
-	public IBlockState incrementState() {
+	public IBlockState next() {
 		// Just like the index would wrap around to zero when going above 
 		// states.length - 1, we wrap around and return ourselves, if the
 		// state array is empty.
@@ -85,7 +85,7 @@ public class BlockState implements IBlockState {
 	}
 
 	@Override
-	public IBlockState decrementState() {
+	public IBlockState prev() {
 		if (states == null)
 			return this;
 		

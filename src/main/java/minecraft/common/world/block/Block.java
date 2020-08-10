@@ -39,24 +39,28 @@ public class Block {
 		defaultState = createDefaultState();
 	}
 	
+	public IBlockState getPlacementState(IBlockState state, IServerWorld world, IBlockPosition pos) {
+		return state;
+	}
+	
 	public void onAdded(IServerWorld world, IBlockPosition pos, IBlockState state) {
-		world.updateNeighbors(pos, state, ServerWorld.COMMON_UPDATE_FLAGS);
+		world.updateNeighbors(pos, ServerWorld.COMMON_UPDATE_FLAGS);
 	}
 	
 	public void onRemoved(IServerWorld world, IBlockPosition pos, IBlockState state) {
-		world.updateNeighbors(pos, state, ServerWorld.COMMON_UPDATE_FLAGS);
+		world.updateNeighbors(pos, ServerWorld.COMMON_UPDATE_FLAGS);
 	}
 	
 	public void onStateReplaced(IServerWorld world, IBlockPosition pos, IBlockState state) {
 	}
 	
-	public void onBlockUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir, IBlockState neighborState) {
+	public void onBlockUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction fromDir, IBlockState fromState) {
 	}
 	
-	public void onStateUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir, IBlockState neighborState) {
+	public void onStateUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction fromDir, IBlockState fromState) {
 	}
 	
-	public void onInventoryUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir, IBlockState neighborState) {
+	public void onInventoryUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction fromDir, IBlockState fromState) {
 	}
 	
 	public void onRandomUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Random random) {
@@ -92,26 +96,31 @@ public class Block {
 		return false;
 	}
 	
+	public boolean hasAligned(IBlockState state, Direction dir) {
+		return isSolid();
+	}
+	
 	public boolean isPowerComponent() {
 		return false;
 	}
 	
-	public boolean conductsPower(IBlockState state) {
+	public boolean canPowerIndirectly(IBlockState state, Direction dir) {
 		return isSolid();
 	}
 	
-	public boolean connectsToWire(IBlockState state, Direction dir) {
+	public boolean canConnectToWire(IBlockState state, Direction dir) {
 		return isPowerComponent();
 	}
 	
 	public int getOutputPowerFlags(IBlockState state, Direction dir) {
-		return conductsPower(state) ? IServerWorld.INDIRECT_POWER_FLAGS : IServerWorld.NO_FLAGS;
+		return canPowerIndirectly(state, dir) ? IServerWorld.INDIRECT_POWER_FLAGS : IServerWorld.NO_FLAGS;
 	}
 
 	public int getPowerTo(IBlockState state, IServerWorld world, IBlockPosition pos, Direction dir, int powerFlags) {
-		if (conductsPower(state) && (powerFlags & IServerWorld.INDIRECT_POWER_FLAGS) != 0) {
+		if (canPowerIndirectly(state, dir) && (powerFlags & IServerWorld.INDIRECT_POWER_FLAGS) != 0) {
 			if ((powerFlags & IServerWorld.INDIRECT_WEAK_POWER_FLAG) != 0)
 				return world.getPowerExceptFrom(pos, dir, IServerWorld.DIRECT_POWER_FLAGS);
+			
 			return world.getPowerExceptFrom(pos, dir, IServerWorld.DIRECT_STRONG_POWER_FLAG);
 		}
 		
@@ -132,10 +141,6 @@ public class Block {
 	
 	public IBlockState getDefaultState() {
 		return defaultState;
-	}
-	
-	public IBlockState getPlacementState(IBlockState state, IServerWorld world, IBlockPosition pos) {
-		return state;
 	}
 	
 	public static final void registerBlocks() {

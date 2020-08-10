@@ -25,7 +25,7 @@ public class WoodPlanksBlock extends Block {
 	
 	@Override
 	public IBlockModel getModel(IWorld world, IBlockPosition pos, IBlockState state) {
-		return models[state.getValue(WOOD_TYPE).getIndex()];
+		return models[state.get(WOOD_TYPE).getIndex()];
 	}
 	
 	@Override

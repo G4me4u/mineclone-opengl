@@ -243,8 +243,6 @@ public class Display implements IResource {
 				}
 
 				glfwSetWindowMonitor(windowHandle, monitor, 0, 0, mode.width(), mode.height(), mode.refreshRate());
-
-				setVSync(vSync);
 				
 				windowMonitor = monitor;
 			} else {
@@ -252,8 +250,10 @@ public class Display implements IResource {
 
 				windowMonitor = NULL;
 			}
-			
+
 			this.fullScreen = fullScreen;
+
+			setVSync(vSync);
 		}
 	}
 	

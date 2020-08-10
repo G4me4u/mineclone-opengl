@@ -60,8 +60,12 @@ public class WireHandler {
 		
 		if (depth != 0) {
 			buildGraph(sourcePos, sourceState, depth);
-			findGraphPower(sourcePower);
-			relaxGraph();
+			findExternalPower(sourcePower);
+			
+			// The cached node positions are no longer required.
+			nodePositions.clear();
+			
+			relaxGraphPower();
 			replaceGraphStates();
 			
 			// TODO: implement updates.
@@ -138,13 +142,13 @@ public class WireHandler {
 		}
 	}
 	
-	private void findGraphPower(int sourcePower) {
+	private void findExternalPower(int sourcePower) {
 		// TODO: update graph power.
 		//nodes[0].setExternalPower(sourcePower);
 		// powerNodes.add(node)
 	}
 	
-	private void relaxGraph() {
+	private void relaxGraphPower() {
 		WireNode node;
 		
 		while ((node = powerNodes.poll()) != null) {

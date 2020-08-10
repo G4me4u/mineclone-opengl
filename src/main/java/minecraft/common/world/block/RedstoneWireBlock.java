@@ -89,7 +89,7 @@ public class RedstoneWireBlock extends Block {
 				// The aligned faces of the top block might have changed.
 				// Make sure we update the appropriate directions.
 				for (Direction dir : Direction.HORIZONTAL_DIRECTIONS) {
-					if (newState.get(CONNECTION_PROPERTIES.get(dir)) == WireConnection.SIDE)
+					if (newState.get(CONNECTION_PROPERTIES.get(dir)) == WireConnection.UP)
 						newState = updateStateConnection(world, pos, newState, dir);
 				}
 				

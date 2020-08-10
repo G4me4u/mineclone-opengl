@@ -19,6 +19,8 @@ import minecraft.common.world.block.state.IBlockState;
 
 public class RedstoneWireHandler {
 	
+	private static final int MAX_WIRE_CONNECTIONS = 8;
+	
 	private final IServerWorld world;
 	private final IBlockState sourceState;
 	private final IBlockPosition sourcePos;
@@ -28,7 +30,7 @@ public class RedstoneWireHandler {
 	
 	private List<IBlockPosition> wirePositions;
 	private Map<IBlockPosition, IBlockState> wireMap;
-	private TreeSet<Node> poweredNodes;
+	private TreeSet<WireNode> poweredNodes;
 	
 	private LinkedHashSet<IBlockPosition> blockUpdatePositions;
 	private LinkedHashSet<IBlockPosition> stateUpdatePositions;
@@ -62,7 +64,7 @@ public class RedstoneWireHandler {
 			
 		} else {
 			while (!poweredNodes.isEmpty()) {
-				Node currentNode = poweredNodes.pollFirst();
+				WireNode currentNode = poweredNodes.pollFirst();
 				
 				for (Direction dir : Direction.HORIZONTAL_DIRECTIONS) {
 					WireConnection connection = currentNode.state.getValue(RedstoneWireBlock.CONNECTION_PROPERTIES.get(dir));
@@ -102,42 +104,38 @@ public class RedstoneWireHandler {
 		}
 	}
 	
-	private static class Node implements Comparable<Node> {
-		private static int idCounter = 0;
+	private static class WireNode implements Comparable<WireNode> {
 		
-		private final IBlockState state;
-		public int power;
-		private final int id;
+		private final WireNode[] connections;
+		private int connectionCount;
 		
-		public Node(IBlockState state) {
-			this.state = state;
-			this.id = idCounter++;
+		private IBlockPosition pos;
+		private IBlockState state;
+		
+		private int power;
+		
+		private WireNode() {
+			connections = new WireNode[MAX_WIRE_CONNECTIONS];
 		}
 		
-		public Node(IBlockState state, int power) {
-			this(state);
+		public void setState(IBlockPosition pos, IBlockState state) {
+			connectionCount = 0;
+
+			this.pos = pos;
+			this.state = state;
+		}
+		
+		public void setExternalPower(int power) {
 			this.power = power;
 		}
 		
-		@Override
-		public boolean equals(Object other) {
-			if (other instanceof Node) {
-				Node node = (Node)other;
-				return node.id == id;
-			} else {
-				return false;
-			}
+		public void addConnection(WireNode connection) {
+			connections[connectionCount++] = connection;
 		}
 		
 		@Override
-		public int hashCode() {
-			return pos.hashCode() * 31 + power;
-		}
-		
-		@Override
-		public int compareTo(Node other) {
-			int p = Integer.compare(other.power, power);
-			return p == 0 ? Integer.compare(id, other.id) : p;
+		public int compareTo(WireNode other) {
+			return Integer.compare(other.power, power);
 		}
 	}
 }

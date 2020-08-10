@@ -11,7 +11,7 @@ public enum NetworkPhase {
 	static {
 		PHASES = new NetworkPhase[values().length];
 		
-		for (NetworkPhase phase : PHASES)
+		for (NetworkPhase phase : values())
 			PHASES[phase.index] = phase;
 	}
 	

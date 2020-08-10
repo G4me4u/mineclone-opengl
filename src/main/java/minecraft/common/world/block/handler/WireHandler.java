@@ -51,7 +51,7 @@ public class WireHandler {
 		nodes = newNodes;
 	}
 
-	public void updatePowerGraph(IServerWorld world, IBlockPosition sourcePos, IBlockState sourceState) {
+	public void updateWireNetwork(IServerWorld world, IBlockPosition sourcePos, IBlockState sourceState) {
 		this.world = world;
 		wireBlock = sourceState.getBlock();
 		

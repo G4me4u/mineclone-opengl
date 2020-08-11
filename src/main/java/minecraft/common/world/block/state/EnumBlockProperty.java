@@ -7,22 +7,30 @@ public final class EnumBlockProperty<T extends Enum<T> & IIndexedValue> implemen
 	private final String name;
 	private final T[] values;
 	
+	private final int indexOffset;
+	
 	private final int hash;
 	
 	public EnumBlockProperty(String name, T[] values) {
-		if (!isValidOrder(values))
+		int indexOffset = (values.length != 0) ? values[0].getIndex() : 0;
+		
+		if (!isValidOrder(values, indexOffset))
 			throw new IllegalArgumentException("Value order is not valid!");
 		
 		this.name = name;
 		this.values = values;
+		
+		this.indexOffset = indexOffset;
 	
 		hash = name.hashCode() * 31 + Arrays.hashCode(values);
 	}
 	
-	private static <T extends IIndexedValue> boolean isValidOrder(T[] values) {
+	private static <T extends IIndexedValue> boolean isValidOrder(T[] values, int indexOffset) {
 		for (int i = 0; i < values.length; i++) {
-			if (i != values[i].getIndex())
+			if (indexOffset != values[i].getIndex())
 				return false;
+			
+			indexOffset++;
 		}
 		
 		return true;
@@ -35,7 +43,7 @@ public final class EnumBlockProperty<T extends Enum<T> & IIndexedValue> implemen
 
 	@Override
 	public int getValueIndex(T value) {
-		int index = value.getIndex();
+		int index = value.getIndex() - indexOffset;
 		if (index < 0 || index >= values.length)
 			throw new IllegalArgumentException(value + " is not part of property " + name);
 		
@@ -69,8 +77,16 @@ public final class EnumBlockProperty<T extends Enum<T> & IIndexedValue> implemen
 		
 		if (!name.equals(property.name))
 			return false;
-		if (!Arrays.equals(values, property.values))
-			return false;
+
+		if (values != property.values) {
+			if (values.length != property.values.length)
+				return false;
+		
+			for (int i = 0; i < values.length; i++) {
+				if (values[i] != property.values[i])
+					return false;
+			}
+		}
 		
 		return true;
 	}

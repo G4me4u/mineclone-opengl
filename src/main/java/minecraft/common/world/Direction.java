@@ -23,8 +23,13 @@ public enum Direction implements IIndexedValue {
 		for (Direction dir : values())
 			DIRECTIONS[dir.index] = dir;
 		
-		HORIZONTAL_DIRECTIONS = Arrays.stream(DIRECTIONS).filter(dir -> dir.getAxis().isHorizontal()).toArray(Direction[]::new);
-		VERTICAL_DIRECTIONS = Arrays.stream(DIRECTIONS).filter(dir -> !dir.getAxis().isHorizontal()).toArray(Direction[]::new);
+		HORIZONTAL_DIRECTIONS = Arrays.stream(DIRECTIONS)
+				.filter(Direction::isHorizontal)
+				.toArray(Direction[]::new);
+		
+		VERTICAL_DIRECTIONS = Arrays.stream(DIRECTIONS)
+				.filter(Direction::isVertical)
+				.toArray(Direction[]::new);
 	}
 	
 	private final String name;
@@ -51,7 +56,6 @@ public enum Direction implements IIndexedValue {
 		this.offsetX = (axis == Axis.X) ? offset : 0;
 		this.offsetY = (axis == Axis.Y) ? offset : 0;
 		this.offsetZ = (axis == Axis.Z) ? offset : 0;
-		
 	}
 
 	public String getName() {
@@ -89,6 +93,16 @@ public enum Direction implements IIndexedValue {
 	
 	public int getOffsetZ() {
 		return offsetZ;
+	}
+	
+	/* Used for building direction arrays. */
+	private boolean isHorizontal() {
+		return axis.isHorizontal();
+	}
+
+	/* Used for building direction arrays. */
+	private boolean isVertical() {
+		return !axis.isHorizontal();
 	}
 	
 	public static Direction fromIndex(int index) {

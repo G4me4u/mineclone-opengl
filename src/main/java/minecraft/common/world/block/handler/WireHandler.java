@@ -113,7 +113,7 @@ public class WireHandler {
 				}
 				
 				if (!sideState.isAligned(Direction.DOWN)) {
-					IBlockState belowState = world.getBlockState(node.pos.down());
+					IBlockState belowState = getBelowState(node);
 
 					if (belowState.isAligned(dir)) {
 						addNode(node, sidePos.down());
@@ -125,11 +125,23 @@ public class WireHandler {
 				}
 			}
 			
-			IBlockState aboveState = world.getBlockState(node.pos.up());
+			IBlockState aboveState = getAboveState(node);
 			
 			if (!aboveState.isAligned(Direction.DOWN) && !aboveState.isAligned(dir))
 				addNode(node, sidePos.up());
 		}
+	}
+	
+	private IBlockState getBelowState(WireNode node) {
+		if (node.belowState == null)
+			node.belowState = world.getBlockState(node.pos.down());
+		return node.belowState;
+	}
+
+	private IBlockState getAboveState(WireNode node) {
+		if (node.aboveState == null)
+			node.aboveState = world.getBlockState(node.pos.up());
+		return node.aboveState;
 	}
 
 	private void addNode(WireNode source, IBlockPosition pos) {
@@ -148,6 +160,9 @@ public class WireHandler {
 			
 			node.pos = pos;
 			node.state = state;
+
+			// Delete potentially cached states.
+			node.aboveState = node.belowState = null;
 			
 			source.connections[source.connectionCount++] = node;
 		}
@@ -203,6 +218,9 @@ public class WireHandler {
 		
 		private IBlockPosition pos;
 		private IBlockState state;
+		
+		private IBlockState belowState;
+		private IBlockState aboveState;
 		
 		private int power;
 		

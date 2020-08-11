@@ -22,8 +22,8 @@ public class WireHandler {
 	private WireNode[] nodes;
 	private int nodeCount;
 	
-	private Set<IBlockPosition> nodePositions;
-	private PriorityQueue<WireNode> powerNodes;
+	private final Set<IBlockPosition> nodePositions;
+	private final PriorityQueue<WireNode> powerNodes;
 	
 	private IServerWorld world;
 	private Block wireBlock;
@@ -32,7 +32,8 @@ public class WireHandler {
 		nodes = new WireNode[INITIAL_CAPACITY];
 		nodeCount = 0;
 	
-		nodePositions = new HashSet<>();
+		nodePositions = new HashSet<>(INITIAL_CAPACITY);
+		powerNodes = new PriorityQueue<>(INITIAL_CAPACITY);
 		
 		allocNodes(nodes, 0, INITIAL_CAPACITY);
 	}

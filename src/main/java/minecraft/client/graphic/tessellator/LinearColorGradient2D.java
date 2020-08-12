@@ -11,9 +11,12 @@ public class LinearColorGradient2D extends ColorGradient2D {
 
 	private static final float EPSILON = 0.01f;
 	
-	private final Vec2 startPoint;
+	private final float sx;
+	private final float sy;
+	private final float ex;
+	private final float ey;
+
 	private final Color startColor;
-	private final Vec2 endPoint;
 	private final Color endColor;
 	
 	public LinearColorGradient2D(Vec2 startPoint, Color startColor, Vec2 endPoint, Color endColor) {
@@ -22,28 +25,34 @@ public class LinearColorGradient2D extends ColorGradient2D {
 		if (endColor == null)
 			throw new IllegalArgumentException("endColor is null!");
 		
-		this.startPoint = startPoint.copy();
+		this.sx = startPoint.x;
+		this.sy = startPoint.y;
+		this.ex = endPoint.x;
+		this.ey = endPoint.y;
+
 		this.startColor = startColor;
-		this.endPoint = endPoint.copy();
 		this.endColor = endColor;
 	}
 
 	@Override
 	public Color getColor(float x, float y, Mat3 transform) {
-		Vec2 p0 = startPoint;
-		Vec2 p1 = endPoint;
-		
-		// Apply transform to gradient.
 		if (transform != null) {
-			p0 = transform.mul(p0, new Vec2());
-			p1 = transform.mul(p1, new Vec2());
+			// Apply transform to gradient.
+			Vec2 p0 = transform.mul(new Vec2(sx, sy));
+			Vec2 p1 = transform.mul(new Vec2(ex, ey));
+			
+			return getColor(x, y, p0.x, p0.y, p1.x, p1.y);
 		}
-		
+
+		return getColor(x, y, sx, sy, ex, ey);
+	}
+	
+	private Color getColor(float x, float y, float sx, float sy, float ex, float ey) {
 		// Define a line orthogonal to the gradient going through
 		// the start point, where nx * x + ny * y = c.
-		float nx = p1.x - p0.x;
-		float ny = p1.y - p0.y;
-		float c  = nx * p0.x + ny * p0.y;
+		float nx = ex - sx;
+		float ny = ey - sy;
+		float c  = nx * sx + ny * sy;
 
 		// We can find the interpolation value as the distance to
 		// our line divided by the total distance between the start

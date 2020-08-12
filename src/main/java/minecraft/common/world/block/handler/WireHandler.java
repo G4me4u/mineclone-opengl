@@ -119,7 +119,7 @@ public class WireHandler {
 					return;
 				}
 				
-				if (!sideState.isAligned(Direction.DOWN)) {
+				if (!sideState.isAligned(Direction.DOWN) && !sideState.isAligned(dir.getOpposite())) {
 					IBlockState belowState = getBelowState(node);
 
 					if (belowState.isAligned(dir)) {

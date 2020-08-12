@@ -15,19 +15,19 @@ public enum Direction implements IIndexedValue {
 	UP   ("up"   , 5, 4, 5, 5, Axis.Y,  1);
 	
 	public static final Direction[] DIRECTIONS;
-	public static final Direction[] HORIZONTAL_DIRECTIONS;
-	public static final Direction[] VERTICAL_DIRECTIONS;
+	public static final Direction[] HORIZONTAL;
+	public static final Direction[] VERTICAL;
 	
 	static {
 		DIRECTIONS = new Direction[values().length];
 		for (Direction dir : values())
 			DIRECTIONS[dir.index] = dir;
 		
-		HORIZONTAL_DIRECTIONS = Arrays.stream(DIRECTIONS)
+		HORIZONTAL = Arrays.stream(DIRECTIONS)
 				.filter(Direction::isHorizontal)
 				.toArray(Direction[]::new);
 		
-		VERTICAL_DIRECTIONS = Arrays.stream(DIRECTIONS)
+		VERTICAL = Arrays.stream(DIRECTIONS)
 				.filter(Direction::isVertical)
 				.toArray(Direction[]::new);
 	}

@@ -22,13 +22,13 @@ public class RedstoneWireBlock extends Block {
 	public static final IBlockProperty<WireConnection> WEST_CONNECTION  = new EnumBlockProperty<>("west" , WireConnection.CONNECTIONS);
 	public static final IBlockProperty<WireConnection> EAST_CONNECTION  = new EnumBlockProperty<>("east" , WireConnection.CONNECTIONS);
 	
-	public static final Map<Direction, IBlockProperty<WireConnection>> CONNECTION_PROPERTIES = new EnumMap<>(Direction.class);
+	public static final Map<Direction, IBlockProperty<WireConnection>> CONNECTIONS = new EnumMap<>(Direction.class);
 	
 	static {
-		CONNECTION_PROPERTIES.put(Direction.NORTH, NORTH_CONNECTION);
-		CONNECTION_PROPERTIES.put(Direction.SOUTH, SOUTH_CONNECTION);
-		CONNECTION_PROPERTIES.put(Direction.WEST , WEST_CONNECTION);
-		CONNECTION_PROPERTIES.put(Direction.EAST , EAST_CONNECTION);
+		CONNECTIONS.put(Direction.NORTH, NORTH_CONNECTION);
+		CONNECTIONS.put(Direction.SOUTH, SOUTH_CONNECTION);
+		CONNECTIONS.put(Direction.WEST , WEST_CONNECTION);
+		CONNECTIONS.put(Direction.EAST , EAST_CONNECTION);
 	}
 	
 	public RedstoneWireBlock() {
@@ -39,7 +39,7 @@ public class RedstoneWireBlock extends Block {
 		if (!isWireSupported(world, pos))
 			return Blocks.AIR_BLOCK.getDefaultState();
 		
-		for (Direction dir : Direction.HORIZONTAL_DIRECTIONS)
+		for (Direction dir : Direction.HORIZONTAL)
 			state = updateStateConnection(world, pos, state, dir);
 		
 		return resolveWireState(state);
@@ -53,10 +53,10 @@ public class RedstoneWireBlock extends Block {
 	public void onStateReplaced(IServerWorld world, IBlockPosition pos, IBlockState state) {
 		world.updateNeighbors(pos, IServerWorld.STATE_UPDATE_FLAG);
 		
-		for (Direction vertical : Direction.VERTICAL_DIRECTIONS) {
+		for (Direction vertical : Direction.VERTICAL) {
 			IBlockPosition vpos = pos.offset(vertical);
 			
-			for (Direction horizontal : Direction.HORIZONTAL_DIRECTIONS)
+			for (Direction horizontal : Direction.HORIZONTAL)
 				world.updateNeighbor(vpos.offset(horizontal), horizontal.getOpposite(), state, IServerWorld.STATE_UPDATE_FLAG);
 		}
 	}
@@ -109,8 +109,8 @@ public class RedstoneWireBlock extends Block {
 			} else {
 				// The aligned faces of the top block might have changed.
 				// Make sure we update the appropriate directions.
-				for (Direction dir : Direction.HORIZONTAL_DIRECTIONS) {
-					if (newState.get(CONNECTION_PROPERTIES.get(dir)) != WireConnection.SIDE)
+				for (Direction dir : Direction.HORIZONTAL) {
+					if (newState.get(CONNECTIONS.get(dir)) != WireConnection.SIDE)
 						newState = updateStateConnection(world, pos, newState, dir);
 				}
 				
@@ -124,7 +124,7 @@ public class RedstoneWireBlock extends Block {
 	
 	private IBlockState updateStateConnection(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir) {
 		WireConnection connection = getWireConnection(world, pos, dir);
-		return state.with(CONNECTION_PROPERTIES.get(dir), connection);
+		return state.with(CONNECTIONS.get(dir), connection);
 	}
 	
 	private WireConnection getWireConnection(IServerWorld world, IBlockPosition pos, Direction dir) {
@@ -156,8 +156,8 @@ public class RedstoneWireBlock extends Block {
 	private IBlockState resolveWireState(IBlockState state) {
 		Direction connectionDir = null;
 		
-		for (Direction dir : Direction.HORIZONTAL_DIRECTIONS) {
-			WireConnection connection = state.get(CONNECTION_PROPERTIES.get(dir));
+		for (Direction dir : Direction.HORIZONTAL) {
+			WireConnection connection = state.get(CONNECTIONS.get(dir));
 			
 			if (connection != WireConnection.NONE) {
 				if (connectionDir != null) {
@@ -171,12 +171,12 @@ public class RedstoneWireBlock extends Block {
 		}
 		
 		if (connectionDir == null) {
-			for (Direction dir : Direction.HORIZONTAL_DIRECTIONS)
-				state = state.with(CONNECTION_PROPERTIES.get(dir), WireConnection.SIDE);
+			for (Direction dir : Direction.HORIZONTAL)
+				state = state.with(CONNECTIONS.get(dir), WireConnection.SIDE);
 		} else {
 			Direction dir = connectionDir.getOpposite();
 			
-			state = state.with(CONNECTION_PROPERTIES.get(dir), WireConnection.SIDE);
+			state = state.with(CONNECTIONS.get(dir), WireConnection.SIDE);
 		}
 		
 		return state;
@@ -184,6 +184,10 @@ public class RedstoneWireBlock extends Block {
 	
 	@Override
 	protected IBlockState createDefaultState() {
-		return BlockState.createStateTree(this, POWER, NORTH_CONNECTION, SOUTH_CONNECTION, WEST_CONNECTION, EAST_CONNECTION);
+		return BlockState.createStateTree(this, POWER, 
+		                                        NORTH_CONNECTION,
+		                                        SOUTH_CONNECTION,
+		                                        WEST_CONNECTION,
+		                                        EAST_CONNECTION);
 	}
 }

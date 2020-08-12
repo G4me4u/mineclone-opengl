@@ -1,6 +1,6 @@
 package minecraft.common.world.block.handler;
 
-import static minecraft.common.world.block.RedstoneWireBlock.CONNECTION_PROPERTIES;
+import static minecraft.common.world.block.RedstoneWireBlock.CONNECTIONS;
 import static minecraft.common.world.block.RedstoneWireBlock.POWER;
 
 import java.util.HashMap;
@@ -71,7 +71,7 @@ public class WireHandler {
 	private void buildGraph(IBlockPosition sourcePos, IBlockState sourceState, Direction fromDir, int depth) {
 		nodeCount = 0;
 
-		Direction dir = fromDir.isHorizontal() ? fromDir.getOpposite() : Direction.NORTH;
+		Direction dir = fromDir.isHorizontal() ? fromDir.getOpposite() : Direction.HORIZONTAL[0];
 		addNodeNoCheck(sourcePos, sourceState, dir);
 		
 		int nodeIndex = 0;
@@ -97,7 +97,7 @@ public class WireHandler {
 	}
 
 	private void findConnectionsTo(WireNode node, Direction dir) {
-		WireConnection connection = node.state.get(CONNECTION_PROPERTIES.get(dir));
+		WireConnection connection = node.state.get(CONNECTIONS.get(dir));
 	
 		if (connection != WireConnection.NONE) {
 			IBlockPosition sidePos = node.pos.offset(dir);

@@ -69,15 +69,12 @@ public class WireHandler {
 	}
 	
 	private void buildGraph(IBlockPosition sourcePos, IBlockState sourceState, Direction fromDir, int depth) {
-		int nodeIndex = 0;
+		nodeCount = 0;
 
-		WireNode sourceNode = nodes[nodeIndex];
-		sourceNode.pos = sourcePos;
-		sourceNode.state = sourceState;
-		sourceNode.dir = fromDir.isHorizontal() ? fromDir.getOpposite() : Direction.NORTH;
+		Direction dir = fromDir.isHorizontal() ? fromDir.getOpposite() : Direction.NORTH;
+		addNodeNoCheck(sourcePos, sourceState, dir);
 		
-		nodeCount = 1;
-		
+		int nodeIndex = 0;
 		int prevBreathEnd = 0;
 		
 		for (int d = 1; d < depth && nodeIndex < nodeCount; d++) {
@@ -95,8 +92,6 @@ public class WireHandler {
 	}
 	
 	private void findConnections(WireNode node) {
-		node.connectionCount = 0;
-		
 		for (Direction dir = node.dir; (dir = dir.rotateCW()) != node.dir; )
 			findConnectionsTo(node, dir);
 	}
@@ -172,22 +167,30 @@ public class WireHandler {
 	}
 
 	private void addNodeNoCheck(WireNode source, IBlockPosition pos, IBlockState state, Direction dir) {
+		addConnection(source, addNodeNoCheck(pos, state, dir));
+	}
+
+	private WireNode addNodeNoCheck(IBlockPosition pos, IBlockState state, Direction dir) {
 		if (nodeCount >= nodes.length)
 			reallocNodes(nodes.length << 1);
 		
 		WireNode node = nodes[nodeCount++];
 		
+		node.connectionCount = 0;
+
 		node.pos = pos;
 		node.state = state;
 		node.dir = dir;
-
+		
 		// Delete potentially cached states.
 		node.aboveState = node.belowState = null;
+
+		node.power = 0;
 
 		// Assume the position does not already exist.
 		positionToNode.put(pos, node);
 		
-		addConnection(source, node);
+		return node;
 	}
 
 	private void addConnection(WireNode source, WireNode connection) {

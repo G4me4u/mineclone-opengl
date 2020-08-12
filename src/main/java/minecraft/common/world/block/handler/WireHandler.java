@@ -74,7 +74,7 @@ public class WireHandler {
 		WireNode sourceNode = nodes[nodeIndex];
 		sourceNode.pos = sourcePos;
 		sourceNode.state = sourceState;
-		sourceNode.dir = fromDir.getOpposite();
+		sourceNode.dir = fromDir.isHorizontal() ? fromDir.getOpposite() : Direction.NORTH;
 		
 		nodeCount = 1;
 		

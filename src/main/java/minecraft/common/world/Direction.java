@@ -95,13 +95,11 @@ public enum Direction implements IIndexedValue {
 		return offsetZ;
 	}
 	
-	/* Used for building direction arrays. */
-	private boolean isHorizontal() {
+	public boolean isHorizontal() {
 		return axis.isHorizontal();
 	}
 
-	/* Used for building direction arrays. */
-	private boolean isVertical() {
+	public boolean isVertical() {
 		return !axis.isHorizontal();
 	}
 	

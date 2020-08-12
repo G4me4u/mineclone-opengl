@@ -89,7 +89,7 @@ public class RedstoneWireBlock extends Block {
 	public void onStateUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction fromDir, IBlockState fromState) {
 		IBlockState newState = state;
 		
-		if (fromDir.getAxis().isHorizontal()) {
+		if (fromDir.isHorizontal()) {
 			if (fromState.isOf(Blocks.REDSTONE_WIRE_BLOCK)) {
 				newState = updateStateConnection(world, pos, state, fromDir);
 				

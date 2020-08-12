@@ -1,8 +1,11 @@
 package minecraft.common.world.block.handler;
 
-import java.util.HashSet;
+import static minecraft.common.world.block.RedstoneWireBlock.CONNECTION_PROPERTIES;
+import static minecraft.common.world.block.RedstoneWireBlock.POWER;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.PriorityQueue;
-import java.util.Set;
 
 import minecraft.common.world.Direction;
 import minecraft.common.world.IServerWorld;
@@ -10,8 +13,6 @@ import minecraft.common.world.block.Block;
 import minecraft.common.world.block.IBlockPosition;
 import minecraft.common.world.block.WireConnection;
 import minecraft.common.world.block.state.IBlockState;
-
-import static minecraft.common.world.block.RedstoneWireBlock.*;
 
 public class WireHandler {
 	
@@ -22,7 +23,7 @@ public class WireHandler {
 	private WireNode[] nodes;
 	private int nodeCount;
 	
-	private final Set<IBlockPosition> nodePositions;
+	private final Map<IBlockPosition, WireNode> positionToNode;
 	private final PriorityQueue<WireNode> powerNodes;
 	
 	private IServerWorld world;
@@ -32,7 +33,7 @@ public class WireHandler {
 		nodes = new WireNode[INITIAL_CAPACITY];
 		nodeCount = 0;
 	
-		nodePositions = new HashSet<>(INITIAL_CAPACITY);
+		positionToNode = new HashMap<>(INITIAL_CAPACITY);
 		powerNodes = new PriorityQueue<>(INITIAL_CAPACITY);
 		
 		allocNodes(nodes, 0, INITIAL_CAPACITY);
@@ -52,40 +53,43 @@ public class WireHandler {
 		nodes = newNodes;
 	}
 
-	public void updateWireNetwork(IServerWorld world, IBlockPosition sourcePos, IBlockState sourceState) {
+	public void updateWireNetwork(IServerWorld world, IBlockPosition pos, IBlockState state, Direction fromDir) {
 		this.world = world;
-		wireBlock = sourceState.getBlock();
+		wireBlock = state.getBlock();
 		
-		int sourcePower = world.getPower(sourcePos, IServerWorld.DIRECT_POWER_FLAGS);
-		int depth = Math.abs(sourceState.get(POWER) - sourcePower);
+		int sourcePower = world.getPower(pos, IServerWorld.STRONG_POWER_FLAGS);
+		int depth = Math.abs(state.get(POWER) - sourcePower);
 		
 		if (depth != 0) {
-			buildGraph(sourcePos, sourceState, depth);
+			buildGraph(pos, state, fromDir, depth);
 			replaceGraphStates();
 			
 			// TODO: implement updates.
 		}
 	}
 	
-	private void buildGraph(IBlockPosition sourcePos, IBlockState sourceState, int depth) {
+	private void buildGraph(IBlockPosition sourcePos, IBlockState sourceState, Direction fromDir, int depth) {
 		int nodeIndex = 0;
 
 		WireNode sourceNode = nodes[nodeIndex];
 		sourceNode.pos = sourcePos;
 		sourceNode.state = sourceState;
+		sourceNode.dir = fromDir.getOpposite();
 		
 		nodeCount = 1;
 		
-		for (int d = 0; d < depth && nodeIndex < nodeCount; d++) {
-			int breathEnd = nodeCount;
+		int prevBreathEnd = 0;
+		
+		for (int d = 1; d < depth && nodeIndex < nodeCount; d++) {
+			prevBreathEnd = nodeCount;
 			
-			while (nodeIndex < breathEnd)
+			while (nodeIndex < prevBreathEnd)
 				findConnections(nodes[nodeIndex++]);
 		}
 		
-		resolveExternalPower();
+		resolveExternalPower(prevBreathEnd);
 		// The cached node positions are no longer required.
-		nodePositions.clear();
+		positionToNode.clear();
 		
 		relaxGraphPower();
 	}
@@ -93,9 +97,7 @@ public class WireHandler {
 	private void findConnections(WireNode node) {
 		node.connectionCount = 0;
 		
-		node.power = 0;
-		
-		for (Direction dir : Direction.HORIZONTAL_DIRECTIONS)
+		for (Direction dir = node.dir; (dir = dir.rotateCW()) != node.dir; )
 			findConnectionsTo(node, dir);
 	}
 
@@ -106,10 +108,19 @@ public class WireHandler {
 			IBlockPosition sidePos = node.pos.offset(dir);
 		
 			if (connection != WireConnection.UP) {
+				// If the side wire is already part of the graph, 
+				// we can skip this direction check entirely.
+				WireNode sideNode = positionToNode.get(sidePos);
+				
+				if (sideNode != null) {
+					addConnection(node, sideNode);
+					return;
+				}
+				
 				IBlockState sideState = world.getBlockState(sidePos);
 
 				if (sideState.isOf(wireBlock)) {
-					addNode(node, sidePos, sideState);
+					addNodeNoCheck(node, sidePos, sideState, dir);
 					return;
 				}
 				
@@ -117,7 +128,7 @@ public class WireHandler {
 					IBlockState belowState = getBelowState(node);
 
 					if (belowState.isAligned(dir)) {
-						addNode(node, sidePos.down());
+						addNode(node, sidePos.down(), dir);
 					} else {
 						// TODO: consider this:
 						//   We can potentially receive external power from
@@ -129,7 +140,7 @@ public class WireHandler {
 			IBlockState aboveState = getAboveState(node);
 			
 			if (!aboveState.isAligned(Direction.DOWN) && !aboveState.isAligned(dir))
-				addNode(node, sidePos.up());
+				addNode(node, sidePos.up(), dir);
 		}
 	}
 	
@@ -145,31 +156,45 @@ public class WireHandler {
 		return node.aboveState;
 	}
 
-	private void addNode(WireNode source, IBlockPosition pos) {
-		IBlockState state = world.getBlockState(pos);
+	private void addNode(WireNode source, IBlockPosition pos, Direction dir) {
+		WireNode node = positionToNode.get(pos);
 		
-		if (state.isOf(wireBlock))
-			addNode(source, pos, state);
-	}
-
-	private void addNode(WireNode source, IBlockPosition pos, IBlockState state) {
-		if (nodePositions.add(pos)) {
-			if (nodeCount >= nodes.length)
-				reallocNodes(nodes.length << 1);
+		if (node != null) {
+			// Do not add a new node. Instead simply add
+			// the missing connection from the source.
+			addConnection(source, node);
+		} else {
+			IBlockState state = world.getBlockState(pos);
 			
-			WireNode node = nodes[nodeCount++];
-			
-			node.pos = pos;
-			node.state = state;
-
-			// Delete potentially cached states.
-			node.aboveState = node.belowState = null;
-			
-			source.connections[source.connectionCount++] = node;
+			if (state.isOf(wireBlock))
+				addNodeNoCheck(source, pos, state, dir);
 		}
 	}
+
+	private void addNodeNoCheck(WireNode source, IBlockPosition pos, IBlockState state, Direction dir) {
+		if (nodeCount >= nodes.length)
+			reallocNodes(nodes.length << 1);
+		
+		WireNode node = nodes[nodeCount++];
+		
+		node.pos = pos;
+		node.state = state;
+		node.dir = dir;
+
+		// Delete potentially cached states.
+		node.aboveState = node.belowState = null;
+
+		// Assume the position does not already exist.
+		positionToNode.put(pos, node);
+		
+		addConnection(source, node);
+	}
+
+	private void addConnection(WireNode source, WireNode connection) {
+		source.connections[source.connectionCount++] = connection;
+	}
 	
-	private void resolveExternalPower() {
+	private void resolveExternalPower(int lastBreathStart) {
 		// TODO: update graph power.
 		//nodes[0].setExternalPower(sourcePower);
 		// powerNodes.add(node)
@@ -219,6 +244,7 @@ public class WireHandler {
 		
 		private IBlockPosition pos;
 		private IBlockState state;
+		private Direction dir;
 		
 		private IBlockState belowState;
 		private IBlockState aboveState;

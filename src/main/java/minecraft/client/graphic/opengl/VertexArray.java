@@ -41,10 +41,12 @@ public class VertexArray implements IResource {
 	public void setBufferBinding(VertexBuffer buffer, int bindingIndex) {
 		BufferLayout layout = buffer.getLayout();
 		
-		if (DebugUtil.PERFORM_CHECKS && (bindingIndex < 0 || bindingIndex >= bindingLayouts.size()))
-			throw new IllegalArgumentException("Buffer binding does not exist!");
-		if (DebugUtil.PERFORM_CHECKS && !layout.equals(bindingLayouts.get(bindingIndex)))
-			throw new IllegalArgumentException("Buffer layout does not match binding layout!");
+		if (DebugUtil.PERFORM_CHECKS) {
+			if (bindingIndex < 0 || bindingIndex >= bindingLayouts.size())
+				throw new IllegalArgumentException("Buffer binding does not exist!");
+			if (!layout.equals(bindingLayouts.get(bindingIndex)))
+				throw new IllegalArgumentException("Buffer layout does not match binding layout!");
+		}
 
 		glVertexArrayVertexBuffer(vertexArrayHandle, bindingIndex, buffer.getHandle(), 0, layout.getStride());
 	}
@@ -75,10 +77,12 @@ public class VertexArray implements IResource {
 					nextAttribIndex++;
 				}
 				break;
-			case INT:
-			case UINT:
 			case BYTE:
 			case UBYTE:
+			case SHORT:
+			case USHORT:
+			case INT:
+			case UINT:
 			case BOOL:
 				glEnableVertexArrayAttrib(vertexArrayHandle, nextAttribIndex);
 				glVertexArrayAttribIFormat(vertexArrayHandle, 
@@ -107,19 +111,23 @@ public class VertexArray implements IResource {
 		switch (dataType) {
 		case FLOAT:
 			return GL_FLOAT;
-		case INT:
-			return GL_INT;
-		case UINT:
-			return GL_UNSIGNED_INT;
 		case BYTE:
 			return GL_BYTE;
 		case UBYTE:
 			return GL_UNSIGNED_BYTE;
+		case SHORT:
+			return GL_SHORT;
+		case USHORT:
+			return GL_UNSIGNED_SHORT;
+		case INT:
+			return GL_INT;
+		case UINT:
+			return GL_UNSIGNED_INT;
 		case BOOL:
 			return GL_BOOL;
-		default:
-			throw new IllegalArgumentException("Unknown data type: " + dataType);
 		}
+		
+		throw new IllegalArgumentException("Unknown data type: " + dataType);
 	}
 	
 	public void bind() {

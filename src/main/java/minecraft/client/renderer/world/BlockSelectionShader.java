@@ -22,7 +22,7 @@ public class BlockSelectionShader extends ShaderProgram {
 	}
 	
 	public void setProjViewMat(WorldCamera camera) {
-		setProjViewMat(camera.getProjViewMatrix());
+		setProjViewMat(camera.getProjViewMat());
 	}
 	
 	public void setProjViewMat(Mat4 projViewMat) {

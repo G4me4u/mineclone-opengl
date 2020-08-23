@@ -6,6 +6,7 @@ import java.util.List;
 import minecraft.client.controller.PlayerController;
 import minecraft.client.controller.PlayerHotbar;
 import minecraft.client.input.Mouse;
+import minecraft.common.math.LinMath;
 import minecraft.common.math.Mat3;
 import minecraft.common.math.Vec3;
 import minecraft.common.world.BlockHitResult;
@@ -26,8 +27,8 @@ public class PlayerEntity extends Entity {
 
 	private final PlayerHotbar hotbar;
 	
-	public float yaw;
-	public float pitch;
+	protected float yaw;
+	protected float pitch;
 
 	private int interactTimer;
 	
@@ -36,14 +37,14 @@ public class PlayerEntity extends Entity {
 		
 		this.controller = controller;
 		
-		controller.setPlayer(this);
-		
 		hotbar = new PlayerHotbar();
-		
+
 		float x = World.CHUNKS_X * WorldChunk.CHUNK_SIZE / 2;
 		float y = World.WORLD_HEIGHT;
 		float z = World.CHUNKS_Z * WorldChunk.CHUNK_SIZE / 2;
 		moveHitboxTo(x, y, z);
+
+		controller.setPlayer(this);
 	}
 	
 	@Override
@@ -57,10 +58,7 @@ public class PlayerEntity extends Entity {
 			interactTimer--;
 
 			if (interactTimer <= 0) {
-				float yawRad   = (float)Math.toRadians(yaw);
-				float pitchRad = (float)Math.toRadians(pitch);
-				
-				Mat3 rot = new Mat3().rotateX(-yawRad).rotateY(-pitchRad);
+				Mat3 rot = new Mat3().rotateX(-yaw).rotateY(-pitch);
 				Vec3 dir = new Vec3(-rot.m02, -rot.m12, -rot.m22);
 				BlockHitResult hitResult = world.castBlockRay(eyeX, eyeY, eyeZ, dir);
 				
@@ -115,8 +113,19 @@ public class PlayerEntity extends Entity {
 		this.vz += vz;
 	}
 	
-	public void setRotation(float yaw, float pitch) {
-		this.yaw = yaw;
-		this.pitch = pitch;
+	public float getYaw() {
+		return yaw;
+	}
+
+	public void setYaw(float yaw) {
+		this.yaw = LinMath.clamp(yaw, -LinMath.HALF_PI, LinMath.HALF_PI);
+	}
+
+	public float getPitch() {
+		return pitch;
+	}
+	
+	public void setPitch(float pitch) {
+		this.pitch = LinMath.normalizeRadians(pitch);
 	}
 }

@@ -1,6 +1,6 @@
 package minecraft.client.graphic.tessellator;
 
-import minecraft.common.math.LinMath;
+import minecraft.common.util.ColorUtil;
 
 /**
  * @author Christian
@@ -142,7 +142,7 @@ public final class Color {
 	public static final Color MAROON                 = new Color(0xFF800000);
 	
 	/* WHITES */
-	public static final Color WHITE                  = new Color(0xFFFFFFFF);
+	public static final Color WHITE                  = new Color(ColorUtil.WHITE);
 	public static final Color SNOW                   = new Color(0xFFFFFAFA);
 	public static final Color HONEYDEW               = new Color(0xFFF0FFF0);
 	public static final Color MINT_CREAM             = new Color(0xFFF5FFFA);
@@ -177,7 +177,7 @@ public final class Color {
 	public static final Color SLATE_GREY             = SLATE_GRAY;
 	public static final Color DARK_SLATE_GRAY        = new Color(0xFF2F4F4F);
 	public static final Color DARK_SLATE_GREY        = DARK_SLATE_GRAY;
-	public static final Color BLACK                  = new Color(0xFF000000);
+	public static final Color BLACK                  = new Color(ColorUtil.BLACK);
 	
 	/* FULLY TRANSPARENT */
 	public static final Color TRANSPARENT            = new Color(0x00000000);
@@ -188,19 +188,25 @@ public final class Color {
 	private final int blue;
 
 	public Color(float red, float green, float blue) {
-		this(255, deNormalize(red), deNormalize(green), deNormalize(blue));
+		this.alpha = 0xFF;
+		this.red   = ColorUtil.deNormalize(red);
+		this.green = ColorUtil.deNormalize(green);
+		this.blue  = ColorUtil.deNormalize(blue);
 	}
 
 	public Color(float alpha, float red, float green, float blue) {
-		this(deNormalize(alpha), deNormalize(red), deNormalize(green), deNormalize(blue));
+		this.alpha = ColorUtil.deNormalize(alpha);
+		this.red   = ColorUtil.deNormalize(red);
+		this.green = ColorUtil.deNormalize(green);
+		this.blue  = ColorUtil.deNormalize(blue);
 	}
 
 	public Color(int red, int green, int blue) {
-		this(255, red, green, blue);
+		this(0xFF, red, green, blue);
 	}
 
 	public Color(int alpha, int red, int green, int blue) {
-		validateARGB(alpha, red, green, blue);
+		ColorUtil.checkARGB(alpha, red, green, blue);
 		
 		this.alpha = alpha;
 		this.red = red;
@@ -213,45 +219,26 @@ public final class Color {
 	}
 	
 	public Color(int argb, boolean hasAlpha) {
-		alpha = hasAlpha ? ((argb >>> 24) & 0xFF) : 0xFF;
-		red   = (argb >>> 16) & 0xFF;
-		green = (argb >>>  8) & 0xFF;
-		blue  = (argb >>>  0) & 0xFF;
-	}
-	
-	private void validateARGB(int alpha, int red, int green, int blue) {
-		if ((alpha & (~0xFF)) != 0)
-			throw new IllegalArgumentException("Invalid alpha value, must be 0-255: " + alpha);
-		if ((red & (~0xFF)) != 0)
-			throw new IllegalArgumentException("Invalid red value, must be 0-255: " + red);
-		if ((green & (~0xFF)) != 0)
-			throw new IllegalArgumentException("Invalid green value, must be 0-255: " + green);
-		if ((blue & (~0xFF)) != 0)
-			throw new IllegalArgumentException("Invalid blue value, must be 0-255: " + blue);
-	}
-	
-	private static int deNormalize(float value) {
-		return LinMath.clamp((int)(value * 255.0f), 0, 255);
-	}
-
-	private static float normalize(int value) {
-		return value / 255.0f;
+		alpha = hasAlpha ? ColorUtil.unpackA(argb) : 0xFF;
+		red   = ColorUtil.unpackR(argb);
+		green = ColorUtil.unpackG(argb);
+		blue  = ColorUtil.unpackB(argb);
 	}
 	
 	public Color withAlpha(float alphaN) {
-		return new Color(deNormalize(alphaN), red, green, blue);
+		return new Color(ColorUtil.deNormalize(alphaN), red, green, blue);
 	}
 
 	public Color withRed(float redN) {
-		return new Color(alpha, deNormalize(redN), green, blue);
+		return new Color(alpha, ColorUtil.deNormalize(redN), green, blue);
 	}
 
 	public Color withGreen(float greenN) {
-		return new Color(alpha, red, deNormalize(greenN), blue);
+		return new Color(alpha, red, ColorUtil.deNormalize(greenN), blue);
 	}
 	
 	public Color withBlue(float blueN) {
-		return new Color(alpha, red, green, deNormalize(blueN));
+		return new Color(alpha, red, green, ColorUtil.deNormalize(blueN));
 	}
 
 	public Color withAlpha(int alpha) {
@@ -275,23 +262,24 @@ public final class Color {
 		int r = red   + (int)(t * (other.red   - red  ));
 		int g = green + (int)(t * (other.green - green));
 		int b = blue  + (int)(t * (other.blue  - blue ));
+		
 		return new Color(a, r, g, b);
 	}
 	
 	public float getAlphaN() {
-		return normalize(alpha);
+		return ColorUtil.normalize(alpha);
 	}
 	
 	public float getRedN() {
-		return normalize(red);
+		return ColorUtil.normalize(red);
 	}
 	
 	public float getGreenN() {
-		return normalize(green);
+		return ColorUtil.normalize(green);
 	}
 	
 	public float getBlueN() {
-		return normalize(blue);
+		return ColorUtil.normalize(blue);
 	}
 
 	public int getAlpha() {
@@ -311,7 +299,7 @@ public final class Color {
 	}
 	
 	public int getARGB() {
-		return ((alpha << 24) | (red << 16) | (green << 8) | blue);
+		return ColorUtil.pack(alpha, red, green, blue);
 	}
 
 	@Override
@@ -323,6 +311,6 @@ public final class Color {
 	public boolean equals(Object other) {
 		if (!(other instanceof Color))
 			return false;
-		return getARGB() == ((Color)other).getARGB();
+		return (getARGB() == ((Color)other).getARGB());
 	}
 }

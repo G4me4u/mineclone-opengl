@@ -23,13 +23,13 @@ import minecraft.common.world.World;
 
 public class BlockSelectionRenderer implements IResource {
 	
-	private static final int CUBE_NUM_VERTICES = 36;
+	private static final int CUBE_VERTEX_COUNT = 36;
 	
 	private static final float SELECTION_COLOR_R = 0xE0 / 255.0f;
 	private static final float SELECTION_COLOR_G = 0xE0 / 255.0f;
 	private static final float SELECTION_COLOR_B = 0xFF / 255.0f;
 	
-	private static final float SELECTION_SCALE = 1.005f;
+	private static final float SELECTION_SCALE = 1.001f;
 	
 	private final World world;
 	private final WorldCamera camera;
@@ -59,63 +59,63 @@ public class BlockSelectionRenderer implements IResource {
 	private static VertexBuffer createCubeBuffer() {
 		VertexBuffer cubeBuffer = new VertexBuffer(new BufferLayout(
 			new BufferAttrib("a_Position", BufferAttribType.FLOAT3)
-		), CUBE_NUM_VERTICES);
+		), CUBE_VERTEX_COUNT);
 		
 		ByteBuffer buffer = MemoryUtil.memAlloc(cubeBuffer.getCapacity());
 		
 		// FRONT
-		buffer.putFloat( 1.0f).putFloat(-0.0f).putFloat( 1.0f);
-		buffer.putFloat(-0.0f).putFloat( 1.0f).putFloat( 1.0f);
-		buffer.putFloat(-0.0f).putFloat(-0.0f).putFloat( 1.0f);
+		buffer.putFloat(1.0f).putFloat(0.0f).putFloat(1.0f);
+		buffer.putFloat(0.0f).putFloat(1.0f).putFloat(1.0f);
+		buffer.putFloat(0.0f).putFloat(0.0f).putFloat(1.0f);
 
-		buffer.putFloat( 1.0f).putFloat(-0.0f).putFloat( 1.0f);
-		buffer.putFloat( 1.0f).putFloat( 1.0f).putFloat( 1.0f);
-		buffer.putFloat(-0.0f).putFloat( 1.0f).putFloat( 1.0f);
+		buffer.putFloat(1.0f).putFloat(0.0f).putFloat(1.0f);
+		buffer.putFloat(1.0f).putFloat(1.0f).putFloat(1.0f);
+		buffer.putFloat(0.0f).putFloat(1.0f).putFloat(1.0f);
 
 		// BACK
-		buffer.putFloat(-0.0f).putFloat(-0.0f).putFloat(-0.0f);
-		buffer.putFloat( 1.0f).putFloat( 1.0f).putFloat(-0.0f);
-		buffer.putFloat( 1.0f).putFloat(-0.0f).putFloat(-0.0f);
+		buffer.putFloat(0.0f).putFloat(0.0f).putFloat(0.0f);
+		buffer.putFloat(1.0f).putFloat(1.0f).putFloat(0.0f);
+		buffer.putFloat(1.0f).putFloat(0.0f).putFloat(0.0f);
 
-		buffer.putFloat(-0.0f).putFloat(-0.0f).putFloat(-0.0f);
-		buffer.putFloat(-0.0f).putFloat( 1.0f).putFloat(-0.0f);
-		buffer.putFloat( 1.0f).putFloat( 1.0f).putFloat(-0.0f);
+		buffer.putFloat(0.0f).putFloat(0.0f).putFloat(0.0f);
+		buffer.putFloat(0.0f).putFloat(1.0f).putFloat(0.0f);
+		buffer.putFloat(1.0f).putFloat(1.0f).putFloat(0.0f);
 
 		// BOTTOM
-		buffer.putFloat(-0.0f).putFloat(-0.0f).putFloat( 1.0f);
-		buffer.putFloat( 1.0f).putFloat(-0.0f).putFloat(-0.0f);
-		buffer.putFloat( 1.0f).putFloat(-0.0f).putFloat( 1.0f);
+		buffer.putFloat(0.0f).putFloat(0.0f).putFloat(1.0f);
+		buffer.putFloat(1.0f).putFloat(0.0f).putFloat(0.0f);
+		buffer.putFloat(1.0f).putFloat(0.0f).putFloat(1.0f);
 
-		buffer.putFloat(-0.0f).putFloat(-0.0f).putFloat( 1.0f);
-		buffer.putFloat(-0.0f).putFloat(-0.0f).putFloat(-0.0f);
-		buffer.putFloat( 1.0f).putFloat(-0.0f).putFloat(-0.0f);
+		buffer.putFloat(0.0f).putFloat(0.0f).putFloat(1.0f);
+		buffer.putFloat(0.0f).putFloat(0.0f).putFloat(0.0f);
+		buffer.putFloat(1.0f).putFloat(0.0f).putFloat(0.0f);
 
 		// TOP 
-		buffer.putFloat(-0.0f).putFloat( 1.0f).putFloat(-0.0f);
-		buffer.putFloat( 1.0f).putFloat( 1.0f).putFloat( 1.0f);
-		buffer.putFloat( 1.0f).putFloat( 1.0f).putFloat(-0.0f);
+		buffer.putFloat(0.0f).putFloat(1.0f).putFloat(0.0f);
+		buffer.putFloat(1.0f).putFloat(1.0f).putFloat(1.0f);
+		buffer.putFloat(1.0f).putFloat(1.0f).putFloat(0.0f);
 
-		buffer.putFloat(-0.0f).putFloat( 1.0f).putFloat(-0.0f);
-		buffer.putFloat(-0.0f).putFloat( 1.0f).putFloat( 1.0f);
-		buffer.putFloat( 1.0f).putFloat( 1.0f).putFloat( 1.0f);
+		buffer.putFloat(0.0f).putFloat(1.0f).putFloat(0.0f);
+		buffer.putFloat(0.0f).putFloat(1.0f).putFloat(1.0f);
+		buffer.putFloat(1.0f).putFloat(1.0f).putFloat(1.0f);
 
 		// LEFT
-		buffer.putFloat(-0.0f).putFloat(-0.0f).putFloat( 1.0f);
-		buffer.putFloat(-0.0f).putFloat( 1.0f).putFloat(-0.0f);
-		buffer.putFloat(-0.0f).putFloat(-0.0f).putFloat(-0.0f);
+		buffer.putFloat(0.0f).putFloat(0.0f).putFloat(1.0f);
+		buffer.putFloat(0.0f).putFloat(1.0f).putFloat(0.0f);
+		buffer.putFloat(0.0f).putFloat(0.0f).putFloat(0.0f);
 
-		buffer.putFloat(-0.0f).putFloat(-0.0f).putFloat( 1.0f);
-		buffer.putFloat(-0.0f).putFloat( 1.0f).putFloat( 1.0f);
-		buffer.putFloat(-0.0f).putFloat( 1.0f).putFloat(-0.0f);
+		buffer.putFloat(0.0f).putFloat(0.0f).putFloat(1.0f);
+		buffer.putFloat(0.0f).putFloat(1.0f).putFloat(1.0f);
+		buffer.putFloat(0.0f).putFloat(1.0f).putFloat(0.0f);
 
 		// RIGHT
-		buffer.putFloat( 1.0f).putFloat(-0.0f).putFloat(-0.0f);
-		buffer.putFloat( 1.0f).putFloat( 1.0f).putFloat( 1.0f);
-		buffer.putFloat( 1.0f).putFloat(-0.0f).putFloat( 1.0f);
+		buffer.putFloat(1.0f).putFloat(0.0f).putFloat(0.0f);
+		buffer.putFloat(1.0f).putFloat(1.0f).putFloat(1.0f);
+		buffer.putFloat(1.0f).putFloat(0.0f).putFloat(1.0f);
 
-		buffer.putFloat( 1.0f).putFloat(-0.0f).putFloat(-0.0f);
-		buffer.putFloat( 1.0f).putFloat( 1.0f).putFloat(-0.0f);
-		buffer.putFloat( 1.0f).putFloat( 1.0f).putFloat( 1.0f);
+		buffer.putFloat(1.0f).putFloat(0.0f).putFloat(0.0f);
+		buffer.putFloat(1.0f).putFloat(1.0f).putFloat(0.0f);
+		buffer.putFloat(1.0f).putFloat(1.0f).putFloat(1.0f);
 		
 		buffer.flip();
 		
@@ -135,7 +135,7 @@ public class BlockSelectionRenderer implements IResource {
 	}
 
 	public void render(float dt) {
-		Mat4 viewMatrix = camera.getViewMatrix().inverseCopy();
+		Mat4 viewMatrix = camera.getViewMat().inverseCopy();
 		
 		Vec3 forward = new Vec3(-viewMatrix.m20, -viewMatrix.m21, -viewMatrix.m22);
 		BlockHitResult res = world.castBlockRay(viewMatrix.m30, viewMatrix.m31, viewMatrix.m32, forward);
@@ -158,7 +158,7 @@ public class BlockSelectionRenderer implements IResource {
 			shader.bind();
 
 			glEnable(GL_BLEND);
-			glDrawArrays(GL_TRIANGLES, 0, CUBE_NUM_VERTICES);
+			glDrawArrays(GL_TRIANGLES, 0, CUBE_VERTEX_COUNT);
 			glDisable(GL_BLEND);
 		}
 	}

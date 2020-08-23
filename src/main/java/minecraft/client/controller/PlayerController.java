@@ -41,13 +41,10 @@ public class PlayerController implements IMouseListener {
 			
 			if (Keyboard.isHeld(Keyboard.KEY_W))
 				moveVec.z--;
-			
 			if (Keyboard.isHeld(Keyboard.KEY_S))
 				moveVec.z++;
-			
 			if (Keyboard.isHeld(Keyboard.KEY_A))
 				moveVec.x--;
-			
 			if (Keyboard.isHeld(Keyboard.KEY_D))
 				moveVec.x++;
 	
@@ -56,9 +53,8 @@ public class PlayerController implements IMouseListener {
 			if (!LinMath.nearZero(distSqr)) {
 				moveVec.div((float)Math.sqrt(distSqr));
 				
-				float pitch = (float)Math.toRadians(player.pitch);
-				rotMat.toIdentity().rotateY(pitch);
-				
+				rotMat.toIdentity();
+				rotMat.rotateY(player.getPitch());
 				rotMat.mul(moveVec, moveVec);
 			}
 			
@@ -76,19 +72,11 @@ public class PlayerController implements IMouseListener {
 	@Override
 	public void mouseMoved(float x, float y) {
 		if (player != null && display.isMouseGrabbed()) {
-			float deltaX = Mouse.getDeltaX();
-			float deltaY = Mouse.getDeltaY();
+			float deltaX = Mouse.getDeltaX() * MOUSE_SENSITIVITY;
+			float deltaY = Mouse.getDeltaY() * MOUSE_SENSITIVITY;
 			
-			float yaw   = player.yaw   - deltaY * MOUSE_SENSITIVITY;
-			float pitch = player.pitch - deltaX * MOUSE_SENSITIVITY;
-			
-			if (yaw > 90.0f) {
-				yaw = 90.0f;
-			} else if (yaw < -90.0f) {
-				yaw = -90.0f;
-			}
-			
-			player.setRotation(yaw, pitch);
+			player.setYaw(player.getYaw() - deltaY * LinMath.DEG_TO_RAD);
+			player.setPitch(player.getPitch() - deltaX * LinMath.DEG_TO_RAD);
 		}
 	}
 	

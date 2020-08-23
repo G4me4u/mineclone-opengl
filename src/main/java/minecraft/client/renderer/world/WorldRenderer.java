@@ -5,9 +5,11 @@ import static org.lwjgl.opengl.GL11.glDrawArrays;
 
 import minecraft.client.graphic.BufferAttrib;
 import minecraft.client.graphic.BufferAttribType;
+import minecraft.client.graphic.BufferDataType;
 import minecraft.client.graphic.BufferLayout;
 import minecraft.client.graphic.opengl.VertexArray;
 import minecraft.client.graphic.opengl.VertexBuffer;
+import minecraft.client.graphic.tessellator.Color;
 import minecraft.client.graphic.tessellator.VertexAttribBuilder;
 import minecraft.client.world.ClientWorld;
 import minecraft.common.IResource;
@@ -27,6 +29,12 @@ public class WorldRenderer implements IResource {
 	private static final float CAMERA_FOV = (float)Math.toRadians(70.0f);
 	private static final float CAMERA_NEAR = 0.1f;
 	private static final float CAMERA_FAR = 1000.0f;
+	
+	public static final Color SKY_COLOR = Color.LIGHT_SKY_BLUE;
+
+	private static final float FOG_DENSITY = 2.0f / (World.CHUNKS_X * WorldChunk.CHUNK_SIZE);
+	private static final float FOG_GRADIENT = 5.0f;
+	public static final Color FOG_COLOR = SKY_COLOR;
 	
 	private final ClientWorld world;
 	
@@ -51,8 +59,9 @@ public class WorldRenderer implements IResource {
 		worldShader = new WorldShader();
 		
 		bufferLayout = new BufferLayout(
-			new BufferAttrib("a_Position", BufferAttribType.FLOAT3),
+			new BufferAttrib("a_Position" , BufferAttribType.FLOAT3),
 			new BufferAttrib("a_TexCoords", BufferAttribType.FLOAT2),
+			new BufferAttrib("a_Color"    , BufferAttribType.FLOAT4, BufferDataType.UBYTE, true),
 			new BufferAttrib("a_Lightness", BufferAttribType.FLOAT)
 		);
 		
@@ -74,6 +83,10 @@ public class WorldRenderer implements IResource {
 		}
 		
 		selectionRenderer = new BlockSelectionRenderer(world, camera);
+	
+		worldShader.setFogDensity(FOG_DENSITY);
+		worldShader.setFogGradient(FOG_GRADIENT);
+		worldShader.setFogColor(FOG_COLOR);
 	}
 
 	public void displaySizeChanged(int newWidth, int newHeight) {
@@ -197,12 +210,7 @@ public class WorldRenderer implements IResource {
 		float y = player.prevEyeY + (player.eyeY - player.prevEyeY) * dt;
 		float z = player.prevEyeZ + (player.eyeZ - player.prevEyeZ) * dt;
 
-		camera.setPosition(-x, -y, -z);
-		
-		float yaw   = (float)Math.toRadians(player.yaw);
-		float pitch = (float)Math.toRadians(player.pitch);
-		
-		camera.setRotation(-yaw, -pitch);
+		camera.setView(-x, -y, -z, -player.getYaw(), -player.getPitch());
 	}
 	
 	private void renderWorld(float dt) {
@@ -211,7 +219,7 @@ public class WorldRenderer implements IResource {
 		vertexArray.bind();
 		worldShader.bind();
 		
-		worldShader.setProjViewMat(camera);
+		worldShader.setCamera(camera);
 		
 		BlockTextures.bindBlocksTexture();
 		

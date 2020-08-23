@@ -82,7 +82,11 @@ public class MinecraftClient implements DisplayListener, IKeyboardListener {
 		glDisable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		
-		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		// TODO: replace clear color with skybox
+		glClearColor(WorldRenderer.SKY_COLOR.getRedN(),
+		             WorldRenderer.SKY_COLOR.getGreenN(), 
+		             WorldRenderer.SKY_COLOR.getBlueN(), 
+		             WorldRenderer.SKY_COLOR.getAlphaN());
 	}
 	
 	public void run() {

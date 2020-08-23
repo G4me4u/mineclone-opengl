@@ -75,7 +75,7 @@ public class ViewChunk implements IResource {
 				}
 			}
 	
-			vertexBuffer.bufferSubData(builder.getReadbleBuffer(), 0);
+			vertexBuffer.bufferSubData(builder.getReadableBuffer(), 0);
 			vertexCount = builder.getVertexCount();
 			
 			builder.clear();

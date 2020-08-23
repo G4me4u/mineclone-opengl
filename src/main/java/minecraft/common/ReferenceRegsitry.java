@@ -1,6 +1,7 @@
 package minecraft.common;
 
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 
 public class ReferenceRegsitry<K, V> {
@@ -10,7 +11,7 @@ public class ReferenceRegsitry<K, V> {
 	
 	public ReferenceRegsitry() {
 		idToElement = new HashMap<>();
-		elementToId = new HashMap<>();
+		elementToId = new IdentityHashMap<>();
 	}
 	
 	public void register(K id, V element) {

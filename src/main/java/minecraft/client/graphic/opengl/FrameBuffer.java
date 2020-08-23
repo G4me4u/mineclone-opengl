@@ -147,8 +147,10 @@ public class FrameBuffer implements IResource {
 	}
 	
 	public void setSize(int width, int height) {
-		if (DebugUtil.PERFORM_CHECKS && (width <= 0 || height <= 0))
-			throw new IllegalArgumentException("Dimensions must be positive.");
+		if (DebugUtil.PERFORM_CHECKS) {
+			if (width <= 0 || height <= 0)
+				throw new IllegalArgumentException("Dimensions must be positive.");
+		}
 		
 		if (this.width != width || this.height != height) {
 			this.width = width;
@@ -177,8 +179,10 @@ public class FrameBuffer implements IResource {
 	}
 	
 	private void resolve(int targetFrameBufferHandle, int targetWidth, int targetHeight, int flags) {
-		if (DebugUtil.PERFORM_CHECKS && !multisampled)
-			throw new IllegalStateException("Resolving is only allowed for multisampled framebuffers!");
+		if (DebugUtil.PERFORM_CHECKS) {
+			if (!multisampled)
+				throw new IllegalStateException("Resolving is only allowed for multisampled framebuffers!");
+		}
 		
 		glBlitNamedFramebuffer(frameBufferHandle, targetFrameBufferHandle, 0, 0, width, height, 
 				0, 0, targetWidth, targetHeight, flags, GL_NEAREST);
@@ -197,10 +201,12 @@ public class FrameBuffer implements IResource {
 	}
 	
 	public ITexture getColorTextureAttachment() {
-		if (DebugUtil.PERFORM_CHECKS && !type.hasColorAttachment())
-			throw new IllegalStateException("FrameBuffer does not have a color attachment!");
-		if (DebugUtil.PERFORM_CHECKS && multisampled)
-			throw new IllegalStateException("Multisampled frame buffers can not be sampled!");
+		if (DebugUtil.PERFORM_CHECKS) {
+			if (!type.hasColorAttachment())
+				throw new IllegalStateException("FrameBuffer does not have a color attachment!");
+			if (multisampled)
+				throw new IllegalStateException("Multisampled frame buffers can not be sampled!");
+		}
 		
 		return colorTextureAttachment;
 	}

@@ -22,8 +22,10 @@ public class BatchedTessellator2D extends AbstractTessellator2D {
 	}
 
 	public void beginScene() {
-		if (DebugUtil.PERFORM_CHECKS && building)
-			throw new IllegalStateException("Tessellator is already building!");
+		if (DebugUtil.PERFORM_CHECKS) {
+			if (building)
+				throw new IllegalStateException("Tessellator is already building!");
+		}
 		
 		building = true;
 	}
@@ -43,10 +45,12 @@ public class BatchedTessellator2D extends AbstractTessellator2D {
 	}
 	
 	public void drawAndFlushScene(VertexBuffer buffer) {
-		if (DebugUtil.PERFORM_CHECKS && building)
-			throw new IllegalStateException("Tessellator is building!");
+		if (DebugUtil.PERFORM_CHECKS) {
+			if (building)
+				throw new IllegalStateException("Tessellator is building!");
+		}
 		
-		buffer.bufferSubData(builder.getReadbleBuffer(), 0);
+		buffer.bufferSubData(builder.getReadableBuffer(), 0);
 		
 		bindActiveTextures();
 		glDrawArrays(GL_TRIANGLES, 0, builder.getVertexCount());
@@ -66,8 +70,10 @@ public class BatchedTessellator2D extends AbstractTessellator2D {
 	                                       float x1, float y1, float u1, float v1, 
 	                                       float x2, float y2, float u2, float v2) {
 		
-		if (DebugUtil.PERFORM_CHECKS && !building)
-			throw new IllegalStateException("Tessellator is not building!");
+		if (DebugUtil.PERFORM_CHECKS) {
+			if (!building)
+				throw new IllegalStateException("Tessellator is not building!");
+		}
 		
 		super.drawTriangleNoTransform(x0, y0, u0, v0, x1, y1, u1, v1, x2, y2, u2, v2);
 	}

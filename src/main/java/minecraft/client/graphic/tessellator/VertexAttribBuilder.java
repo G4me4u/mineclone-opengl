@@ -24,9 +24,10 @@ public class VertexAttribBuilder implements IResource {
 
 	private static final int DEFAULT_INITIAL_CAPACITY = 64;
 	
-	public static final int BYTE_SIZE = 1;
+	public static final int BYTE_SIZE       = 1;
 	public static final int FLOAT_BYTE_SIZE = 4 * BYTE_SIZE;
-	public static final int INT_BYTE_SIZE = 4 * BYTE_SIZE;
+	public static final int SHORT_BYTE_SIZE = 2 * BYTE_SIZE;
+	public static final int INT_BYTE_SIZE   = 4 * BYTE_SIZE;
 	
 	private static final Unsafe UNSAFE = UnsafeUtil.getUnsafe();
 	
@@ -45,10 +46,12 @@ public class VertexAttribBuilder implements IResource {
 	}
 	
 	public VertexAttribBuilder(BufferLayout layout, int initialCapacity) {
-		if (DebugUtil.PERFORM_INIT_CHECKS && layout == null)
-			throw new IllegalArgumentException("layout must not be null!");
-		if (DebugUtil.PERFORM_INIT_CHECKS && initialCapacity <= 0)
-			throw new IllegalArgumentException("Initial capacity must be positive!");
+		if (DebugUtil.PERFORM_INIT_CHECKS) {
+			if (layout == null)
+				throw new IllegalArgumentException("layout must not be null!");
+			if (initialCapacity <= 0)
+				throw new IllegalArgumentException("Initial capacity must be positive!");
+		}
 		
 		this.layout = layout;
 		
@@ -59,8 +62,10 @@ public class VertexAttribBuilder implements IResource {
 	}
 	
 	private void allocAttribBuffer(long initialCapacity) throws OutOfMemoryError {
-		if (DebugUtil.PERFORM_CHECKS && initialCapacity > (long)Integer.MAX_VALUE)
-			throw new IllegalArgumentException("Capacity must be less than 32-bit int max value");
+		if (DebugUtil.PERFORM_CHECKS) {
+			if (initialCapacity > (long)Integer.MAX_VALUE)
+				throw new IllegalArgumentException("Capacity must be less than 32-bit int max value");
+		}
 		
 		// This is mostly an optimization, so the DirectByteBuffer
 		// from the java.nio package does not have to check bounds
@@ -74,8 +79,10 @@ public class VertexAttribBuilder implements IResource {
 	}
 	
 	private void reallocAttribBuffer(long newCapacity) throws OutOfMemoryError {
-		if (DebugUtil.PERFORM_CHECKS && newCapacity > (long)Integer.MAX_VALUE)
-			throw new IllegalArgumentException("Capacity must be less than 32-bit int max value");
+		if (DebugUtil.PERFORM_CHECKS) {
+			if (newCapacity > (long)Integer.MAX_VALUE)
+				throw new IllegalArgumentException("Capacity must be less than 32-bit int max value");
+		}
 
 		bufferAddress = MemoryUtil.nmemReallocChecked(bufferAddress, newCapacity);
 		bufferCapacity = (int)newCapacity;
@@ -85,8 +92,10 @@ public class VertexAttribBuilder implements IResource {
 	}
 
 	private void checkClosed() throws IllegalStateException {
-		if (DebugUtil.PERFORM_CHECKS && bufferAddress == MemoryUtil.NULL)
-			throw new IllegalStateException("Buffer closed.");
+		if (DebugUtil.PERFORM_CHECKS) {
+			if (bufferAddress == MemoryUtil.NULL)
+				throw new IllegalStateException("Buffer closed.");
+		}
 	}
 	
 	private void checkAndIncrementAttrib(BufferDataType dataType, int byteSize) {
@@ -212,66 +221,6 @@ public class VertexAttribBuilder implements IResource {
 		putFloatUnsafe(mat.m33);
 	}
 	
-	public void putInt(int value) {
-		checkAndIncrementAttrib(BufferDataType.INT, 1);
-		
-		putIntUnsafe(value);
-	}
-
-	public void putInt2(int x, int y) {
-		checkAndIncrementAttrib(BufferDataType.INT, 2);
-		
-		putIntUnsafe(x);
-		putIntUnsafe(y);
-	}
-
-	public void putInt3(int x, int y, int z) {
-		checkAndIncrementAttrib(BufferDataType.INT, 3);
-		
-		putIntUnsafe(x);
-		putIntUnsafe(y);
-		putIntUnsafe(z);
-	}
-
-	public void putInt4(int x, int y, int z, int w) {
-		checkAndIncrementAttrib(BufferDataType.INT, 4);
-		
-		putIntUnsafe(x);
-		putIntUnsafe(y);
-		putIntUnsafe(z);
-		putIntUnsafe(w);
-	}
-
-	public void putUInt(int value) {
-		checkAndIncrementAttrib(BufferDataType.UINT, 1);
-		
-		putIntUnsafe(value);
-	}
-	
-	public void putUInt2(int x, int y) {
-		checkAndIncrementAttrib(BufferDataType.UINT, 2);
-		
-		putIntUnsafe(x);
-		putIntUnsafe(y);
-	}
-	
-	public void putUInt3(int x, int y, int z) {
-		checkAndIncrementAttrib(BufferDataType.UINT, 3);
-		
-		putIntUnsafe(x);
-		putIntUnsafe(y);
-		putIntUnsafe(z);
-	}
-	
-	public void putUInt4(int x, int y, int z, int w) {
-		checkAndIncrementAttrib(BufferDataType.UINT, 4);
-		
-		putIntUnsafe(x);
-		putIntUnsafe(y);
-		putIntUnsafe(z);
-		putIntUnsafe(w);
-	}
-	
 	public void putByte(byte value) {
 		checkAndIncrementAttrib(BufferDataType.BYTE, 1);
 		
@@ -332,6 +281,126 @@ public class VertexAttribBuilder implements IResource {
 		putByteUnsafe(w);
 	}
 	
+	public void putShort(short value) {
+		checkAndIncrementAttrib(BufferDataType.SHORT, 1);
+		
+		putShortUnsafe(value);
+	}
+
+	public void putShort2(short x, short y) {
+		checkAndIncrementAttrib(BufferDataType.SHORT, 2);
+		
+		putShortUnsafe(x);
+		putShortUnsafe(y);
+	}
+
+	public void putShort3(short x, short y, short z) {
+		checkAndIncrementAttrib(BufferDataType.SHORT, 3);
+		
+		putShortUnsafe(x);
+		putShortUnsafe(y);
+		putShortUnsafe(z);
+	}
+
+	public void putShort4(short x, short y, short z, short w) {
+		checkAndIncrementAttrib(BufferDataType.SHORT, 4);
+		
+		putShortUnsafe(x);
+		putShortUnsafe(y);
+		putShortUnsafe(z);
+		putShortUnsafe(w);
+	}
+
+	public void putUShort(short value) {
+		checkAndIncrementAttrib(BufferDataType.USHORT, 1);
+		
+		putShortUnsafe(value);
+	}
+	
+	public void putUShort2(short x, short y) {
+		checkAndIncrementAttrib(BufferDataType.USHORT, 2);
+		
+		putShortUnsafe(x);
+		putShortUnsafe(y);
+	}
+	
+	public void putUShort3(short x, short y, short z) {
+		checkAndIncrementAttrib(BufferDataType.USHORT, 3);
+		
+		putShortUnsafe(x);
+		putShortUnsafe(y);
+		putShortUnsafe(z);
+	}
+	
+	public void putUShort4(short x, short y, short z, short w) {
+		checkAndIncrementAttrib(BufferDataType.USHORT, 4);
+		
+		putShortUnsafe(x);
+		putShortUnsafe(y);
+		putShortUnsafe(z);
+		putShortUnsafe(w);
+	}
+	
+	public void putInt(int value) {
+		checkAndIncrementAttrib(BufferDataType.INT, 1);
+		
+		putIntUnsafe(value);
+	}
+	
+	public void putInt2(int x, int y) {
+		checkAndIncrementAttrib(BufferDataType.INT, 2);
+		
+		putIntUnsafe(x);
+		putIntUnsafe(y);
+	}
+	
+	public void putInt3(int x, int y, int z) {
+		checkAndIncrementAttrib(BufferDataType.INT, 3);
+		
+		putIntUnsafe(x);
+		putIntUnsafe(y);
+		putIntUnsafe(z);
+	}
+	
+	public void putInt4(int x, int y, int z, int w) {
+		checkAndIncrementAttrib(BufferDataType.INT, 4);
+		
+		putIntUnsafe(x);
+		putIntUnsafe(y);
+		putIntUnsafe(z);
+		putIntUnsafe(w);
+	}
+
+	public void putUInt(int value) {
+		checkAndIncrementAttrib(BufferDataType.UINT, 1);
+		
+		putIntUnsafe(value);
+	}
+	
+	public void putUInt2(int x, int y) {
+		checkAndIncrementAttrib(BufferDataType.UINT, 2);
+		
+		putIntUnsafe(x);
+		putIntUnsafe(y);
+	}
+	
+	public void putUInt3(int x, int y, int z) {
+		checkAndIncrementAttrib(BufferDataType.UINT, 3);
+		
+		putIntUnsafe(x);
+		putIntUnsafe(y);
+		putIntUnsafe(z);
+	}
+	
+	public void putUInt4(int x, int y, int z, int w) {
+		checkAndIncrementAttrib(BufferDataType.UINT, 4);
+		
+		putIntUnsafe(x);
+		putIntUnsafe(y);
+		putIntUnsafe(z);
+		putIntUnsafe(w);
+	}
+	
 	public void putBool(boolean value) {
 		checkAndIncrementAttrib(BufferDataType.BOOL, 1);
 		
@@ -341,6 +410,11 @@ public class VertexAttribBuilder implements IResource {
 	private void putFloatUnsafe(float value) {
 		UNSAFE.putFloat(bufferAddress + bufferPosition, value);
 		bufferPosition += FLOAT_BYTE_SIZE;
+	}
+
+	private void putShortUnsafe(short value) {
+		UNSAFE.putShort(bufferAddress + bufferPosition, value);
+		bufferPosition += SHORT_BYTE_SIZE;
 	}
 
 	private void putIntUnsafe(int value) {
@@ -362,9 +436,11 @@ public class VertexAttribBuilder implements IResource {
 		bufferPosition = 0;
 	}
 
-	public ByteBuffer getReadbleBuffer() {
-		if (DebugUtil.PERFORM_CHECKS && (bufferPosition % layout.getStride()) != 0)
-			throw new IllegalStateException("Attributes have missing data!");
+	public ByteBuffer getReadableBuffer() {
+		if (DebugUtil.PERFORM_CHECKS) {
+			if ((bufferPosition % layout.getStride()) != 0)
+				throw new IllegalStateException("Attributes have missing data!");
+		}
 		
 		ByteBuffer buffer = MemoryUtil.memByteBuffer(bufferAddress, bufferPosition);
 		

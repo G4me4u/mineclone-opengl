@@ -9,90 +9,83 @@ public class WorldCamera {
 	private float y;
 	private float z;
 	
-	private float rx;
-	private float ry;
+	private float rotX;
+	private float rotY;
 	
-	private final Mat4 viewMatrix;
-	private final Mat4 projMatrix;
-	private final Mat4 projViewMatrix;
+	private final Mat4 viewMat;
+	private final Mat4 projMat;
+	private final Mat4 projViewMat;
 
 	private final ViewFrustum viewFrustum;
 	
-	private boolean viewMatrixNeedsRefresh;
-	private boolean finalMatrixNeedsRefresh;
-	private boolean viewFrustumNeedsRefresh;
-	
 	public WorldCamera() {
-		viewMatrix = new Mat4();
-		projMatrix = new Mat4();
-		projViewMatrix = new Mat4();
+		viewMat = new Mat4();
+		projMat = new Mat4();
+		projViewMat = new Mat4();
 		
 		viewFrustum = new ViewFrustum();
-		
-		viewMatrixNeedsRefresh = false;
-		finalMatrixNeedsRefresh = false;
-		viewFrustumNeedsRefresh = false;
 	}
 	
 	public void setPerspective(float fov, float aspect, float near, float far) {
-		projMatrix.toPerspective(fov, aspect, near, far);
-
-		invalidateView();
+		projMat.toPerspective(fov, aspect, near, far);
+	
+		updateProjViewMat();
 	}
 	
-	public synchronized Mat4 getViewMatrix() {
-		if (viewMatrixNeedsRefresh) {
-			viewMatrix.toIdentity();
-			viewMatrix.rotateX(rx).rotateY(ry);
-			viewMatrix.translate(x, y, z);
-			
-			viewMatrixNeedsRefresh = false;
-		}
-		
-		return viewMatrix;
-	}
-	
-	public synchronized Mat4 getProjViewMatrix() {
-		if (finalMatrixNeedsRefresh) {
-			projMatrix.mul(getViewMatrix(), projViewMatrix);
-			
-			finalMatrixNeedsRefresh = false;
-		}
-		
-		return projViewMatrix;
-	}
-	
-	public Mat4 getProjectionMatrix() {
-		return projMatrix;
-	}
-	
-	public void setPosition(float x, float y, float z) {
+	public void setView(float x, float y, float z, float rotX, float rotY) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
 		
-		invalidateView();
+		this.rotX = rotX;
+		this.rotY = rotY;
+
+		viewMat.toIdentity();
+		viewMat.rotateX(rotX).rotateY(rotY);
+		viewMat.translate(x, y, z);
+
+		updateProjViewMat();
+	}
+	
+	private void updateProjViewMat() {
+		projMat.mul(viewMat, projViewMat);
+		
+		viewFrustum.initFrustum(projViewMat);
+	}
+	
+	public float getX() {
+		return x;
 	}
 
-	public void setRotation(float rx, float ry) {
-		this.rx = rx;
-		this.ry = ry;
-		
-		invalidateView();
+	public float getY() {
+		return y;
+	}
+
+	public float getZ() {
+		return z;
 	}
 	
-	private void invalidateView() {
-		viewMatrixNeedsRefresh = true;
-		finalMatrixNeedsRefresh = true;
-		viewFrustumNeedsRefresh = true;
+	public float getRotX() {
+		return rotX;
+	}
+
+	public float getRotY() {
+		return rotY;
+	}
+
+	public Mat4 getProjMat() {
+		return projMat;
 	}
 	
+	public Mat4 getViewMat() {
+		return viewMat;
+	}
+	
+	public Mat4 getProjViewMat() {
+		return projViewMat;
+	}
+
 	public ViewFrustum getViewFrustum() {
-		if (viewFrustumNeedsRefresh) {
-			viewFrustum.initFrustum(getProjViewMatrix());
-			viewFrustumNeedsRefresh = false;
-		}
-		
 		return viewFrustum;
 	}
 }

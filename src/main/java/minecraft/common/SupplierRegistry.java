@@ -7,12 +7,12 @@ import java.util.function.Supplier;
 
 public class SupplierRegistry<K, V> {
 
-	private final Map<Class<? extends V>, K> elementToId;
 	private final Map<K, Supplier<? extends V>> idToSupplier;
+	private final Map<Class<? extends V>, K> elementToId;
 	
 	public SupplierRegistry() {
-		elementToId = new IdentityHashMap<>();
 		idToSupplier = new HashMap<>();
+		elementToId = new IdentityHashMap<>();
 	}
 	
 	public <T extends V> void register(K id, Class<T> elementClazz, Supplier<T> supplier) {
@@ -21,8 +21,8 @@ public class SupplierRegistry<K, V> {
 		if (elementToId.containsKey(elementClazz))
 			throw new DuplicateRegisterException("Element class is already registered: " + elementClazz);
 		
-		elementToId.put(elementClazz, id);
 		idToSupplier.put(id, supplier);
+		elementToId.put(elementClazz, id);
 	}
 
 	public boolean containsIdentifier(K id) {

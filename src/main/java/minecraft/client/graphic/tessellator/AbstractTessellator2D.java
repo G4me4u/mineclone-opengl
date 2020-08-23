@@ -378,8 +378,10 @@ public abstract class AbstractTessellator2D implements ITessellator2D {
 	
 	@Override
 	public void setColorGradient(ColorGradient2D colorGradient) {
-		if (DebugUtil.PERFORM_CHECKS && colorGradient == null)
-			throw new IllegalArgumentException("colorGradient is null!");
+		if (DebugUtil.PERFORM_CHECKS) {
+			if (colorGradient == null)
+				throw new IllegalArgumentException("colorGradient is null!");
+		}
 
 		this.colorGradient = colorGradient;
 	}
@@ -410,8 +412,10 @@ public abstract class AbstractTessellator2D implements ITessellator2D {
 				return i;
 		}
 		
-		if (DebugUtil.PERFORM_CHECKS && nextTextureIndex >= MAX_TEXTURE_COUNT)
-			throw new IllegalStateException("Too many textures. Maximum is " + MAX_TEXTURE_COUNT);
+		if (DebugUtil.PERFORM_CHECKS) {
+			if (nextTextureIndex >= MAX_TEXTURE_COUNT)
+				throw new IllegalStateException("Too many textures. Maximum is " + MAX_TEXTURE_COUNT);
+		}
 		
 		activeTextures.add(texture);
 	
@@ -434,40 +438,50 @@ public abstract class AbstractTessellator2D implements ITessellator2D {
 
 	@Override
 	public Mat3 popTransform() {
-		if (DebugUtil.PERFORM_CHECKS && transformStack.isEmpty())
-			throw new IllegalStateException("Transform stack is empty!");
+		if (DebugUtil.PERFORM_CHECKS) {
+			if (transformStack.isEmpty())
+				throw new IllegalStateException("Transform stack is empty!");
+		}
 
 		return transformStack.remove();
 	}
 	
 	@Override
 	public void toIdentity() {
-		if (DebugUtil.PERFORM_CHECKS && transformStack.isEmpty())
-			throw new IllegalStateException("Transform stack is empty!");
+		if (DebugUtil.PERFORM_CHECKS) {
+			if (transformStack.isEmpty())
+				throw new IllegalStateException("Transform stack is empty!");
+		}
 		
 		transformStack.peek().toIdentity();
 	}
 
 	@Override
 	public void translate(float xt, float yt) {
-		if (DebugUtil.PERFORM_CHECKS && transformStack.isEmpty())
-			throw new IllegalStateException("Transform stack is empty!");
+		if (DebugUtil.PERFORM_CHECKS) {
+			if (transformStack.isEmpty())
+				throw new IllegalStateException("Transform stack is empty!");
+		}
 		
 		transformStack.peek().translate(xt, yt);
 	}
 	
 	@Override
 	public void scale(float xs, float ys) {
-		if (DebugUtil.PERFORM_CHECKS && transformStack.isEmpty())
-			throw new IllegalStateException("Transform stack is empty!");
+		if (DebugUtil.PERFORM_CHECKS) {
+			if (transformStack.isEmpty())
+				throw new IllegalStateException("Transform stack is empty!");
+		}
 		
 		transformStack.peek().scale(xs, ys);
 	}
 
 	@Override
 	public void rotateZ(float radians) {
-		if (DebugUtil.PERFORM_CHECKS && transformStack.isEmpty())
-			throw new IllegalStateException("Transform stack is empty!");
+		if (DebugUtil.PERFORM_CHECKS) {
+			if (transformStack.isEmpty())
+				throw new IllegalStateException("Transform stack is empty!");
+		}
 		
 		transformStack.peek().rotateZ(radians);
 	}
@@ -479,8 +493,10 @@ public abstract class AbstractTessellator2D implements ITessellator2D {
 
 	@Override
 	public ClipShape popClip() {
-		if (DebugUtil.PERFORM_CHECKS && clipStack.isEmpty())
-			throw new IllegalStateException("Clip stack is empty!");
+		if (DebugUtil.PERFORM_CHECKS) {
+			if (clipStack.isEmpty())
+				throw new IllegalStateException("Clip stack is empty!");
+		}
 	
 		return clipStack.remove();
 	}

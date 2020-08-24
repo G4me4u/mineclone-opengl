@@ -41,6 +41,8 @@ public class BlockTextures {
 	public static final ITextureRegion MARIGOLD_PLANT_TEXTURE    = getRegion(3, 2);
 	public static final ITextureRegion DAISY_PLANT_TEXTURE       = getRegion(3, 3);
 	
+	public static final ITextureRegion REDSTONE_BLOCK_TEXTURE    = getRegion(0, 4);
+	
 	private static ITextureRegion getRegion(int sx, int sy) {
 		int xs0 = sx * 16;
 		int ys0 = sy * 16;

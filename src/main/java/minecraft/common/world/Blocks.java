@@ -14,6 +14,7 @@ public class Blocks {
 	public static final Block LEAVES_BLOCK;
 	public static final Block WOOD_LOG_BLOCK;
 	public static final Block REDSTONE_WIRE_BLOCK;
+	public static final Block REDSTONE_BLOCK;
 	
 	static {
 		AIR_BLOCK           = Block.getBlock(Block.AIR_BLOCK_ID);
@@ -26,5 +27,6 @@ public class Blocks {
 		LEAVES_BLOCK        = Block.getBlock(Block.LEAVES_BLOCK_ID);
 		WOOD_LOG_BLOCK      = Block.getBlock(Block.WOOD_LOG_BLOCK_ID);
 		REDSTONE_WIRE_BLOCK = Block.getBlock(Block.REDSTONE_WIRE_BLOCK_ID);
+		REDSTONE_BLOCK      = Block.getBlock(Block.REDSTONE_BLOCK_ID);
 	}
 }

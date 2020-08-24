@@ -5,6 +5,7 @@ import minecraft.client.graphic.tessellator.VertexAttribBuilder;
 import minecraft.common.world.Direction;
 import minecraft.common.world.World;
 import minecraft.common.world.block.IBlockPosition;
+import minecraft.common.world.block.state.IBlockState;
 
 public class CropBlockModel extends AbstractBlockModel {
 
@@ -17,7 +18,7 @@ public class CropBlockModel extends AbstractBlockModel {
 	}
 	
 	@Override
-	public void tessellate(World world, IBlockPosition pos, VertexAttribBuilder builder) {
+	public void tessellate(World world, IBlockPosition pos, IBlockState state, VertexAttribBuilder builder) {
 		float lightness = getLightness(world, pos);
 		
 		addAlignedQuad(builder, pos, Direction.NORTH, PLANT_QUAD_OFFSET, texture, lightness);

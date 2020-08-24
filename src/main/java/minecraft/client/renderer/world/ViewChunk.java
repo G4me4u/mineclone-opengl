@@ -70,7 +70,7 @@ public class ViewChunk implements IResource {
 						IBlockModel blockModel = state.getModel(world, pos);
 						
 						if (blockModel != null)
-							blockModel.tessellate(world, pos, builder);
+							blockModel.tessellate(world, pos, state, builder);
 					}
 				}
 			}

@@ -90,16 +90,14 @@ public class RedstoneWireBlock extends Block {
 		IBlockState newState = state;
 		
 		if (fromDir.isHorizontal()) {
-			if (fromState.isOf(Blocks.REDSTONE_WIRE_BLOCK)) {
-				newState = updateStateConnection(world, pos, state, fromDir);
-				
-				if (newState != state) {
-					// Update connections in the remaining horizontal directions.
-					for (Direction dir = fromDir; (dir = dir.rotateCCW()) != fromDir; )
-						newState = updateStateConnection(world, pos, newState, dir);
+			newState = updateStateConnection(world, pos, state, fromDir);
+			
+			if (newState != state) {
+				// Update connections in the remaining horizontal directions.
+				for (Direction dir = fromDir; (dir = dir.rotateCCW()) != fromDir; )
+					newState = updateStateConnection(world, pos, newState, dir);
 
-					newState = resolveWireState(newState);
-				}
+				newState = resolveWireState(newState);
 			}
 		} else if (!fromState.isOf(Blocks.REDSTONE_WIRE_BLOCK)) {
 			if (fromDir == Direction.DOWN) {
@@ -108,13 +106,7 @@ public class RedstoneWireBlock extends Block {
 					newState = Blocks.AIR_BLOCK.getDefaultState();
 			} else {
 				// The aligned faces of the top block might have changed.
-				// Make sure we update the appropriate directions.
-				for (Direction dir : Direction.HORIZONTAL) {
-					if (newState.get(CONNECTIONS.get(dir)) != WireConnection.SIDE)
-						newState = updateStateConnection(world, pos, newState, dir);
-				}
-				
-				newState = resolveWireState(newState);
+				newState = getPlacementState(state, world, pos);
 			}
 		}
 

@@ -237,8 +237,10 @@ public abstract class AbstractTessellator2D implements ITessellator2D {
 			//       the initial triangle when drawing.
 			ensureCacheSize(clipShape.getPlaneCount() + 1);
 			
-			triangleCache[0].set(x0, y0, u0, v0, x1, y1, u1, v1, x2, y2, u2, v2);
-			clipAndTessellate(clipShape.getPlanes(), 0);
+			ClipTriangle t = triangleCache[0];
+			t.set(x0, y0, u0, v0, x1, y1, u1, v1, x2, y2, u2, v2);
+			
+			clipAndTessellate(clipShape.getPlanes(), 0, t);
 		} else {
 			// In this case we can tessellate the triangle immediately
 			// and skip the expensive clipping routine.
@@ -261,9 +263,7 @@ public abstract class AbstractTessellator2D implements ITessellator2D {
 			triangleCache[i] = new ClipTriangle();
 	}
 	
-	private void clipAndTessellate(ClipPlane[] planes, int planeIndex) {
-		ClipTriangle t = triangleCache[planeIndex];
-		
+	private void clipAndTessellate(ClipPlane[] planes, int planeIndex, ClipTriangle t) {
 		if (planeIndex >= planes.length) {
 			tessellateTriangle(t.v0.x, t.v0.y, t.v0.u, t.v0.v,
 			                   t.v1.x, t.v1.y, t.v1.u, t.v1.v,
@@ -274,8 +274,7 @@ public abstract class AbstractTessellator2D implements ITessellator2D {
 			if (plane.contains(t.v0.x, t.v0.y, Z_CLIP_OFFSET)) {
 				if (plane.contains(t.v1.x, t.v1.y, Z_CLIP_OFFSET)) {
 					if (plane.contains(t.v2.x, t.v2.y, Z_CLIP_OFFSET)) {
-						triangleCache[planeIndex + 1].set(t);
-						clipAndTessellate(planes, planeIndex + 1);
+						clipAndTessellate(planes, planeIndex + 1, t);
 					} else {
 						clip2Inside(planes, planeIndex, t.v0, t.v1, t.v2);
 					}
@@ -313,13 +312,13 @@ public abstract class AbstractTessellator2D implements ITessellator2D {
 		interpolateClipVertex(plane, out, in1, t.v1);
 		interpolateClipVertex(plane, out, in0, t.v2);
 
-		clipAndTessellate(planes, planeIndex + 1);
+		clipAndTessellate(planes, planeIndex + 1, t);
 		
 		t.v0.set(in1);
 		//t.v1.set(t.v1);
 		t.v2.set(in0);
 
-		clipAndTessellate(planes, planeIndex + 1);
+		clipAndTessellate(planes, planeIndex + 1, t);
 	}
 	
 	private void clip2Outside(ClipPlane[] planes, int planeIndex, ClipVertex in, ClipVertex out0, ClipVertex out1) {
@@ -330,7 +329,7 @@ public abstract class AbstractTessellator2D implements ITessellator2D {
 		interpolateClipVertex(plane, out0, in, t.v1);
 		interpolateClipVertex(plane, out1, in, t.v2);
 
-		clipAndTessellate(planes, planeIndex + 1);
+		clipAndTessellate(planes, planeIndex + 1, t);
 	}
 
 	private void interpolateClipVertex(ClipPlane plane, ClipVertex out, ClipVertex in, ClipVertex result) {
@@ -513,12 +512,6 @@ public abstract class AbstractTessellator2D implements ITessellator2D {
 			v2 = new ClipVertex();
 		}
 		
-		public void set(ClipTriangle t) {
-			this.v0.set(t.v0);
-			this.v1.set(t.v1);
-			this.v2.set(t.v2);
-		}
-
 		public void set(float x0, float y0, float u0, float v0,
 		                float x1, float y1, float u1, float v1,
 		                float x2, float y2, float u2, float v2) {

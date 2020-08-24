@@ -3,9 +3,13 @@ package minecraft.common.world.block;
 import java.util.EnumMap;
 import java.util.Map;
 
+import minecraft.client.renderer.model.IBlockModel;
+import minecraft.client.renderer.model.WireBlockModel;
+import minecraft.client.renderer.world.BlockTextures;
 import minecraft.common.world.Blocks;
 import minecraft.common.world.Direction;
 import minecraft.common.world.IServerWorld;
+import minecraft.common.world.IWorld;
 import minecraft.common.world.block.handler.WireHandler;
 import minecraft.common.world.block.state.BlockState;
 import minecraft.common.world.block.state.EnumBlockProperty;
@@ -31,7 +35,12 @@ public class RedstoneWireBlock extends Block {
 		CONNECTIONS.put(Direction.EAST , EAST_CONNECTION);
 	}
 	
+	private final IBlockModel model;
+	
 	public RedstoneWireBlock() {
+		model = new WireBlockModel(BlockTextures.WIRE_CROSS_TEXTURE, 
+		                           BlockTextures.WIRE_VLINE_TEXTURE,
+		                           BlockTextures.WIRE_HLINE_TEXTURE);
 	}
 	
 	@Override
@@ -100,9 +109,12 @@ public class RedstoneWireBlock extends Block {
 		IBlockState newState = state;
 		
 		if (fromDir.isHorizontal()) {
-			newState = updateStateConnectionTo(world, pos, state, fromDir);
+			WireConnection newConnection = getWireConnection(world, pos, fromDir);
+			IBlockProperty<WireConnection> property = CONNECTIONS.get(fromDir);
 			
-			if (newState != state) {
+			if (newConnection != state.get(property) || newConnection == WireConnection.SIDE) {
+				newState = state.with(property, newConnection);
+				
 				// Update connections in the remaining horizontal directions.
 				for (Direction dir = fromDir; (dir = dir.rotateCCW()) != fromDir; )
 					newState = updateStateConnectionTo(world, pos, newState, dir);
@@ -125,22 +137,39 @@ public class RedstoneWireBlock extends Block {
 	}
 	
 	@Override
+	public IBlockModel getModel(IWorld world, IBlockPosition pos, IBlockState state) {
+		return model;
+	}
+	
+	@Override
+	public boolean isPowerComponent() {
+		return true;
+	}
+	
+	@Override
 	public int getOutputPowerFlags(IBlockState state, Direction dir) {
-		if (dir == Direction.DOWN)
-			return IServerWorld.WEAK_POWER_FLAGS;
-		if (dir == Direction.UP || state.get(CONNECTIONS.get(dir)) == WireConnection.NONE)
+		if (dir == Direction.UP)
 			return IServerWorld.NO_FLAGS;
-		
+		if (dir.isHorizontal() && state.get(CONNECTIONS.get(dir)) == WireConnection.NONE)
+			return IServerWorld.NO_FLAGS;
+
 		return IServerWorld.WEAK_POWER_FLAGS;
 	}
 	
 	@Override
 	public int getPowerTo(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir, int powerFlags) {
-		return (powerFlags & getOutputPowerFlags(state, dir)) == 0 ? 0 : state.get(POWER);
+		return ((powerFlags & getOutputPowerFlags(state, dir)) != 0) ? state.get(POWER) : 0;
 	}
 	
 	private boolean isWireSupported(IServerWorld world, IBlockPosition pos) {
 		return world.getBlockState(pos.down()).isAligned(Direction.UP);
+	}
+	
+	private IBlockState updateAndResolveState(IServerWorld world, IBlockPosition pos, IBlockState state) {
+		for (Direction dir : Direction.HORIZONTAL)
+			state = updateStateConnectionTo(world, pos, state, dir);
+		
+		return resolveState(state);
 	}
 	
 	private IBlockState updateStateConnectionTo(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir) {
@@ -172,13 +201,6 @@ public class RedstoneWireBlock extends Block {
 			return WireConnection.SIDE;
 		
 		return WireConnection.NONE;
-	}
-	
-	private IBlockState updateAndResolveState(IServerWorld world, IBlockPosition pos, IBlockState state) {
-		for (Direction dir : Direction.HORIZONTAL)
-			state = updateStateConnectionTo(world, pos, state, dir);
-		
-		return resolveState(state);
 	}
 	
 	private IBlockState resolveState(IBlockState state) {

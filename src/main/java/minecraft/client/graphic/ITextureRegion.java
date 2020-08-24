@@ -1,7 +1,5 @@
 package minecraft.client.graphic;
 
-import minecraft.common.math.LinMath;
-
 public interface ITextureRegion {
 
 	public ITexture getTexture();
@@ -9,11 +7,8 @@ public interface ITextureRegion {
 	public ITextureRegion getUVRegion(float u0, float v0, float u1, float v1);
 
 	public ITextureRegion getRegion(int xs0, int ys0, int xs1, int ys1);
-	
+
 	default public ITextureRegion getWithAspect(float aspect) {
-		if (aspect < LinMath.EPSILON)
-			throw new IllegalArgumentException("Aspect ratio is near zero!");
-		
 		float du = 1.0f;
 		float dv = 1.0f;
 		

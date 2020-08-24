@@ -14,7 +14,7 @@ public class PlayerHotbar {
 	private boolean wasSwitchingHotbar;
 	
 	public PlayerHotbar() {
-		hotbarBlocks = new IBlockState[9];
+		hotbarBlocks = new IBlockState[10];
 		hotbarIndex = 0;
 		
 		hotbarBlocks[0] = Blocks.DIRT_BLOCK.getDefaultState();
@@ -28,6 +28,7 @@ public class PlayerHotbar {
 		hotbarBlocks[6] = Blocks.COBBLESTONE_BLOCK.getDefaultState();
 		hotbarBlocks[7] = Blocks.LEAVES_BLOCK.getDefaultState();
 		hotbarBlocks[8] = Blocks.REDSTONE_BLOCK.getDefaultState();
+		hotbarBlocks[9] = Blocks.REDSTONE_WIRE_BLOCK.getDefaultState();
 	}
 	
 	public void update() {

@@ -23,91 +23,32 @@ public class PlantBlockModel extends AbstractBlockModel {
 		float x1 = x0 + 1.0f;
 		float y1 = y0 + 1.0f;
 		float z1 = z0 + 1.0f;
-	
+
+		byte r = (byte)0xFF;
+		byte g = (byte)0xFF;
+		byte b = (byte)0xFF;
+		byte a = (byte)0xFF;
+		
 		float lightness = getLightness(world, pos);
 		
-		builder.putFloat3(x0, y0, z0);
-		builder.putFloat2(texture.getU0(), texture.getV0());
-		builder.putUByte4((byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF);
-		builder.putFloat(lightness);
-		builder.next();
-		builder.putFloat3(x1, y0, z1);
-		builder.putFloat2(texture.getU1(), texture.getV0());
-		builder.putUByte4((byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF);
-		builder.putFloat(lightness);
-		builder.next();
-		builder.putFloat3(x1, y1, z1);
-		builder.putFloat2(texture.getU1(), texture.getV1());
-		builder.putUByte4((byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF);
-		builder.putFloat(lightness);
-		builder.next();
-		builder.putFloat3(x0, y1, z0);
-		builder.putFloat2(texture.getU0(), texture.getV1());
-		builder.putUByte4((byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF);
-		builder.putFloat(lightness);
-		builder.next();
+		putVert(builder, x0, y0, z0, texture.getU0(), texture.getV0(), r, g, b, a, lightness);
+		putVert(builder, x1, y0, z1, texture.getU1(), texture.getV0(), r, g, b, a, lightness);
+		putVert(builder, x1, y1, z1, texture.getU1(), texture.getV1(), r, g, b, a, lightness);
+		putVert(builder, x0, y1, z0, texture.getU0(), texture.getV1(), r, g, b, a, lightness);
 		
-		builder.putFloat3(x1, y0, z1);
-		builder.putFloat2(texture.getU0(), texture.getV0());
-		builder.putUByte4((byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF);
-		builder.putFloat(lightness);
-		builder.next();
-		builder.putFloat3(x0, y0, z0);
-		builder.putFloat2(texture.getU1(), texture.getV0());
-		builder.putUByte4((byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF);
-		builder.putFloat(lightness);
-		builder.next();
-		builder.putFloat3(x0, y1, z0);
-		builder.putFloat2(texture.getU1(), texture.getV1());
-		builder.putUByte4((byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF);
-		builder.putFloat(lightness);
-		builder.next();
-		builder.putFloat3(x1, y1, z1);
-		builder.putFloat2(texture.getU0(), texture.getV1());
-		builder.putUByte4((byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF);
-		builder.putFloat(lightness);
-		builder.next();
-		
-		builder.putFloat3(x1, y0, z0);
-		builder.putFloat2(texture.getU0(), texture.getV0());
-		builder.putUByte4((byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF);
-		builder.putFloat(lightness);
-		builder.next();
-		builder.putFloat3(x0, y0, z1);
-		builder.putFloat2(texture.getU1(), texture.getV0());
-		builder.putUByte4((byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF);
-		builder.putFloat(lightness);
-		builder.next();
-		builder.putFloat3(x0, y1, z1);
-		builder.putFloat2(texture.getU1(), texture.getV1());
-		builder.putUByte4((byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF);
-		builder.putFloat(lightness);
-		builder.next();
-		builder.putFloat3(x1, y1, z0);
-		builder.putFloat2(texture.getU0(), texture.getV1());
-		builder.putUByte4((byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF);
-		builder.putFloat(lightness);
-		builder.next();
+		putVert(builder, x1, y0, z1, texture.getU0(), texture.getV0(), r, g, b, a, lightness);
+		putVert(builder, x0, y0, z0, texture.getU1(), texture.getV0(), r, g, b, a, lightness);
+		putVert(builder, x0, y1, z0, texture.getU1(), texture.getV1(), r, g, b, a, lightness);
+		putVert(builder, x1, y1, z1, texture.getU0(), texture.getV1(), r, g, b, a, lightness);
 
-		builder.putFloat3(x0, y0, z1);
-		builder.putFloat2(texture.getU0(), texture.getV0());
-		builder.putUByte4((byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF);
-		builder.putFloat(lightness);
-		builder.next();
-		builder.putFloat3(x1, y0, z0);
-		builder.putFloat2(texture.getU1(), texture.getV0());
-		builder.putUByte4((byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF);
-		builder.putFloat(lightness);
-		builder.next();
-		builder.putFloat3(x1, y1, z0);
-		builder.putFloat2(texture.getU1(), texture.getV1());
-		builder.putUByte4((byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF);
-		builder.putFloat(lightness);
-		builder.next();
-		builder.putFloat3(x0, y1, z1);
-		builder.putFloat2(texture.getU0(), texture.getV1());
-		builder.putUByte4((byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF);
-		builder.putFloat(lightness);
-		builder.next();
+		putVert(builder, x1, y0, z0, texture.getU0(), texture.getV0(), r, g, b, a, lightness);
+		putVert(builder, x0, y0, z1, texture.getU1(), texture.getV0(), r, g, b, a, lightness);
+		putVert(builder, x0, y1, z1, texture.getU1(), texture.getV1(), r, g, b, a, lightness);
+		putVert(builder, x1, y1, z0, texture.getU0(), texture.getV1(), r, g, b, a, lightness);
+		
+		putVert(builder, x0, y0, z1, texture.getU0(), texture.getV0(), r, g, b, a, lightness);
+		putVert(builder, x1, y0, z0, texture.getU1(), texture.getV0(), r, g, b, a, lightness);
+		putVert(builder, x1, y1, z0, texture.getU1(), texture.getV1(), r, g, b, a, lightness);
+		putVert(builder, x0, y1, z1, texture.getU0(), texture.getV1(), r, g, b, a, lightness);
 	}
 }

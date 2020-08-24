@@ -18,17 +18,19 @@ import minecraft.server.world.ServerWorld;
 
 public class Block {
 
-	public static final String AIR_BLOCK_ID         	= "air";
-	public static final String DIRT_BLOCK_ID        	= "dirt";
-	public static final String GRASS_BLOCK_ID       	= "grass";
-	public static final String WOOD_PLANKS_BLOCK_ID 	= "planks";
-	public static final String STONE_BLOCK_ID       	= "stone";
-	public static final String COBBLESTONE_BLOCK_ID 	= "cobblestone";
-	public static final String PLANT_BLOCK_ID       	= "plant";
-	public static final String LEAVES_BLOCK_ID      	= "leaves";
-	public static final String WOOD_LOG_BLOCK_ID    	= "log";
-	public static final String REDSTONE_WIRE_BLOCK_ID	= "redstone_wire";
-	public static final String REDSTONE_BLOCK_ID	    = "redstone_block";
+	public static final String AIR_BLOCK_ID              = "air";
+	public static final String DIRT_BLOCK_ID             = "dirt";
+	public static final String GRASS_BLOCK_ID            = "grass";
+	public static final String PLANKS_BLOCK_ID           = "planks";
+	public static final String STONE_BLOCK_ID            = "stone";
+	public static final String COBBLESTONE_BLOCK_ID      = "cobblestone";
+	public static final String PLANT_BLOCK_ID            = "plant";
+	public static final String LEAVES_BLOCK_ID           = "leaves";
+	public static final String LOG_BLOCK_ID              = "log";
+	public static final String REDSTONE_WIRE_BLOCK_ID    = "redstone_wire";
+	public static final String REDSTONE_BLOCK_ID         = "redstone_block";
+	public static final String STONE_SLAB_BLOCK_ID       = "stone_slab";
+	public static final String PLANKS_SLAB_BLOCK_ID      = "planks_slab";
 	
 	private static ReferenceRegsitry<String, Block> blockRegistry = null;
 	
@@ -153,17 +155,19 @@ public class Block {
 		
 		blockRegistry = new ReferenceRegsitry<>();
 	
-		registerBlock(AIR_BLOCK_ID          , new Block());
-		registerBlock(DIRT_BLOCK_ID         , new DirtBlock());
-		registerBlock(GRASS_BLOCK_ID        , new GrassBlock());
-		registerBlock(WOOD_PLANKS_BLOCK_ID  , new WoodPlanksBlock());
-		registerBlock(STONE_BLOCK_ID        , new BasicSolidBlock(BlockTextures.STONE_TEXTURE));
-		registerBlock(COBBLESTONE_BLOCK_ID  , new BasicSolidBlock(BlockTextures.COBBLESTONE_TEXTURE));
-		registerBlock(PLANT_BLOCK_ID        , new PlantBlock());
-		registerBlock(LEAVES_BLOCK_ID       , new LeavesBlock());
-		registerBlock(WOOD_LOG_BLOCK_ID     , new WoodLogBlock());
-		registerBlock(REDSTONE_WIRE_BLOCK_ID, new RedstoneWireBlock());
-		registerBlock(REDSTONE_BLOCK_ID     , new RedstoneBlock());
+		registerBlock(AIR_BLOCK_ID             , new Block());
+		registerBlock(DIRT_BLOCK_ID            , new DirtBlock());
+		registerBlock(GRASS_BLOCK_ID           , new GrassBlock());
+		registerBlock(PLANKS_BLOCK_ID          , new WoodPlanksBlock());
+		registerBlock(STONE_BLOCK_ID           , new BasicSolidBlock(BlockTextures.STONE_TEXTURE));
+		registerBlock(COBBLESTONE_BLOCK_ID     , new BasicSolidBlock(BlockTextures.COBBLESTONE_TEXTURE));
+		registerBlock(PLANT_BLOCK_ID           , new PlantBlock());
+		registerBlock(LEAVES_BLOCK_ID          , new LeavesBlock());
+		registerBlock(LOG_BLOCK_ID             , new WoodLogBlock());
+		registerBlock(REDSTONE_WIRE_BLOCK_ID   , new RedstoneWireBlock());
+		registerBlock(REDSTONE_BLOCK_ID        , new RedstoneBlock());
+		registerBlock(STONE_SLAB_BLOCK_ID      , new StoneSlabBlock());
+		registerBlock(PLANKS_SLAB_BLOCK_ID     , new WoodPlanksSlabBlock());
 	}
 	
 	private static void registerBlock(String name, Block block) {

@@ -95,7 +95,7 @@ public class ServerWorld extends World implements IServerWorld {
 				tmpPos.x = pos.getX();
 				tmpPos.z = pos.getZ();
 				
-				setBlock(tmpPos, Blocks.WOOD_LOG_BLOCK, true);
+				setBlock(tmpPos, Blocks.LOG_BLOCK, true);
 			}
 
 			tmpPos.y++;

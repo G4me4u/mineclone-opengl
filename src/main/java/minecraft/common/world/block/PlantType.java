@@ -15,7 +15,7 @@ public enum PlantType  implements IIndexedValue {
 		TYPES = new PlantType[values().length];
 		
 		for (PlantType type : values())
-			TYPES[type.getIndex()] = type;
+			TYPES[type.index] = type;
 	}
 	
 	private final String name;

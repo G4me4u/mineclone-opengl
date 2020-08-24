@@ -2,25 +2,24 @@ package minecraft.common.world.block;
 
 import minecraft.common.world.block.state.IIndexedValue;
 
-public enum WoodType implements IIndexedValue {
+public enum StoneType implements IIndexedValue {
 
-	OAK("oak", 0),
-	BIRCH("birch", 1),
-	ACACIA("acacia", 2);
-
-	public static final WoodType[] TYPES;
-
+	STONE("stone", 0),
+	COBBLESTONE("cobblestone", 1);
+	
+	public static final StoneType[] TYPES;
+	
 	static {
-		TYPES = new WoodType[values().length];
+		TYPES = new StoneType[values().length];
 		
-		for (WoodType type : values())
+		for (StoneType type : values())
 			TYPES[type.index] = type;
 	}
 	
 	private final String name;
 	private final int index;
 	
-	private WoodType(String name, int index) {
+	private StoneType(String name, int index) {
 		this.name = name;
 		this.index = index;
 	}

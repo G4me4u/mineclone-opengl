@@ -7,6 +7,7 @@ import java.util.Random;
 import minecraft.client.renderer.model.IBlockModel;
 import minecraft.client.renderer.world.BlockTextures;
 import minecraft.common.ReferenceRegsitry;
+import minecraft.common.world.Blocks;
 import minecraft.common.world.Direction;
 import minecraft.common.world.EntityHitbox;
 import minecraft.common.world.IServerWorld;
@@ -39,19 +40,21 @@ public class Block {
 		defaultState = createDefaultState();
 	}
 	
-	public IBlockState getPlacementState(IBlockState state, IServerWorld world, IBlockPosition pos) {
+	public IBlockState getPlacementState(IServerWorld world, IBlockPosition pos, IBlockState state) {
 		return state;
 	}
 	
-	public void onAdded(IServerWorld world, IBlockPosition pos, IBlockState state) {
-		world.updateNeighbors(pos, ServerWorld.COMMON_UPDATE_FLAGS);
+	public void onBlockAdded(IServerWorld world, IBlockPosition pos, IBlockState state) {
+		if (!state.isOf(Blocks.AIR_BLOCK))
+			world.updateNeighbors(pos, ServerWorld.COMMON_UPDATE_FLAGS);
 	}
 	
-	public void onRemoved(IServerWorld world, IBlockPosition pos, IBlockState state) {
-		world.updateNeighbors(pos, ServerWorld.COMMON_UPDATE_FLAGS);
+	public void onBlockRemoved(IServerWorld world, IBlockPosition pos, IBlockState state) {
+		if (!state.isOf(Blocks.AIR_BLOCK))
+			world.updateNeighbors(pos, ServerWorld.COMMON_UPDATE_FLAGS);
 	}
 	
-	public void onStateReplaced(IServerWorld world, IBlockPosition pos, IBlockState state) {
+	public void onStateChanged(IServerWorld world, IBlockPosition pos, IBlockState oldState, IBlockState newState) {
 	}
 	
 	public void onBlockUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction fromDir, IBlockState fromState) {

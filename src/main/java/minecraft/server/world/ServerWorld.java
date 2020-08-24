@@ -103,20 +103,23 @@ public class ServerWorld extends World implements IServerWorld {
 	}
 	
 	@Override
-	public boolean setBlockState(IBlockPosition pos, IBlockState state, boolean updateNeighbors) {
+	public boolean setBlockState(IBlockPosition pos, IBlockState newState, boolean updateNeighbors) {
 		WorldChunk chunk = getChunk(pos);
 		
 		if (chunk != null) {
 			IBlockState oldState = chunk.getBlockState(pos);
 
-			if (chunk.setBlockState(pos, state)) {
+			if (chunk.setBlockState(pos, newState)) {
 				if (updateNeighbors) {
-					if (state.isAir())
-						oldState.onRemoved(this, pos);
-					if (oldState.isAir())
-						state.onAdded(this, pos);
-					if (oldState.isOf(state.getBlock()))
-						state.onStateReplaced(this, pos);
+					Block oldBlock = oldState.getBlock();
+					Block newBlock = newState.getBlock();
+					
+					if (oldBlock == newBlock) {
+						newBlock.onStateChanged(this, pos, oldState, newState);
+					} else {
+						oldBlock.onBlockRemoved(this, pos, oldState);
+						newBlock.onBlockAdded(this, pos, newState);
+					}
 				}
 				
 				return true;

@@ -35,7 +35,7 @@ public class RedstoneWireBlock extends Block {
 	}
 	
 	@Override
-	public IBlockState getPlacementState(IBlockState state, IServerWorld world, IBlockPosition pos) {
+	public IBlockState getPlacementState(IServerWorld world, IBlockPosition pos, IBlockState state) {
 		if (!isWireSupported(world, pos))
 			return Blocks.AIR_BLOCK.getDefaultState();
 		
@@ -45,12 +45,8 @@ public class RedstoneWireBlock extends Block {
 		return resolveWireState(state);
 	}
 	
-	private boolean isWireSupported(IServerWorld world, IBlockPosition pos) {
-		return world.getBlockState(pos.down()).isAligned(Direction.UP);
-	}
-
 	@Override
-	public void onStateReplaced(IServerWorld world, IBlockPosition pos, IBlockState state) {
+	public void onBlockAdded(IServerWorld world, IBlockPosition pos, IBlockState state) {
 		world.updateNeighbors(pos, IServerWorld.STATE_UPDATE_FLAG);
 		
 		for (Direction vertical : Direction.VERTICAL) {
@@ -59,6 +55,23 @@ public class RedstoneWireBlock extends Block {
 			for (Direction horizontal : Direction.HORIZONTAL)
 				world.updateNeighbor(vpos.offset(horizontal), horizontal.getOpposite(), state, IServerWorld.STATE_UPDATE_FLAG);
 		}
+	}
+	
+	@Override
+	public void onBlockRemoved(IServerWorld world, IBlockPosition pos, IBlockState state) {
+		world.updateNeighbors(pos, IServerWorld.STATE_UPDATE_FLAG);
+		
+		for (Direction vertical : Direction.VERTICAL) {
+			IBlockPosition vpos = pos.offset(vertical);
+			
+			for (Direction horizontal : Direction.HORIZONTAL)
+				world.updateNeighbor(vpos.offset(horizontal), horizontal.getOpposite(), state, IServerWorld.STATE_UPDATE_FLAG);
+		}
+	}
+	
+	@Override
+	public void onStateChanged(IServerWorld world, IBlockPosition pos, IBlockState newState, IBlockState oldState) {
+		world.updateNeighbors(pos, IServerWorld.STATE_UPDATE_FLAG);
 	}
 	
 	@Override
@@ -120,6 +133,10 @@ public class RedstoneWireBlock extends Block {
 
 		if (state != newState)
 			world.setBlockState(pos, newState, true);
+	}
+	
+	private boolean isWireSupported(IServerWorld world, IBlockPosition pos) {
+		return world.getBlockState(pos.down()).isAligned(Direction.UP);
 	}
 	
 	private IBlockState updateStateConnection(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir) {

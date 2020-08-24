@@ -28,6 +28,7 @@ public class Block {
 	public static final String LEAVES_BLOCK_ID      	= "leaves";
 	public static final String WOOD_LOG_BLOCK_ID    	= "log";
 	public static final String REDSTONE_WIRE_BLOCK_ID	= "redstone_wire";
+	public static final String REDSTONE_BLOCK_ID	    = "redstone_block";
 	
 	private static ReferenceRegsitry<String, Block> blockRegistry = null;
 	
@@ -99,7 +100,7 @@ public class Block {
 		return false;
 	}
 	
-	public boolean hasAligned(IBlockState state, Direction dir) {
+	public boolean isAligned(IBlockState state, Direction dir) {
 		return isSolid();
 	}
 	
@@ -119,7 +120,7 @@ public class Block {
 		return canPowerIndirectly(state, dir) ? IServerWorld.INDIRECT_POWER_FLAGS : IServerWorld.NO_FLAGS;
 	}
 
-	public int getPowerTo(IBlockState state, IServerWorld world, IBlockPosition pos, Direction dir, int powerFlags) {
+	public int getPowerTo(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir, int powerFlags) {
 		if (canPowerIndirectly(state, dir) && (powerFlags & IServerWorld.INDIRECT_POWER_FLAGS) != 0) {
 			if ((powerFlags & IServerWorld.INDIRECT_WEAK_POWER_FLAG) != 0)
 				return world.getPowerExceptFrom(pos, dir, IServerWorld.DIRECT_POWER_FLAGS);
@@ -162,6 +163,7 @@ public class Block {
 		registerBlock(LEAVES_BLOCK_ID       , new LeavesBlock());
 		registerBlock(WOOD_LOG_BLOCK_ID     , new WoodLogBlock());
 		registerBlock(REDSTONE_WIRE_BLOCK_ID, new RedstoneWireBlock());
+		registerBlock(REDSTONE_BLOCK_ID     , new RedstoneBlock());
 	}
 	
 	private static void registerBlock(String name, Block block) {

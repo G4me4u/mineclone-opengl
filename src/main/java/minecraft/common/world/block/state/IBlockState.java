@@ -49,7 +49,7 @@ public interface IBlockState {
 	}
 	
 	default public boolean isAligned(Direction dir) {
-		return getBlock().hasAligned(this, dir);
+		return getBlock().isAligned(this, dir);
 	}
 	
 	default public boolean canPowerIndirectly(Direction dir) {
@@ -65,7 +65,7 @@ public interface IBlockState {
 	}
 
 	default public int getPowerTo(IServerWorld world, IBlockPosition pos, Direction dir, int powerFlags) {
-		return getBlock().getPowerTo(this, world, pos, dir, powerFlags);
+		return getBlock().getPowerTo(world, pos, this, dir, powerFlags);
 	}
 	
 	default public boolean isAir() {

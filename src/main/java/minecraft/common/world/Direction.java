@@ -112,10 +112,10 @@ public enum Direction implements IIndexedValue {
 	
 	public static Direction fromVector(Vec3 vec) {
 		Direction result = Direction.NORTH;
-
 		float bestValue = Float.NEGATIVE_INFINITY;
+
 		for (Direction dir : DIRECTIONS) {
-			float v = vec.x * dir.offsetX + vec.y * dir.offsetY + vec.z * dir.offsetZ;
+			float v = vec.dot(dir.offsetX, dir.offsetY, dir.offsetZ);
 			
 			if (v > bestValue) {
 				bestValue = v;

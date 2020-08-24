@@ -39,10 +39,7 @@ public class RedstoneWireBlock extends Block {
 		if (!isWireSupported(world, pos))
 			return Blocks.AIR_BLOCK.getDefaultState();
 		
-		for (Direction dir : Direction.HORIZONTAL)
-			state = updateStateConnection(world, pos, state, dir);
-		
-		return resolveWireState(state);
+		return updateAndResolveState(world, pos, state);
 	}
 	
 	@Override
@@ -103,14 +100,14 @@ public class RedstoneWireBlock extends Block {
 		IBlockState newState = state;
 		
 		if (fromDir.isHorizontal()) {
-			newState = updateStateConnection(world, pos, state, fromDir);
+			newState = updateStateConnectionTo(world, pos, state, fromDir);
 			
 			if (newState != state) {
 				// Update connections in the remaining horizontal directions.
 				for (Direction dir = fromDir; (dir = dir.rotateCCW()) != fromDir; )
-					newState = updateStateConnection(world, pos, newState, dir);
+					newState = updateStateConnectionTo(world, pos, newState, dir);
 
-				newState = resolveWireState(newState);
+				newState = resolveState(newState);
 			}
 		} else if (!fromState.isOf(Blocks.REDSTONE_WIRE_BLOCK)) {
 			if (fromDir == Direction.DOWN) {
@@ -119,7 +116,7 @@ public class RedstoneWireBlock extends Block {
 					newState = Blocks.AIR_BLOCK.getDefaultState();
 			} else {
 				// The aligned faces of the top block might have changed.
-				newState = getPlacementState(state, world, pos);
+				newState = updateAndResolveState(world, pos, state);
 			}
 		}
 
@@ -131,7 +128,7 @@ public class RedstoneWireBlock extends Block {
 		return world.getBlockState(pos.down()).isAligned(Direction.UP);
 	}
 	
-	private IBlockState updateStateConnection(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir) {
+	private IBlockState updateStateConnectionTo(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir) {
 		WireConnection connection = getWireConnection(world, pos, dir);
 		return state.with(CONNECTIONS.get(dir), connection);
 	}
@@ -162,7 +159,14 @@ public class RedstoneWireBlock extends Block {
 		return WireConnection.NONE;
 	}
 	
-	private IBlockState resolveWireState(IBlockState state) {
+	private IBlockState updateAndResolveState(IServerWorld world, IBlockPosition pos, IBlockState state) {
+		for (Direction dir : Direction.HORIZONTAL)
+			state = updateStateConnectionTo(world, pos, state, dir);
+		
+		return resolveState(state);
+	}
+	
+	private IBlockState resolveState(IBlockState state) {
 		Direction connectionDir = null;
 		
 		for (Direction dir : Direction.HORIZONTAL) {

@@ -17,19 +17,7 @@ import minecraft.server.world.ServerWorld;
 public interface IBlockState {
 
 	default public IBlockState getPlacementState(IServerWorld world, IBlockPosition pos) {
-		return getBlock().getPlacementState(this, world, pos);
-	}
-	
-	default public void onAdded(IServerWorld world, IBlockPosition pos) {
-		getBlock().onAdded(world, pos, this);
-	}
-	
-	default public void onRemoved(IServerWorld world, IBlockPosition pos) {
-		getBlock().onRemoved(world, pos, this);
-	}
-	
-	default public void onStateReplaced(IServerWorld world, IBlockPosition pos) {
-		getBlock().onStateReplaced(world, pos, this);
+		return getBlock().getPlacementState(world, pos, this);
 	}
 	
 	default public void onBlockUpdate(IServerWorld world, IBlockPosition pos, Direction fromDir, IBlockState fromState) {

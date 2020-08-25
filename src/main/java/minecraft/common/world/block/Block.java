@@ -90,6 +90,7 @@ public class Block {
 	}
 
 	public IBlockModel getModel(IWorld world, IBlockPosition pos, IBlockState state) {
+		// TODO: move this out of the common package.
 		return null;
 	}
 	

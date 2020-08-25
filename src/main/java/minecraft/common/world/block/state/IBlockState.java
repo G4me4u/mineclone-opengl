@@ -9,11 +9,9 @@ import minecraft.common.world.Direction;
 import minecraft.common.world.EntityHitbox;
 import minecraft.common.world.IServerWorld;
 import minecraft.common.world.IWorld;
-import minecraft.common.world.World;
 import minecraft.common.world.block.Block;
 import minecraft.common.world.block.IBlockPosition;
 import minecraft.common.world.block.MutableBlockPosition;
-import minecraft.server.world.ServerWorld;
 
 public interface IBlockState {
 

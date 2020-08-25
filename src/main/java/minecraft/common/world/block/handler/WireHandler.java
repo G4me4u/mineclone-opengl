@@ -88,9 +88,8 @@ public class WireHandler {
 
 		int oldPower = sState.get(POWER);
 
-		// External power does not include the power from wires of the
-		// network, so in case the wire is in an invalid state within
-		// its own network, we still have to update it.
+		// External power does not include the power from wires of the network,
+		// so also update it if it has an invalid state in its network.
 		int expectedPower = Math.max(findEdgePowerFromWires(world, sPos, sState), sExternalPower);
 		
 		if (oldPower != expectedPower) {

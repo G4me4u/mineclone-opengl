@@ -8,6 +8,7 @@ import minecraft.common.world.Blocks;
 import minecraft.common.world.Direction;
 import minecraft.common.world.EntityHitbox;
 import minecraft.common.world.IServerWorld;
+import minecraft.common.world.IWorld;
 import minecraft.common.world.World;
 import minecraft.common.world.block.Block;
 import minecraft.common.world.block.IBlockPosition;
@@ -32,15 +33,15 @@ public interface IBlockState {
 		getBlock().onInventoryUpdate(world, pos, this, fromDir, fromState);
 	}
 	
-	default public void onRandomUpdate(ServerWorld world, MutableBlockPosition pos, Random random) {
+	default public void onRandomUpdate(IServerWorld world, MutableBlockPosition pos, Random random) {
 		getBlock().onRandomUpdate(world, pos, this, random);
 	}
 	
-	default public void getEntityHitboxes(World world, MutableBlockPosition pos, List<EntityHitbox> hitboxes) {
+	default public void getEntityHitboxes(IWorld world, MutableBlockPosition pos, List<EntityHitbox> hitboxes) {
 		getBlock().getEntityHitboxes(world, pos, this, hitboxes);
 	}
 
-	default public IBlockModel getModel(World world, MutableBlockPosition pos) {
+	default public IBlockModel getModel(IWorld world, MutableBlockPosition pos) {
 		return getBlock().getModel(world, pos, this);
 	}
 	

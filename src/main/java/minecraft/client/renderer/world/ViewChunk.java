@@ -5,7 +5,7 @@ import minecraft.client.graphic.tessellator.VertexAttribBuilder;
 import minecraft.client.renderer.model.IBlockModel;
 import minecraft.common.IResource;
 import minecraft.common.math.Vec3;
-import minecraft.common.world.World;
+import minecraft.common.world.IClientWorld;
 import minecraft.common.world.WorldChunk;
 import minecraft.common.world.block.MutableBlockPosition;
 import minecraft.common.world.block.state.IBlockState;
@@ -49,7 +49,7 @@ public class ViewChunk implements IResource {
 	}
 	
 	public void rebuildAll(VertexAttribBuilder builder) {
-		World world = worldRenderer.getWorld();
+		IClientWorld world = worldRenderer.getWorld();
 		
 		int xc = getX();
 		int yc = getY();

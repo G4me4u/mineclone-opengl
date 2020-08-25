@@ -19,7 +19,7 @@ import minecraft.common.IResource;
 import minecraft.common.math.Mat4;
 import minecraft.common.math.Vec3;
 import minecraft.common.world.BlockHitResult;
-import minecraft.common.world.World;
+import minecraft.common.world.IClientWorld;
 
 public class BlockSelectionRenderer implements IResource {
 	
@@ -31,7 +31,7 @@ public class BlockSelectionRenderer implements IResource {
 	
 	private static final float SELECTION_SCALE = 1.001f;
 	
-	private final World world;
+	private final IClientWorld world;
 	private final WorldCamera camera;
 	
 	private final VertexArray vertexArray;
@@ -42,7 +42,7 @@ public class BlockSelectionRenderer implements IResource {
 	private float time;
 	private float prevTime;
 
-	public BlockSelectionRenderer(World world, WorldCamera camera) {
+	public BlockSelectionRenderer(IClientWorld world, WorldCamera camera) {
 		this.world = world;
 		this.camera = camera;
 		

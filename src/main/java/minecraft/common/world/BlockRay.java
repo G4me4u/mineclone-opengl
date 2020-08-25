@@ -11,20 +11,20 @@ public class BlockRay {
 	public static final float DEFAULT_STEP_SIZE = 0.1f;
 	public static final float DEFAULT_MAX_DIST = 5.0f;
 	
-	private final World world;
+	private final IWorld world;
 	
 	private final float stepSize;
 	private final float maxDist;
 	
-	public BlockRay(World world) {
+	public BlockRay(IWorld world) {
 		this(world, DEFAULT_STEP_SIZE, DEFAULT_MAX_DIST);
 	}
 
-	public BlockRay(World world, float stepSize) {
+	public BlockRay(IWorld world, float stepSize) {
 		this(world, stepSize, DEFAULT_MAX_DIST);
 	}
 
-	public BlockRay(World world, float stepSize, float maxDist) {
+	public BlockRay(IWorld world, float stepSize, float maxDist) {
 		if (stepSize < LinMath.EPSILON)
 			throw new IllegalArgumentException("Step-size must be positive and larger than " + LinMath.EPSILON);
 

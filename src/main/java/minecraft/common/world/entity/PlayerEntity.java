@@ -5,6 +5,7 @@ import java.util.List;
 
 import minecraft.client.controller.PlayerController;
 import minecraft.client.controller.PlayerHotbar;
+import minecraft.client.input.Keyboard;
 import minecraft.client.input.Mouse;
 import minecraft.common.math.LinMath;
 import minecraft.common.math.Mat3;
@@ -13,7 +14,7 @@ import minecraft.common.world.BlockHitResult;
 import minecraft.common.world.Blocks;
 import minecraft.common.world.EntityHitbox;
 import minecraft.common.world.IServerWorld;
-import minecraft.common.world.World;
+import minecraft.common.world.IWorld;
 import minecraft.common.world.WorldChunk;
 import minecraft.common.world.block.Block;
 import minecraft.common.world.block.IBlockPosition;
@@ -32,16 +33,16 @@ public class PlayerEntity extends Entity {
 
 	private int interactTimer;
 	
-	public PlayerEntity(World world, PlayerController controller) {
+	public PlayerEntity(IWorld world, PlayerController controller) {
 		super(world);
 		
 		this.controller = controller;
 		
 		hotbar = new PlayerHotbar();
 
-		float x = World.CHUNKS_X * WorldChunk.CHUNK_SIZE / 2;
-		float y = World.WORLD_HEIGHT;
-		float z = World.CHUNKS_Z * WorldChunk.CHUNK_SIZE / 2;
+		float x = IWorld.CHUNKS_X * WorldChunk.CHUNK_SIZE / 2;
+		float y = IWorld.WORLD_HEIGHT;
+		float z = IWorld.CHUNKS_Z * WorldChunk.CHUNK_SIZE / 2;
 		moveHitboxTo(x, y, z);
 
 		controller.setPlayer(this);
@@ -84,6 +85,18 @@ public class PlayerEntity extends Entity {
 			}
 		} else {
 			interactTimer = 0;
+		}
+		
+		if (Keyboard.isHeld(Keyboard.KEY_P)) {
+			Mat3 rot = new Mat3().rotateX(-yaw).rotateY(-pitch);
+			Vec3 dir = new Vec3(-rot.m02, -rot.m12, -rot.m22);
+			BlockHitResult hitResult = world.castBlockRay(eyeX, eyeY, eyeZ, dir);
+
+			if (hitResult != null) {
+				System.out.println(world.getBlockState(hitResult.pos));
+			} else {
+				System.out.println("NONE");
+			}
 		}
 		
 		controller.update();

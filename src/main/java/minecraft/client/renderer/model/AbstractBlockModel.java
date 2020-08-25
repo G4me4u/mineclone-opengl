@@ -4,7 +4,7 @@ import minecraft.client.graphic.ITextureRegion;
 import minecraft.client.graphic.tessellator.VertexAttribBuilder;
 import minecraft.common.util.ColorUtil;
 import minecraft.common.world.Direction;
-import minecraft.common.world.World;
+import minecraft.common.world.IClientWorld;
 import minecraft.common.world.block.IBlockPosition;
 import minecraft.common.world.block.state.IBlockState;
 
@@ -12,19 +12,19 @@ public abstract class AbstractBlockModel implements IBlockModel {
 
 	private static final float AMBIENT_LIGHT = 0.4f;
 
-	protected void addBlockFace(World world, IBlockPosition pos, VertexAttribBuilder builder, Direction face, ITextureRegion tex) {
+	protected void addBlockFace(IClientWorld world, IBlockPosition pos, VertexAttribBuilder builder, Direction face, ITextureRegion tex) {
 		addBlockFace(world, pos, builder, face, tex, 0.0f, 0.0f, 1.0f, 1.0f, ColorUtil.WHITE);
 	}
 
-	protected void addBlockFace(World world, IBlockPosition pos, VertexAttribBuilder builder, Direction face, ITextureRegion tex, int color) {
+	protected void addBlockFace(IClientWorld world, IBlockPosition pos, VertexAttribBuilder builder, Direction face, ITextureRegion tex, int color) {
 		addBlockFace(world, pos, builder, face, tex, 0.0f, 0.0f, 1.0f, 1.0f, color);
 	}
 	
-	protected void addBlockFace(World world, IBlockPosition pos, VertexAttribBuilder builder, Direction face, ITextureRegion tex, float u0, float v0, float u1, float v1) {
+	protected void addBlockFace(IClientWorld world, IBlockPosition pos, VertexAttribBuilder builder, Direction face, ITextureRegion tex, float u0, float v0, float u1, float v1) {
 		addBlockFace(world, pos, builder, face, tex, u0, v0, u1, v1, ColorUtil.WHITE);
 	}
 
-	protected void addBlockFace(World world, IBlockPosition pos, VertexAttribBuilder builder, Direction face, ITextureRegion tex, float u0, float v0, float u1, float v1, int color) {
+	protected void addBlockFace(IClientWorld world, IBlockPosition pos, VertexAttribBuilder builder, Direction face, ITextureRegion tex, float u0, float v0, float u1, float v1, int color) {
 		IBlockPosition offsetPos = pos.offset(face);
 		
 		if (world.isLoadedBlock(offsetPos)) {
@@ -121,7 +121,7 @@ public abstract class AbstractBlockModel implements IBlockModel {
 		builder.next();
 	}
 	
-	protected float getLightness(World world, IBlockPosition pos) {
+	protected float getLightness(IClientWorld world, IBlockPosition pos) {
 		return (world.getHighestPoint(pos) < pos.getY()) ? 1.0f : AMBIENT_LIGHT;
 	}
 }

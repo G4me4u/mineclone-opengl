@@ -9,7 +9,16 @@ import minecraft.common.world.block.state.IBlockState;
 
 public interface IWorld {
 	
+	public static final int WORLD_HEIGHT = WorldChunk.CHUNK_SIZE * 8;
+	
+	public static final int CHUNKS_X = 16;
+	public static final int CHUNKS_Z = 16;
+	
 	public BlockHitResult castBlockRay(float x, float y, float z, Vec3 dir);
+	
+	public WorldChunk getChunk(IBlockPosition pos);
+
+	public WorldChunk getChunk(int chunkX, int chunkZ);
 	
 	public IBlockState getBlockState(IBlockPosition pos);
 	

@@ -1,13 +1,13 @@
 package minecraft.client.renderer.model;
 
+import static minecraft.common.world.block.AbstractSlabBlock.TOP;
+
 import minecraft.client.graphic.ITextureRegion;
 import minecraft.client.graphic.tessellator.VertexAttribBuilder;
 import minecraft.common.world.Direction;
-import minecraft.common.world.World;
+import minecraft.common.world.IClientWorld;
 import minecraft.common.world.block.IBlockPosition;
 import minecraft.common.world.block.state.IBlockState;
-
-import static minecraft.common.world.block.AbstractSlabBlock.TOP;
 
 public class SlabBlockModel extends AbstractBlockModel {
 
@@ -30,7 +30,7 @@ public class SlabBlockModel extends AbstractBlockModel {
 	}
 	
 	@Override
-	public void tessellate(World world, IBlockPosition pos, IBlockState state, VertexAttribBuilder builder) {
+	public void tessellate(IClientWorld world, IBlockPosition pos, IBlockState state, VertexAttribBuilder builder) {
 		if (state.get(TOP)) {
 			addBlockFace(world, pos, builder, Direction.NORTH, sideTexture, 0.0f, 0.5f, 1.0f, 1.0f);
 			addBlockFace(world, pos, builder, Direction.SOUTH, sideTexture, 0.0f, 0.5f, 1.0f, 1.0f);

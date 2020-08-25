@@ -10,12 +10,7 @@ import minecraft.common.world.block.IBlockPosition;
 import minecraft.common.world.block.MutableBlockPosition;
 import minecraft.common.world.block.state.IBlockState;
 
-public class World implements IWorld {
-	
-	public static final int WORLD_HEIGHT = WorldChunk.CHUNK_SIZE * 8;
-	
-	public static final int CHUNKS_X = 16;
-	public static final int CHUNKS_Z = 16;
+public abstract class World implements IWorld {
 	
 	protected static final int RANDOM_TICK_SPEED = 3;
 	
@@ -36,6 +31,7 @@ public class World implements IWorld {
 		return blockRay.castRay(x, y, z, dir);
 	}
 	
+	@Override
 	public WorldChunk getChunk(IBlockPosition pos) {
 		if (pos.getY() < 0 || pos.getY() >= WORLD_HEIGHT)
 			return null;
@@ -46,6 +42,7 @@ public class World implements IWorld {
 		return getChunk(chunkX, chunkZ);
 	}
 
+	@Override
 	public WorldChunk getChunk(int chunkX, int chunkZ) {
 		if (chunkX < 0 || chunkX >= CHUNKS_X)
 			return null;

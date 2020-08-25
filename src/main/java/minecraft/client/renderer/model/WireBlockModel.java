@@ -1,16 +1,21 @@
 package minecraft.client.renderer.model;
 
+import static minecraft.common.world.block.RedstoneWireBlock.CONNECTIONS;
+import static minecraft.common.world.block.RedstoneWireBlock.EAST_CONNECTION;
+import static minecraft.common.world.block.RedstoneWireBlock.NORTH_CONNECTION;
+import static minecraft.common.world.block.RedstoneWireBlock.POWER;
+import static minecraft.common.world.block.RedstoneWireBlock.SOUTH_CONNECTION;
+import static minecraft.common.world.block.RedstoneWireBlock.WEST_CONNECTION;
+
 import minecraft.client.graphic.ITextureRegion;
 import minecraft.client.graphic.tessellator.VertexAttribBuilder;
 import minecraft.common.util.ColorUtil;
 import minecraft.common.world.Axis;
 import minecraft.common.world.Direction;
-import minecraft.common.world.World;
+import minecraft.common.world.IClientWorld;
 import minecraft.common.world.block.IBlockPosition;
 import minecraft.common.world.block.WireConnection;
 import minecraft.common.world.block.state.IBlockState;
-
-import static minecraft.common.world.block.RedstoneWireBlock.*;
 
 public class WireBlockModel extends AbstractBlockModel {
 
@@ -52,12 +57,12 @@ public class WireBlockModel extends AbstractBlockModel {
 		return ColorUtil.pack(r, g, b);
 	}
 	
-	private int getWireColor(World world, IBlockPosition pos, IBlockState state) {
+	private int getWireColor(IClientWorld world, IBlockPosition pos, IBlockState state) {
 		return wireColorTable[POWER.getValueIndex(state.get(POWER))];
 	}
 
 	@Override
-	public void tessellate(World world, IBlockPosition pos, IBlockState state, VertexAttribBuilder builder) {
+	public void tessellate(IClientWorld world, IBlockPosition pos, IBlockState state, VertexAttribBuilder builder) {
 		int color = getWireColor(world, pos, state);
 		float lightness = getLightness(world, pos);
 		

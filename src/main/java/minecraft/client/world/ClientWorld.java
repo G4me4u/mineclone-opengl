@@ -72,6 +72,7 @@ public class ClientWorld extends ServerWorld implements IClientWorld {
 		player.update();
 	}
 
+	@Override
 	public PlayerEntity getPlayer() {
 		return player;
 	}

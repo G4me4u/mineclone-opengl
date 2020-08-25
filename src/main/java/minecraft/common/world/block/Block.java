@@ -14,7 +14,6 @@ import minecraft.common.world.IServerWorld;
 import minecraft.common.world.IWorld;
 import minecraft.common.world.block.state.BlockState;
 import minecraft.common.world.block.state.IBlockState;
-import minecraft.server.world.ServerWorld;
 
 public class Block {
 
@@ -49,12 +48,12 @@ public class Block {
 	
 	public void onBlockAdded(IServerWorld world, IBlockPosition pos, IBlockState state) {
 		if (!state.isOf(Blocks.AIR_BLOCK))
-			world.updateNeighbors(pos, ServerWorld.COMMON_UPDATE_FLAGS);
+			world.updateNeighbors(pos, IServerWorld.COMMON_UPDATE_FLAGS);
 	}
 	
 	public void onBlockRemoved(IServerWorld world, IBlockPosition pos, IBlockState state) {
 		if (!state.isOf(Blocks.AIR_BLOCK))
-			world.updateNeighbors(pos, ServerWorld.COMMON_UPDATE_FLAGS);
+			world.updateNeighbors(pos, IServerWorld.COMMON_UPDATE_FLAGS);
 	}
 	
 	public void onStateChanged(IServerWorld world, IBlockPosition pos, IBlockState oldState, IBlockState newState) {

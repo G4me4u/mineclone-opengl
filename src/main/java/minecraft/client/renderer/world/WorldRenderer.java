@@ -11,18 +11,18 @@ import minecraft.client.graphic.opengl.VertexArray;
 import minecraft.client.graphic.opengl.VertexBuffer;
 import minecraft.client.graphic.tessellator.Color;
 import minecraft.client.graphic.tessellator.VertexAttribBuilder;
-import minecraft.client.world.ClientWorld;
 import minecraft.common.IResource;
 import minecraft.common.math.ViewFrustum;
-import minecraft.common.world.World;
+import minecraft.common.world.IClientWorld;
+import minecraft.common.world.IWorld;
 import minecraft.common.world.WorldChunk;
 import minecraft.common.world.block.IBlockPosition;
 import minecraft.common.world.entity.PlayerEntity;
 
 public class WorldRenderer implements IResource {
 
-	private static final int CHUNKS_Y = World.WORLD_HEIGHT / WorldChunk.CHUNK_SIZE;
-	private static final int NUM_VIEW_CHUNKS = World.CHUNKS_X * CHUNKS_Y * World.CHUNKS_Z;
+	private static final int CHUNKS_Y = IWorld.WORLD_HEIGHT / WorldChunk.CHUNK_SIZE;
+	private static final int NUM_VIEW_CHUNKS = IWorld.CHUNKS_X * CHUNKS_Y * IWorld.CHUNKS_Z;
 	
 	private static final float CHUNK_SPHERE_RADIUS = (float)(Math.sqrt(3.0) * 0.5 * WorldChunk.CHUNK_SIZE);
 	
@@ -32,11 +32,11 @@ public class WorldRenderer implements IResource {
 	
 	public static final Color SKY_COLOR = Color.LIGHT_SKY_BLUE;
 
-	private static final float FOG_DENSITY = 2.0f / (World.CHUNKS_X * WorldChunk.CHUNK_SIZE);
+	private static final float FOG_DENSITY = 2.0f / (IWorld.CHUNKS_X * WorldChunk.CHUNK_SIZE);
 	private static final float FOG_GRADIENT = 5.0f;
 	public static final Color FOG_COLOR = SKY_COLOR;
 	
-	private final ClientWorld world;
+	private final IClientWorld world;
 	
 	private final WorldCamera camera;
 	private final WorldShader worldShader;
@@ -52,7 +52,7 @@ public class WorldRenderer implements IResource {
 	
 	private final BlockSelectionRenderer selectionRenderer;
 	
-	public WorldRenderer(ClientWorld world) {
+	public WorldRenderer(IClientWorld world) {
 		this.world = world;
 		
 		camera = new WorldCamera();
@@ -74,9 +74,9 @@ public class WorldRenderer implements IResource {
 		visibilityGraph = new int[NUM_VIEW_CHUNKS + 1];
 		
 		int index = 0;
-		for (int chunkZ = 0; chunkZ < World.CHUNKS_Z; chunkZ++) {
+		for (int chunkZ = 0; chunkZ < IWorld.CHUNKS_Z; chunkZ++) {
 			for (int chunkY = 0; chunkY < CHUNKS_Y; chunkY++) {
-				for (int chunkX = 0; chunkX < World.CHUNKS_X; chunkX++) {
+				for (int chunkX = 0; chunkX < IWorld.CHUNKS_X; chunkX++) {
 					chunks[index++] = new ViewChunk(this, chunkX, chunkY, chunkZ);
 				}
 			}
@@ -164,11 +164,11 @@ public class WorldRenderer implements IResource {
 	}
 
 	public void markChunksDirty(int chunkX0, int chunkY0, int chunkZ0, int chunkX1, int chunkY1, int chunkZ1) {
-		if (chunkX1 < 0 || chunkX0 >= World.CHUNKS_X)
+		if (chunkX1 < 0 || chunkX0 >= IWorld.CHUNKS_X)
 			return;
 		if (chunkY1 < 0 || chunkY0 >= CHUNKS_Y)
 			return;
-		if (chunkZ1 < 0 || chunkZ0 >= World.CHUNKS_Z)
+		if (chunkZ1 < 0 || chunkZ0 >= IWorld.CHUNKS_Z)
 			return;
 		
 		for (int chunkX = chunkX0; chunkX <= chunkX1; chunkX++) {
@@ -181,14 +181,14 @@ public class WorldRenderer implements IResource {
 	}
 	
 	public void markChunkDirty(int chunkX, int chunkY, int chunkZ) {
-		if (chunkX < 0 || chunkX >= World.CHUNKS_X)
+		if (chunkX < 0 || chunkX >= IWorld.CHUNKS_X)
 			return;
 		if (chunkY < 0 || chunkY >= CHUNKS_Y)
 			return;
-		if (chunkZ < 0 || chunkZ >= World.CHUNKS_Z)
+		if (chunkZ < 0 || chunkZ >= IWorld.CHUNKS_Z)
 			return;
 		
-		chunks[chunkX + (chunkY + chunkZ * CHUNKS_Y) * World.CHUNKS_X].markDirty();
+		chunks[chunkX + (chunkY + chunkZ * CHUNKS_Y) * IWorld.CHUNKS_X].markDirty();
 	}
 	
 	public void update() {
@@ -260,7 +260,7 @@ public class WorldRenderer implements IResource {
 		}
 	}
 	
-	public ClientWorld getWorld() {
+	public IClientWorld getWorld() {
 		return world;
 	}
 

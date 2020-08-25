@@ -23,7 +23,7 @@ public class WorldChunk {
 		this.chunkX = chunkX;
 		this.chunkZ = chunkZ;
 		
-		blocks = new IBlockState[CHUNK_SIZE * CHUNK_SIZE * World.WORLD_HEIGHT];
+		blocks = new IBlockState[CHUNK_SIZE * CHUNK_SIZE * IWorld.WORLD_HEIGHT];
 		heights = new int[CHUNK_SIZE * CHUNK_SIZE];
 		
 		randomUpdateCount = 0;
@@ -57,7 +57,7 @@ public class WorldChunk {
 	}
 	
 	private int getBlockIndex(int x, int y, int z) {
-		if (y < 0 || y >= World.WORLD_HEIGHT)
+		if (y < 0 || y >= IWorld.WORLD_HEIGHT)
 			return -1;
 			
 		int cx = x - chunkX * CHUNK_SIZE;
@@ -67,7 +67,7 @@ public class WorldChunk {
 		if (cz < 0 || cz >= CHUNK_SIZE)
 			return -1;
 
-		return cx + (y + cz * World.WORLD_HEIGHT) * CHUNK_SIZE;
+		return cx + (y + cz * IWorld.WORLD_HEIGHT) * CHUNK_SIZE;
 	}
 	
 	private int getHeightIndex(int x, int z) {

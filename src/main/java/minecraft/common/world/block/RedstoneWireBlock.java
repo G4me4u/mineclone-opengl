@@ -65,6 +65,8 @@ public class RedstoneWireBlock extends Block {
 			for (Direction horizontal : Direction.HORIZONTAL)
 				world.updateNeighbor(vpos.offset(horizontal), horizontal.getOpposite(), state, IServerWorld.STATE_UPDATE_FLAG);
 		}
+		
+		handler.updateWireNetwork(world, pos, state);
 	}
 	
 	@Override

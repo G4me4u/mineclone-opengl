@@ -87,15 +87,17 @@ public class WireHandler {
 		nodeCount = 0;
 
 		int oldPower = sState.get(POWER);
+
+		// External power does not include the power from wires of the
+		// network, so in case the wire is in an invalid state within
+		// its own network, we still have to update it.
+		int expectedPower = Math.max(findEdgePowerFromWires(world, sPos, sState), sExternalPower);
 		
-		// External power does not include the power from wires outside of
-		// the network. But in the case where the update originated from
-		// such a wire, it is that wire's job to update the network.
-		if (oldPower != sExternalPower) {
+		if (oldPower != expectedPower) {
 			WireNode sourceNode = addNode(sPos, sState, sDir, 0);
 
 			// Since depth is zero based, we should subtract 1.
-			int maxDepth = Math.max(oldPower, sExternalPower) - 1;
+			int maxDepth = Math.max(oldPower, expectedPower) - 1;
 			int nodeIndex = 0;
 
 			for (int d = 1; d <= maxDepth && nodeIndex < nodeCount; d++) {
@@ -291,12 +293,7 @@ public class WireHandler {
 		int outsidePower = 0;
 
 		if (node.depth >= maxDepth) {
-			for (Direction dir : Direction.HORIZONTAL) {
-				int power = findEdgePowerFromWire(world, node, dir);
-				
-				if (power > outsidePower)
-					outsidePower = power;
-			}
+			outsidePower = findEdgePowerFromWires(world, node.pos, node.state);
 		} else if (node.wireDirectionFlags != 0) {
 			IBlockPosition downPos = node.pos.down();
 			
@@ -312,12 +309,25 @@ public class WireHandler {
 
 		return outsidePower;
 	}
+
+	private int findEdgePowerFromWires(IServerWorld world, IBlockPosition pos, IBlockState state) {
+		int outsidePower = 0;
+		
+		for (Direction dir : Direction.HORIZONTAL) {
+			int power = findEdgePowerFromWire(world, pos, state, dir);
+			
+			if (power > outsidePower)
+				outsidePower = power;
+		}
+		
+		return outsidePower;
+	}
 	
-	private int findEdgePowerFromWire(IServerWorld world, WireNode node, Direction dir) {
-		WireConnection connection = node.state.get(CONNECTIONS.get(dir));
+	private int findEdgePowerFromWire(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir) {
+		WireConnection connection = state.get(CONNECTIONS.get(dir));
 		
 		if (connection != WireConnection.NONE) {
-			IBlockPosition sidePos = node.pos.offset(dir);
+			IBlockPosition sidePos = pos.offset(dir);
 		
 			if (connection == WireConnection.UP) {
 				return getPowerFromWireAt(world, sidePos.up());

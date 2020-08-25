@@ -138,11 +138,11 @@ public class ServerWorld extends World implements IServerWorld {
 	public void updateNeighbors(IBlockPosition pos, int flags) {
 		IBlockState fromState = getBlockState(pos);
 		
-		if ((flags & BLOCK_UPDATE_FLAG) != 0)
-			dispatchBlockUpdates(pos, fromState);
-		
 		if ((flags & STATE_UPDATE_FLAG) != 0)
 			dispatchStateUpdates(pos, fromState);
+
+		if ((flags & BLOCK_UPDATE_FLAG) != 0)
+			dispatchBlockUpdates(pos, fromState);
 		
 		if ((flags & INVENTORY_UPDATE_FLAG) != 0)
 			dispatchInventoryUpdates(pos, fromState);
@@ -165,11 +165,11 @@ public class ServerWorld extends World implements IServerWorld {
 	
 	@Override
 	public void updateNeighbor(IBlockPosition pos, Direction fromDir, IBlockState fromState, int updateFlags) {
-		if ((updateFlags & BLOCK_UPDATE_FLAG) != 0)
-			dispatchBlockUpdate(pos, fromDir, fromState);
-		
 		if ((updateFlags & STATE_UPDATE_FLAG) != 0)
 			dispatchStateUpdate(pos, fromDir, fromState);
+
+		if ((updateFlags & BLOCK_UPDATE_FLAG) != 0)
+			dispatchBlockUpdate(pos, fromDir, fromState);
 
 		if ((updateFlags & INVENTORY_UPDATE_FLAG) != 0)
 			dispatchInventoryUpdate(pos, fromDir, fromState);

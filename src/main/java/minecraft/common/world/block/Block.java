@@ -133,10 +133,6 @@ public class Block {
 		return 0;
 	}
 	
-	private void setName(String name) {
-		this.name = name;
-	}
-	
 	public final String getName() {
 		return name;
 	}
@@ -173,7 +169,7 @@ public class Block {
 	private static void registerBlock(String name, Block block) {
 		blockRegistry.register(name, block);
 		
-		block.setName(name);
+		block.name = name;
 	}
 	
 	public static Block getBlock(String name) {

@@ -35,9 +35,13 @@ public class RedstoneWireBlock extends Block {
 		CONNECTIONS.put(Direction.EAST , EAST_CONNECTION);
 	}
 	
-	private final IBlockModel model;
+	private final WireHandler handler;
 	
+	private final IBlockModel model;
+
 	public RedstoneWireBlock() {
+		handler = new WireHandler(this);
+
 		model = new WireBlockModel(BlockTextures.WIRE_CROSS_TEXTURE, 
 		                           BlockTextures.WIRE_VLINE_TEXTURE,
 		                           BlockTextures.WIRE_HLINE_TEXTURE);
@@ -82,26 +86,7 @@ public class RedstoneWireBlock extends Block {
 	
 	@Override
 	public void onBlockUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction fromDir, IBlockState fromState) {
-		int power = state.get(POWER);
-		int sourcePower = world.getPowerFrom(pos, fromDir, IServerWorld.STRONG_POWER_FLAGS);
-		
-		if (power != sourcePower) {
-			WireHandler wireHandler;
-			if (sourcePower > power) {
-				//wireHandler = new WireHandler(world, state, pos, power, sourcePower);
-			} else {
-				int otherPower = world.getPowerExceptFrom(pos, fromDir, IServerWorld.STRONG_POWER_FLAGS);
-				int powerReceived = sourcePower > otherPower ? sourcePower : otherPower;
-				
-				if (powerReceived == power) {
-					return;
-				}
-				
-				//wireHandler = new WireHandler(world, state, pos, power, powerReceived);
-			}
-			
-			//wireHandler.setPowerLevels();
-		}
+		handler.updateWireNetworkFrom(world, pos, state, fromDir);
 	}
 	
 	@Override

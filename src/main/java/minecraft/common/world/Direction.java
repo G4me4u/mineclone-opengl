@@ -18,6 +18,10 @@ public enum Direction implements IIndexedValue {
 	public static final Direction[] HORIZONTAL;
 	public static final Direction[] VERTICAL;
 	
+	public static final int DIRECTIONS_FLAGS;
+	public static final int HORIZONTAL_FLAGS;
+	public static final int VERTICAL_FLAGS;
+	
 	static {
 		DIRECTIONS = new Direction[values().length];
 		for (Direction dir : values())
@@ -30,6 +34,17 @@ public enum Direction implements IIndexedValue {
 		VERTICAL = Arrays.stream(DIRECTIONS)
 				.filter(Direction::isVertical)
 				.toArray(Direction[]::new);
+
+		DIRECTIONS_FLAGS = getFlags(DIRECTIONS);
+		HORIZONTAL_FLAGS = getFlags(HORIZONTAL);
+		VERTICAL_FLAGS   = getFlags(VERTICAL);
+	}
+	
+	private static int getFlags(Direction[] directions) {
+		int flags = 0;
+		for (Direction dir : directions)
+			flags |= dir.getFlag();
+		return flags;
 	}
 	
 	private final String name;
@@ -44,6 +59,8 @@ public enum Direction implements IIndexedValue {
 	private final int offsetY;
 	private final int offsetZ;
 	
+	private final int flag;
+	
 	private Direction(String name, int index, int oppositeIndex, int cwIndex, int ccwIndex, Axis axis, int offset) {
 		this.name = name;
 		this.index = index;
@@ -56,6 +73,8 @@ public enum Direction implements IIndexedValue {
 		this.offsetX = (axis == Axis.X) ? offset : 0;
 		this.offsetY = (axis == Axis.Y) ? offset : 0;
 		this.offsetZ = (axis == Axis.Z) ? offset : 0;
+	
+		this.flag = 1 << index;
 	}
 
 	public String getName() {
@@ -93,6 +112,10 @@ public enum Direction implements IIndexedValue {
 	
 	public int getOffsetZ() {
 		return offsetZ;
+	}
+	
+	public int getFlag() {
+		return flag;
 	}
 	
 	public boolean isHorizontal() {

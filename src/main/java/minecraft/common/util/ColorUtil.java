@@ -26,8 +26,20 @@ public final class ColorUtil {
 		return argb & 0xFF;
 	}
 
+	public static int pack(int r, int g, int b) {
+		return 0xFF000000 | (r << 16) | (g << 8) | b;
+	}
+
 	public static int pack(int a, int r, int g, int b) {
 		return (a << 24) | (r << 16) | (g << 8) | b;
+	}
+
+	public static int pack(float r, float g, float b) {
+		return pack(deNormalize(r), deNormalize(g), deNormalize(b));
+	}
+	
+	public static int pack(float a, float r, float g, float b) {
+		return pack(deNormalize(a), deNormalize(r), deNormalize(g), deNormalize(b));
 	}
 
 	public static void checkA(int a) {

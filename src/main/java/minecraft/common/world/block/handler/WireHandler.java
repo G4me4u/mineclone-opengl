@@ -93,11 +93,12 @@ public class WireHandler {
 		// such a wire, it is that wire's job to update the network.
 		if (oldPower != sExternalPower) {
 			WireNode sourceNode = addNode(sPos, sState, sDir, 0);
-			
-			int nodeIndex = 0;
-			int maxDepth = Math.max(oldPower, sExternalPower);
 
-			for (int d = 1; d < maxDepth && nodeIndex < nodeCount; d++) {
+			// Since depth is zero based, we should subtract 1.
+			int maxDepth = Math.max(oldPower, sExternalPower) - 1;
+			int nodeIndex = 0;
+
+			for (int d = 1; d <= maxDepth && nodeIndex < nodeCount; d++) {
 				int prevBreathEnd = nodeCount;
 				
 				while (nodeIndex < prevBreathEnd)

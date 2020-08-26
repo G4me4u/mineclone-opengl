@@ -59,10 +59,10 @@ public class Block {
 	public void onStateChanged(IServerWorld world, IBlockPosition pos, IBlockState oldState, IBlockState newState) {
 	}
 	
-	public void onBlockUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction fromDir, IBlockState fromState) {
-	}
-	
 	public void onStateUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction fromDir, IBlockState fromState) {
+	}
+
+	public void onBlockUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction fromDir, IBlockState fromState) {
 	}
 	
 	public void onInventoryUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction fromDir, IBlockState fromState) {

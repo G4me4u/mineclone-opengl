@@ -19,12 +19,12 @@ public interface IBlockState {
 		return getBlock().getPlacementState(world, pos, this);
 	}
 	
-	default public void onBlockUpdate(IServerWorld world, IBlockPosition pos, Direction fromDir, IBlockState fromState) {
-		getBlock().onBlockUpdate(world, pos, this, fromDir, fromState);
-	}
-	
 	default public void onStateUpdate(IServerWorld world, IBlockPosition pos, Direction fromDir, IBlockState fromState) {
 		getBlock().onStateUpdate(world, pos, this, fromDir, fromState);
+	}
+	
+	default public void onBlockUpdate(IServerWorld world, IBlockPosition pos, Direction fromDir, IBlockState fromState) {
+		getBlock().onBlockUpdate(world, pos, this, fromDir, fromState);
 	}
 	
 	default public void onInventoryUpdate(IServerWorld world, IBlockPosition pos, Direction fromDir, IBlockState fromState) {

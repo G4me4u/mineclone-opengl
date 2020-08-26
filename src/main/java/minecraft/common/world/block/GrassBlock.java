@@ -30,7 +30,7 @@ public class GrassBlock extends Block {
 	}
 	
 	@Override
-	public void onBlockUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction fromDir, IBlockState fromState) {
+	public void onStateUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction fromDir, IBlockState fromState) {
 		if (fromDir == Direction.UP && !isValidGrassCondition(world, pos))
 			world.setBlock(pos, Blocks.DIRT_BLOCK, true);
 	}

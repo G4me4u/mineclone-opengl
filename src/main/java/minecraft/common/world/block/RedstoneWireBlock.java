@@ -87,11 +87,6 @@ public class RedstoneWireBlock extends Block {
 	}
 	
 	@Override
-	public void onBlockUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction fromDir, IBlockState fromState) {
-		handler.updateWireNetworkFrom(world, pos, state, fromDir);
-	}
-	
-	@Override
 	public void onStateUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction fromDir, IBlockState fromState) {
 		IBlockState newState = state;
 		
@@ -121,6 +116,11 @@ public class RedstoneWireBlock extends Block {
 
 		if (state != newState)
 			world.setBlockState(pos, newState, true);
+	}
+	
+	@Override
+	public void onBlockUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction fromDir, IBlockState fromState) {
+		handler.updateWireNetworkFrom(world, pos, state, fromDir);
 	}
 	
 	@Override

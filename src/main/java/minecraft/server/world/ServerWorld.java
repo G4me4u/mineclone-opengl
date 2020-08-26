@@ -148,16 +148,16 @@ public class ServerWorld extends World implements IServerWorld {
 			dispatchInventoryUpdates(pos, fromState);
 	}
 	
-	private void dispatchBlockUpdates(IBlockPosition pos, IBlockState fromState) {
-		for (Direction dir : Direction.DIRECTIONS)
-			dispatchBlockUpdate(pos.offset(dir), dir.getOpposite(), fromState);
-	}
-	
 	private void dispatchStateUpdates(IBlockPosition pos, IBlockState fromState) {
 		for (Direction dir : Direction.DIRECTIONS)
 			dispatchStateUpdate(pos.offset(dir), dir.getOpposite(), fromState);
 	}
 	
+	private void dispatchBlockUpdates(IBlockPosition pos, IBlockState fromState) {
+		for (Direction dir : Direction.DIRECTIONS)
+			dispatchBlockUpdate(pos.offset(dir), dir.getOpposite(), fromState);
+	}
+
 	private void dispatchInventoryUpdates(IBlockPosition pos, IBlockState fromState) {
 		for (Direction dir : Direction.DIRECTIONS)
 			dispatchInventoryUpdate(pos.offset(dir), dir.getOpposite(), fromState);
@@ -175,12 +175,12 @@ public class ServerWorld extends World implements IServerWorld {
 			dispatchInventoryUpdate(pos, fromDir, fromState);
 	}
 	
-	private void dispatchBlockUpdate(IBlockPosition pos, Direction fromDir, IBlockState fromState) {
-		getBlockState(pos).onBlockUpdate(this, pos, fromDir, fromState);
-	}
-
 	private void dispatchStateUpdate(IBlockPosition pos, Direction fromDir, IBlockState fromState) {
 		getBlockState(pos).onStateUpdate(this, pos, fromDir, fromState);
+	}
+
+	private void dispatchBlockUpdate(IBlockPosition pos, Direction fromDir, IBlockState fromState) {
+		getBlockState(pos).onBlockUpdate(this, pos, fromDir, fromState);
 	}
 	
 	private void dispatchInventoryUpdate(IBlockPosition pos, Direction fromDir, IBlockState fromState) {

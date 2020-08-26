@@ -17,8 +17,9 @@ import mineclone.common.world.block.state.IBlockState;
 public class WireHandler {
 	
 	private static final int MAX_WIRE_CONNECTIONS = 8;
-	
 	private static final int INITIAL_CAPACITY = 64;
+	
+	private static final int EXTERNAL_POWER_FLAGS = IServerWorld.STRONG_POWER_FLAGS;
 	
 	private final Block wireBlock;
 
@@ -54,46 +55,48 @@ public class WireHandler {
 		nodes = newNodes;
 	}
 
-	public void updateWireNetworkFrom(IServerWorld world, IBlockPosition pos, IBlockState state, Direction fromDir) {
-		int externalPower = world.getPowerFrom(pos, fromDir, IServerWorld.STRONG_POWER_FLAGS);
+	public void updateNetworkFrom(IServerWorld world, IBlockPosition pos, IBlockState state, Direction fromDir) {
+		int externalPower = world.getPowerFrom(pos, fromDir, EXTERNAL_POWER_FLAGS);
 		
 		if (externalPower < state.get(POWER)) {
-			int otherPower = world.getPowerExceptFrom(pos, fromDir, IServerWorld.STRONG_POWER_FLAGS);
+			int otherPower = world.getPowerExceptFrom(pos, fromDir, EXTERNAL_POWER_FLAGS);
 
 			if (otherPower > externalPower)
 				externalPower = otherPower;
 		}
 		
 		Direction sourceDir = fromDir.isHorizontal() ? fromDir.getOpposite() : Direction.HORIZONTAL[0];
-		buildAndUpdateGraph(world, pos, state, sourceDir, externalPower);
+		buildAndUpdateNetwork(world, pos, state, sourceDir, externalPower);
 	}
 	
-	public void updateWireNetwork(IServerWorld world, IBlockPosition pos, IBlockState state) {
-		int externalPower = world.getPower(pos, IServerWorld.STRONG_POWER_FLAGS);
-		buildAndUpdateGraph(world, pos, state, Direction.HORIZONTAL[0], externalPower);
+	public void updateNetwork(IServerWorld world, IBlockPosition pos, IBlockState state) {
+		Direction sourceDir = Direction.HORIZONTAL[0];
+		int externalPower = world.getPower(pos, EXTERNAL_POWER_FLAGS);
+		
+		buildAndUpdateNetwork(world, pos, state, sourceDir, externalPower);
 	}
 	
-	private void buildAndUpdateGraph(IServerWorld world, IBlockPosition pos, IBlockState state, Direction sourceDir, int externalPower) {
-		buildGraph(world, pos, state, sourceDir, externalPower);
+	private void buildAndUpdateNetwork(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir, int externalPower) {
+		buildNetwork(world, pos, state, dir, externalPower);
 		
 		if (nodeCount != 0) {
-			replaceGraphStates(world);
+			replaceNetworkStates(world);
 			
 			// TODO: implement updates.
 		}
 	}
 	
-	private void buildGraph(IServerWorld world, IBlockPosition sPos, IBlockState sState, Direction sDir, int sExternalPower) {
+	private void buildNetwork(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir, int externalPower) {
 		nodeCount = 0;
 
-		int oldPower = sState.get(POWER);
+		int oldPower = state.get(POWER);
 
 		// External power does not include the power from wires of the network,
 		// so also update it if it has an invalid state in its network.
-		int expectedPower = Math.max(findEdgePowerFromWires(world, sPos, sState), sExternalPower);
+		int expectedPower = Math.max(findWirePower(world, pos, state), externalPower);
 		
 		if (oldPower != expectedPower) {
-			WireNode sourceNode = addNode(sPos, sState, sDir, 0);
+			WireNode sourceNode = addNode(pos, state, dir, 0);
 
 			// Since depth is zero based, we should subtract 1.
 			int maxDepth = Math.max(oldPower, expectedPower) - 1;
@@ -108,13 +111,13 @@ public class WireHandler {
 					findConnections(world, nodes[nodeIndex++], (d != maxDepth));
 			}
 
-			int outsidePower = findPowerFromWire(world, sourceNode, maxDepth);
-			int sourcePower = Math.max(outsidePower, sExternalPower);
+			int wirePower = findWirePower(world, sourceNode, maxDepth);
+			int sourcePower = Math.max(wirePower, externalPower);
 			
 			if (sourcePower > oldPower) {
 				increaseAndRelaxSourcePower(world, maxDepth, sourcePower);
 			} else {
-				findAndRelaxGraphPower(world, maxDepth, sourcePower);
+				findAndRelaxNetworkPower(world, maxDepth, sourcePower);
 			}
 
 			positionToNode.clear();
@@ -137,7 +140,7 @@ public class WireHandler {
 			IBlockPosition sidePos = node.pos.offset(dir);
 		
 			if (connection != WireConnection.UP) {
-				// If the side wire is already part of the graph, 
+				// If the side wire is already part of the network, 
 				// we can skip this direction check entirely.
 				WireNode sideNode = positionToNode.get(sidePos);
 				
@@ -159,7 +162,7 @@ public class WireHandler {
 					IBlockState belowState = getBelowState(world, node);
 
 					if (belowState.isAligned(dir)) {
-						tryAddNodeAt(world, node, sidePos.down(), dir, allowNewNodes);
+						tryAddNodeFrom(world, node, sidePos.down(), dir, allowNewNodes);
 					} else {
 						node.wireDirectionFlags |= dir.getFlag();
 					}
@@ -169,7 +172,7 @@ public class WireHandler {
 			IBlockState aboveState = getAboveState(world, node);
 			
 			if (!aboveState.isAligned(Direction.DOWN) && !aboveState.isAligned(dir))
-				tryAddNodeAt(world, node, sidePos.up(), dir, allowNewNodes);
+				tryAddNodeFrom(world, node, sidePos.up(), dir, allowNewNodes);
 		}
 	}
 	
@@ -185,7 +188,7 @@ public class WireHandler {
 		return node.aboveState;
 	}
 
-	private void tryAddNodeAt(IServerWorld world, WireNode source, IBlockPosition pos, Direction dir, boolean allowNewNodes) {
+	private void tryAddNodeFrom(IServerWorld world, WireNode source, IBlockPosition pos, Direction dir, boolean allowNewNodes) {
 		WireNode node = positionToNode.get(pos);
 		
 		if (node != null) {
@@ -246,7 +249,7 @@ public class WireHandler {
 		}
 	}
 	
-	private void findAndRelaxGraphPower(IServerWorld world, int maxDepth, int sourcePower) {
+	private void findAndRelaxNetworkPower(IServerWorld world, int maxDepth, int sourcePower) {
 		if (sourcePower != 0) {
 			WireNode sourceNode = nodes[0];
 			sourceNode.power = sourcePower;
@@ -257,19 +260,19 @@ public class WireHandler {
 		for (int i = 1; i < nodeCount; i++) {
 			WireNode node = nodes[i];
 			
-			int externalPower = world.getPower(node.pos, IServerWorld.STRONG_POWER_FLAGS);
-			int outsidePower = findPowerFromWire(world, node, maxDepth);
+			int externalPower = world.getPower(node.pos, EXTERNAL_POWER_FLAGS);
+			int wirePower = findWirePower(world, node, maxDepth);
 			
-			node.power = Math.max(externalPower, outsidePower);
+			node.power = Math.max(externalPower, wirePower);
 			
 			if (node.power != 0)
 				powerNodes.add(node);
 		}
 		
-		relaxGraphPower();
+		relaxNetworkPower();
 	}
 	
-	private void relaxGraphPower() {
+	private void relaxNetworkPower() {
 		WireNode node;
 		
 		while ((node = powerNodes.poll()) != null) {
@@ -292,41 +295,42 @@ public class WireHandler {
 		}
 	}
 	
-	private int findPowerFromWire(IServerWorld world, WireNode node, int maxDepth) {
-		int outsidePower = 0;
-
+	private int findWirePower(IServerWorld world, WireNode node, int maxDepth) {
 		if (node.depth >= maxDepth) {
-			outsidePower = findEdgePowerFromWires(world, node.pos, node.state);
+			return findWirePower(world, node.pos, node.state);
 		} else if (node.wireDirectionFlags != 0) {
+			int wirePower = 0;
 			IBlockPosition downPos = node.pos.down();
 			
 			for (Direction dir : Direction.HORIZONTAL) {
 				if ((node.wireDirectionFlags & dir.getFlag()) != 0) {
 					int power = getPowerFromWireAt(world, downPos.offset(dir));
 					
-					if (power > outsidePower)
-						outsidePower = power;
+					if (power > wirePower)
+						wirePower = power;
 				}
 			}
+			
+			return wirePower;
 		}
 
-		return outsidePower;
+		return 0;
 	}
 
-	private int findEdgePowerFromWires(IServerWorld world, IBlockPosition pos, IBlockState state) {
-		int outsidePower = 0;
+	private int findWirePower(IServerWorld world, IBlockPosition pos, IBlockState state) {
+		int wirePower = 0;
 		
 		for (Direction dir : Direction.HORIZONTAL) {
-			int power = findEdgePowerFromWire(world, pos, state, dir);
+			int power = findWirePowerFrom(world, pos, state, dir);
 			
-			if (power > outsidePower)
-				outsidePower = power;
+			if (power > wirePower)
+				wirePower = power;
 		}
 		
-		return outsidePower;
+		return wirePower;
 	}
 	
-	private int findEdgePowerFromWire(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir) {
+	private int findWirePowerFrom(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir) {
 		WireConnection connection = state.get(CONNECTIONS.get(dir));
 		
 		if (connection != WireConnection.NONE) {
@@ -359,7 +363,7 @@ public class WireHandler {
 		return 0;
 	}
 	
-	private void replaceGraphStates(IServerWorld world) {
+	private void replaceNetworkStates(IServerWorld world) {
 		for (int i = 0; i < nodeCount; i++) {
 			WireNode node = nodes[i];
 			

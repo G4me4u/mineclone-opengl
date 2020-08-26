@@ -66,7 +66,7 @@ public class RedstoneWireBlock extends Block {
 				world.updateNeighbor(vpos.offset(horizontal), horizontal.getOpposite(), state, IServerWorld.STATE_UPDATE_FLAG);
 		}
 		
-		handler.updateWireNetwork(world, pos, state);
+		handler.updateNetwork(world, pos, state);
 	}
 	
 	@Override
@@ -120,7 +120,7 @@ public class RedstoneWireBlock extends Block {
 	
 	@Override
 	public void onBlockUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction fromDir, IBlockState fromState) {
-		handler.updateWireNetworkFrom(world, pos, state, fromDir);
+		handler.updateNetworkFrom(world, pos, state, fromDir);
 	}
 	
 	@Override

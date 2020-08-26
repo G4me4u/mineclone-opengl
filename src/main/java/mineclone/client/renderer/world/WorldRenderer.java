@@ -33,7 +33,7 @@ public class WorldRenderer implements IResource {
 	public static final Color SKY_COLOR = Color.LIGHT_SKY_BLUE;
 
 	private static final float FOG_DENSITY = 2.0f / (IWorld.CHUNKS_X * WorldChunk.CHUNK_SIZE);
-	private static final float FOG_GRADIENT = 5.0f;
+	private static final float FOG_GRADIENT = 10.0f;
 	public static final Color FOG_COLOR = SKY_COLOR;
 	
 	private final IClientWorld world;

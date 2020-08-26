@@ -30,6 +30,6 @@ public class WoodPlanksSlabBlock extends AbstractSlabBlock {
 	
 	@Override
 	protected IBlockState createDefaultState() {
-		return BlockState.createStateTree(this, TOP, WOOD_TYPE);
+		return BlockState.createStateTree(this, PLACEMENT, WOOD_TYPE);
 	}
 }

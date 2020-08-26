@@ -29,6 +29,6 @@ public class StoneSlabBlock extends AbstractSlabBlock {
 	
 	@Override
 	protected IBlockState createDefaultState() {
-		return BlockState.createStateTree(this, TOP, STONE_TYPE);
+		return BlockState.createStateTree(this, PLACEMENT, STONE_TYPE);
 	}
 }

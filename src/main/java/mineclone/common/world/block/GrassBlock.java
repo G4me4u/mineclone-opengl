@@ -55,7 +55,7 @@ public class GrassBlock extends Block {
 	}
 	
 	private boolean isValidGrassCondition(IWorld world, IBlockPosition pos) {
-		return !world.getBlock(pos.up()).isSolid();
+		return !world.getBlockState(pos.up()).isAligned(Direction.DOWN);
 	}
 	
 	@Override

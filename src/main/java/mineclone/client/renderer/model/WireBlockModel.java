@@ -19,7 +19,7 @@ import mineclone.common.world.block.state.IBlockState;
 
 public class WireBlockModel extends AbstractBlockModel {
 
-	private static final float WIRE_OFFSET = 0.0001f;
+	private static final float WIRE_OFFSET = 0.005f;
 	private static final float SIDE_CUT_OFFSET = 5.0f / 16.0f;
 	
 	private final ITextureRegion crossTexture;

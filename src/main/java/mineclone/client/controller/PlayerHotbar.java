@@ -2,6 +2,7 @@ package mineclone.client.controller;
 
 import mineclone.client.input.Keyboard;
 import mineclone.common.world.Blocks;
+import mineclone.common.world.block.SlabPlacement;
 import mineclone.common.world.block.StoneSlabBlock;
 import mineclone.common.world.block.StoneType;
 import mineclone.common.world.block.WoodPlanksBlock;
@@ -34,11 +35,11 @@ public class PlayerHotbar {
 		hotbarBlocks[8] = Blocks.REDSTONE_BLOCK.getDefaultState();
 		hotbarBlocks[9] = Blocks.REDSTONE_WIRE_BLOCK.getDefaultState();
 		
-		IBlockState stoneSlab = Blocks.STONE_SLAB_BLOCK.getDefaultState().with(StoneSlabBlock.TOP, true);
+		IBlockState stoneSlab = Blocks.STONE_SLAB_BLOCK.getDefaultState().with(StoneSlabBlock.PLACEMENT, SlabPlacement.TOP);
 		hotbarBlocks[10] = stoneSlab.with(StoneSlabBlock.STONE_TYPE, StoneType.STONE);
 		hotbarBlocks[11] = stoneSlab.with(StoneSlabBlock.STONE_TYPE, StoneType.COBBLESTONE);
 		
-		IBlockState planksSlab = Blocks.PLANKS_SLAB_BLOCK.getDefaultState();
+		IBlockState planksSlab = Blocks.PLANKS_SLAB_BLOCK.getDefaultState().with(StoneSlabBlock.PLACEMENT, SlabPlacement.BOTTOM);
 		hotbarBlocks[12] = planksSlab.with(WoodPlanksSlabBlock.WOOD_TYPE, WoodType.OAK);
 		hotbarBlocks[13] = planksSlab.with(WoodPlanksSlabBlock.WOOD_TYPE, WoodType.BIRCH);
 		hotbarBlocks[14] = planksSlab.with(WoodPlanksSlabBlock.WOOD_TYPE, WoodType.ACACIA);

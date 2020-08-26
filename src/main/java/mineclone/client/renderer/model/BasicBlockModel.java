@@ -9,9 +9,9 @@ import mineclone.common.world.block.state.IBlockState;
 
 public class BasicBlockModel extends AbstractBlockModel {
 
-	private final ITextureRegion topTexture;
-	private final ITextureRegion bottomTexture;
-	private final ITextureRegion sideTexture;
+	protected final ITextureRegion topTexture;
+	protected final ITextureRegion bottomTexture;
+	protected final ITextureRegion sideTexture;
 	
 	public BasicBlockModel(ITextureRegion texture) {
 		this(texture, texture, texture);

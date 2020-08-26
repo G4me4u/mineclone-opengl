@@ -76,5 +76,5 @@ eclipse {
 }
 
 application {
-    mainClassName = "minecraft.client.MinecraftClient"
+    mainClassName = "mineclone.client.MinecloneClient"
 }

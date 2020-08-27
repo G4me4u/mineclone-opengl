@@ -11,12 +11,12 @@ import mineclone.common.math.LinMath;
 import mineclone.common.math.Mat3;
 import mineclone.common.math.Vec3;
 import mineclone.common.world.BlockHitResult;
-import mineclone.common.world.Blocks;
 import mineclone.common.world.EntityHitbox;
 import mineclone.common.world.IServerWorld;
 import mineclone.common.world.IWorld;
 import mineclone.common.world.WorldChunk;
 import mineclone.common.world.block.Block;
+import mineclone.common.world.block.Blocks;
 import mineclone.common.world.block.IBlockPosition;
 import mineclone.common.world.block.state.IBlockState;
 

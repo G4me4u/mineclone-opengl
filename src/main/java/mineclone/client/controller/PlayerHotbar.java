@@ -1,7 +1,7 @@
 package mineclone.client.controller;
 
 import mineclone.client.input.Keyboard;
-import mineclone.common.world.Blocks;
+import mineclone.common.world.block.Blocks;
 import mineclone.common.world.block.SlabPlacement;
 import mineclone.common.world.block.StoneSlabBlock;
 import mineclone.common.world.block.StoneType;

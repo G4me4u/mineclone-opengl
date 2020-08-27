@@ -6,6 +6,7 @@ import java.util.Random;
 
 import mineclone.common.math.Vec3;
 import mineclone.common.world.block.Block;
+import mineclone.common.world.block.Blocks;
 import mineclone.common.world.block.IBlockPosition;
 import mineclone.common.world.block.MutableBlockPosition;
 import mineclone.common.world.block.state.IBlockState;

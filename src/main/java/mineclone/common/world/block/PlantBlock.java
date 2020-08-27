@@ -4,7 +4,6 @@ import mineclone.client.renderer.model.CropBlockModel;
 import mineclone.client.renderer.model.IBlockModel;
 import mineclone.client.renderer.model.PlantBlockModel;
 import mineclone.client.renderer.world.BlockTextures;
-import mineclone.common.world.Blocks;
 import mineclone.common.world.Direction;
 import mineclone.common.world.IServerWorld;
 import mineclone.common.world.IWorld;

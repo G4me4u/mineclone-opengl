@@ -1,13 +1,9 @@
 package mineclone.common.world.block;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Random;
 
 import mineclone.client.renderer.model.IBlockModel;
-import mineclone.client.renderer.world.BlockTextures;
-import mineclone.common.ReferenceRegsitry;
-import mineclone.common.world.Blocks;
 import mineclone.common.world.Direction;
 import mineclone.common.world.EntityHitbox;
 import mineclone.common.world.IServerWorld;
@@ -17,23 +13,8 @@ import mineclone.common.world.block.state.IBlockState;
 
 public class Block {
 
-	public static final String AIR_BLOCK_ID              = "air";
-	public static final String DIRT_BLOCK_ID             = "dirt";
-	public static final String GRASS_BLOCK_ID            = "grass";
-	public static final String PLANKS_BLOCK_ID           = "planks";
-	public static final String STONE_BLOCK_ID            = "stone";
-	public static final String COBBLESTONE_BLOCK_ID      = "cobblestone";
-	public static final String PLANT_BLOCK_ID            = "plant";
-	public static final String LEAVES_BLOCK_ID           = "leaves";
-	public static final String LOG_BLOCK_ID              = "log";
-	public static final String REDSTONE_WIRE_BLOCK_ID    = "redstone_wire";
-	public static final String REDSTONE_BLOCK_ID         = "redstone_block";
-	public static final String STONE_SLAB_BLOCK_ID       = "stone_slab";
-	public static final String PLANKS_SLAB_BLOCK_ID      = "planks_slab";
-	
-	private static ReferenceRegsitry<String, Block> blockRegistry = null;
-	
 	private String name;
+	
 	private final IBlockState defaultState;
 	
 	protected Block() {
@@ -132,6 +113,13 @@ public class Block {
 		
 		return 0;
 	}
+
+	void setName(String name) {
+		if (this.name != null)
+			throw new IllegalStateException("Name has already been set!");
+		
+		this.name = name;
+	}
 	
 	public final String getName() {
 		return name;
@@ -143,44 +131,5 @@ public class Block {
 	
 	public IBlockState getDefaultState() {
 		return defaultState;
-	}
-	
-	public static final void registerBlocks() {
-		if (blockRegistry != null)
-			throw new IllegalStateException("Already registered blocks!");
-		
-		blockRegistry = new ReferenceRegsitry<>();
-	
-		registerBlock(AIR_BLOCK_ID             , new Block());
-		registerBlock(DIRT_BLOCK_ID            , new DirtBlock());
-		registerBlock(GRASS_BLOCK_ID           , new GrassBlock());
-		registerBlock(PLANKS_BLOCK_ID          , new WoodPlanksBlock());
-		registerBlock(STONE_BLOCK_ID           , new BasicSolidBlock(BlockTextures.STONE_TEXTURE));
-		registerBlock(COBBLESTONE_BLOCK_ID     , new BasicSolidBlock(BlockTextures.COBBLESTONE_TEXTURE));
-		registerBlock(PLANT_BLOCK_ID           , new PlantBlock());
-		registerBlock(LEAVES_BLOCK_ID          , new LeavesBlock());
-		registerBlock(LOG_BLOCK_ID             , new WoodLogBlock());
-		registerBlock(REDSTONE_WIRE_BLOCK_ID   , new RedstoneWireBlock());
-		registerBlock(REDSTONE_BLOCK_ID        , new RedstoneBlock());
-		registerBlock(STONE_SLAB_BLOCK_ID      , new StoneSlabBlock());
-		registerBlock(PLANKS_SLAB_BLOCK_ID     , new WoodPlanksSlabBlock());
-	}
-	
-	private static void registerBlock(String name, Block block) {
-		blockRegistry.register(name, block);
-		
-		block.name = name;
-	}
-	
-	public static Block getBlock(String name) {
-		if (blockRegistry == null)
-			throw new IllegalStateException("Blocks are not yet registered!");
-		
-		Block block = blockRegistry.getElement(name);
-		
-		if (block == null)
-			throw new NoSuchElementException("Block '" + name + "' is not registered.");
-
-		return block;
 	}
 }

@@ -4,12 +4,12 @@ import java.util.List;
 import java.util.Random;
 
 import mineclone.client.renderer.model.IBlockModel;
-import mineclone.common.world.Blocks;
 import mineclone.common.world.Direction;
 import mineclone.common.world.EntityHitbox;
 import mineclone.common.world.IServerWorld;
 import mineclone.common.world.IWorld;
 import mineclone.common.world.block.Block;
+import mineclone.common.world.block.Blocks;
 import mineclone.common.world.block.IBlockPosition;
 import mineclone.common.world.block.MutableBlockPosition;
 

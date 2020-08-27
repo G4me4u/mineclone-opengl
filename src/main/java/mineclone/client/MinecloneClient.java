@@ -25,7 +25,6 @@ import mineclone.client.renderer.world.BlockTextures;
 import mineclone.client.renderer.world.WorldRenderer;
 import mineclone.client.world.ClientWorld;
 import mineclone.common.TickTimer;
-import mineclone.common.world.block.Block;
 
 public class MinecloneClient implements DisplayListener, IKeyboardListener {
 
@@ -63,8 +62,6 @@ public class MinecloneClient implements DisplayListener, IKeyboardListener {
 	}
 
 	private void init() {
-		Block.registerBlocks();
-		
 		controller = new PlayerController(display);
 
 		world = new ClientWorld(this);

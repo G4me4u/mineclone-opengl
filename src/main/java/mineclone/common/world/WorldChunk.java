@@ -3,6 +3,7 @@ package mineclone.common.world;
 import java.util.Arrays;
 import java.util.Random;
 
+import mineclone.common.world.block.Blocks;
 import mineclone.common.world.block.IBlockPosition;
 import mineclone.common.world.block.state.IBlockState;
 import mineclone.common.world.gen.DiamondNoise;

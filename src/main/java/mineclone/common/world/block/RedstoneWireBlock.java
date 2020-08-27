@@ -134,17 +134,18 @@ public class RedstoneWireBlock extends Block {
 	
 	@Override
 	public int getOutputPowerFlags(IBlockState state, Direction dir) {
-		if (dir == Direction.UP)
-			return IServerWorld.NO_FLAGS;
-		if (dir.isHorizontal() && state.get(CONNECTIONS.get(dir)) == WireConnection.NONE)
-			return IServerWorld.NO_FLAGS;
-
-		return IServerWorld.WEAK_POWER_FLAGS;
+		return canGivePowerTo(state, dir) ? IServerWorld.DIRECT_WEAK_POWER_FLAG : IServerWorld.NO_FLAGS;
 	}
 	
 	@Override
 	public int getPowerTo(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir, int powerFlags) {
-		return ((powerFlags & getOutputPowerFlags(state, dir)) != 0) ? state.get(POWER) : 0;
+		return ((powerFlags & IServerWorld.DIRECT_WEAK_POWER_FLAG) != 0 && canGivePowerTo(state, dir)) ? state.get(POWER) : 0;
+	}
+	
+	private boolean canGivePowerTo(IBlockState state, Direction dir) {
+		if (dir.isHorizontal())
+			return (state.get(CONNECTIONS.get(dir)) != WireConnection.NONE);
+		return (dir == Direction.DOWN);
 	}
 	
 	private boolean isWireSupported(IServerWorld world, IBlockPosition pos) {

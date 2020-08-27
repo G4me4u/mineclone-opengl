@@ -215,10 +215,7 @@ public class ServerWorld extends World implements IServerWorld {
 		IBlockPosition neighborPos = pos.offset(dir);
 		IBlockState state = getBlockState(neighborPos);
 	
-		if ((state.getOutputPowerFlags(dir) & powerFlags) != 0)
-			return state.getPowerTo(this, neighborPos, dir.getOpposite(), powerFlags);
-		
-		return 0;
+		return state.getPowerTo(this, neighborPos, dir.getOpposite(), powerFlags);
 	}
 	
 	@Override

@@ -104,7 +104,7 @@ public class Block {
 	}
 
 	public int getPowerTo(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir, int powerFlags) {
-		if (canPowerIndirectly(state, dir) && (powerFlags & IServerWorld.INDIRECT_POWER_FLAGS) != 0) {
+		if ((powerFlags & IServerWorld.INDIRECT_POWER_FLAGS) != 0 && canPowerIndirectly(state, dir)) {
 			if ((powerFlags & IServerWorld.INDIRECT_WEAK_POWER_FLAG) != 0)
 				return world.getPowerExceptFrom(pos, dir, IServerWorld.DIRECT_POWER_FLAGS);
 			

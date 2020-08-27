@@ -30,7 +30,7 @@ public class WorldRenderer implements IResource {
 	private static final float CAMERA_NEAR = 0.1f;
 	private static final float CAMERA_FAR = 1000.0f;
 	
-	public static final Color SKY_COLOR = Color.LIGHT_SKY_BLUE;
+	public static final Color SKY_COLOR = new Color(0xFF84A5FF);
 
 	private static final float FOG_DENSITY = 2.0f / (IWorld.CHUNKS_X * WorldChunk.CHUNK_SIZE);
 	private static final float FOG_GRADIENT = 10.0f;
@@ -41,7 +41,7 @@ public class WorldRenderer implements IResource {
 	private final WorldCamera camera;
 	private final WorldShader worldShader;
 	
-	private final BufferLayout bufferLayout;
+	private final VertexBufferPool bufferPool;
 	private final VertexArray vertexArray;
 	private final int bufferBindingIndex;
 	
@@ -58,13 +58,14 @@ public class WorldRenderer implements IResource {
 		camera = new WorldCamera();
 		worldShader = new WorldShader();
 		
-		bufferLayout = new BufferLayout(
+		BufferLayout bufferLayout = new BufferLayout(
 			new BufferAttrib("a_Position" , BufferAttribType.FLOAT3),
 			new BufferAttrib("a_TexCoords", BufferAttribType.FLOAT2),
 			new BufferAttrib("a_Color"    , BufferAttribType.FLOAT4, BufferDataType.UBYTE, true),
 			new BufferAttrib("a_Lightness", BufferAttribType.FLOAT)
 		);
 		
+		bufferPool = new VertexBufferPool(bufferLayout);
 		vertexArray = new VertexArray();
 		bufferBindingIndex = vertexArray.prepareBufferBinding(bufferLayout);
 		
@@ -76,9 +77,8 @@ public class WorldRenderer implements IResource {
 		int index = 0;
 		for (int chunkZ = 0; chunkZ < IWorld.CHUNKS_Z; chunkZ++) {
 			for (int chunkY = 0; chunkY < CHUNKS_Y; chunkY++) {
-				for (int chunkX = 0; chunkX < IWorld.CHUNKS_X; chunkX++) {
-					chunks[index++] = new ViewChunk(this, chunkX, chunkY, chunkZ);
-				}
+				for (int chunkX = 0; chunkX < IWorld.CHUNKS_X; chunkX++)
+					chunks[index++] = new ViewChunk(world, bufferPool, chunkX, chunkY, chunkZ);
 			}
 		}
 		
@@ -264,10 +264,6 @@ public class WorldRenderer implements IResource {
 		return world;
 	}
 
-	public BufferLayout getBufferLayout() {
-		return bufferLayout;
-	}
-	
 	@Override
 	public void close() {
 		vertexArray.close();

@@ -14,9 +14,8 @@ public class ViewChunk implements IResource {
 
 	public static final int CHUNK_SIZE = WorldChunk.CHUNK_SIZE;
 	
-	public static final int MAX_VERTEX_COUNT = 8192 * 4;
-	
-	private final WorldRenderer worldRenderer;
+	private final IClientWorld world;
+	private final VertexBufferPool bufferPool;
 	
 	private final int chunkX;
 	private final int chunkY;
@@ -26,11 +25,12 @@ public class ViewChunk implements IResource {
 
 	private boolean dirty;
 	
-	private final VertexBuffer vertexBuffer;
+	private VertexBuffer vertexBuffer;
 	private int vertexCount;
 	
-	public ViewChunk(WorldRenderer worldRenderer, int chunkX, int chunkY, int chunkZ) {
-		this.worldRenderer = worldRenderer;
+	public ViewChunk(IClientWorld world, VertexBufferPool bufferPool, int chunkX, int chunkY, int chunkZ) {
+		this.world = world;
+		this.bufferPool = bufferPool;
 		
 		this.chunkX = chunkX;
 		this.chunkY = chunkY;
@@ -44,13 +44,11 @@ public class ViewChunk implements IResource {
 
 		dirty = true;
 	
-		vertexBuffer = new VertexBuffer(worldRenderer.getBufferLayout(), MAX_VERTEX_COUNT);
+		vertexBuffer = null;
 		vertexCount = 0;
 	}
 	
 	public void rebuildAll(VertexAttribBuilder builder) {
-		IClientWorld world = worldRenderer.getWorld();
-		
 		int xc = getX();
 		int yc = getY();
 		int zc = getZ();
@@ -75,9 +73,18 @@ public class ViewChunk implements IResource {
 				}
 			}
 	
-			vertexBuffer.bufferSubData(builder.getReadableBuffer(), 0);
+			if (vertexBuffer != null)
+				bufferPool.free(vertexBuffer);
+			
 			vertexCount = builder.getVertexCount();
 			
+			if (vertexCount != 0) {
+				vertexBuffer = bufferPool.aquire(vertexCount);
+				vertexBuffer.bufferSubData(builder.getReadableBuffer(), 0);
+			} else {
+				vertexBuffer = null;
+			}
+
 			builder.clear();
 		} else {
 			vertexCount = 0;
@@ -136,6 +143,9 @@ public class ViewChunk implements IResource {
 	
 	@Override
 	public void close() {
-		vertexBuffer.close();
+		if (vertexBuffer != null) {
+			bufferPool.free(vertexBuffer);
+			vertexBuffer = null;
+		}
 	}
 }

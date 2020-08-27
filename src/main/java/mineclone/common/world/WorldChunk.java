@@ -105,26 +105,26 @@ public class WorldChunk {
 		return blocks[index];
 	}
 
-	public boolean setBlockState(IBlockPosition pos, IBlockState state) {
-		return setBlockState(pos.getX(), pos.getY(), pos.getZ(), state);
+	public boolean setBlockState(IBlockPosition pos, IBlockState newState) {
+		return setBlockState(pos.getX(), pos.getY(), pos.getZ(), newState);
 	}
 
-	public boolean setBlockState(int x, int y, int z, IBlockState state) {
+	public boolean setBlockState(int x, int y, int z, IBlockState newState) {
 		int index = getBlockIndex(x, y, z);
 		if (index == -1)
 			return false;
 		
 		IBlockState oldState = blocks[index];
 		
-		if (oldState != state) {
-			blocks[index] = state;
+		if (oldState != newState) {
+			blocks[index] = newState;
 			
-			if (oldState.getBlock().hasRandomUpdate())
+			if (oldState.hasRandomUpdate())
 				randomUpdateCount--;
-			if (state.getBlock().hasRandomUpdate())
+			if (newState.hasRandomUpdate())
 				randomUpdateCount++;
 			
-			if (isBlockingLight(oldState) != isBlockingLight(state))
+			if (isBlockingLight(oldState) != isBlockingLight(newState))
 				updateHeight(x, z, y);
 
 			return true;

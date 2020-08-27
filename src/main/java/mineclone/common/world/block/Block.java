@@ -52,7 +52,7 @@ public class Block {
 	public void onRandomUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Random random) {
 	}
 	
-	public boolean hasRandomUpdate() {
+	public boolean hasRandomUpdate(IBlockState state) {
 		return false;
 	}
 	

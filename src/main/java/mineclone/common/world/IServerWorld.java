@@ -34,9 +34,9 @@ public interface IServerWorld extends IWorld {
 	
 	public void growTree(IBlockPosition pos);
 	
-	public boolean setBlockState(IBlockPosition pos, IBlockState state, boolean updateNeighbors);
+	public boolean setBlockState(IBlockPosition pos, IBlockState newState, boolean updateNeighbors);
 	
-	public boolean setBlock(IBlockPosition pos, Block block, boolean updateNeighbors);
+	public boolean setBlock(IBlockPosition pos, Block newBlock, boolean updateNeighbors);
 	
 	public void updateNeighbors(IBlockPosition pos, int updateFlags);
 	

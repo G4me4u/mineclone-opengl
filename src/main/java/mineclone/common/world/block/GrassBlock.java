@@ -58,7 +58,7 @@ public class GrassBlock extends Block {
 	}
 	
 	@Override
-	public boolean hasRandomUpdate() {
+	public boolean hasRandomUpdate(IBlockState state) {
 		return true;
 	}
 

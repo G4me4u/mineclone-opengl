@@ -14,6 +14,8 @@ import mineclone.common.world.block.state.IBlockState;
 import mineclone.common.world.gen.DiamondNoise;
 
 public class ServerWorld extends World implements IServerWorld {
+
+	private static final int RANDOM_TICK_SPEED = 3;
 	
 	public ServerWorld() {
 	}
@@ -130,8 +132,8 @@ public class ServerWorld extends World implements IServerWorld {
 	}
 	
 	@Override
-	public boolean setBlock(IBlockPosition pos, Block block, boolean updateNeighbors) {
-		return setBlockState(pos, block.getDefaultState(), updateNeighbors);
+	public boolean setBlock(IBlockPosition pos, Block newBlock, boolean updateNeighbors) {
+		return setBlockState(pos, newBlock.getDefaultState(), updateNeighbors);
 	}
 	
 	@Override
@@ -232,6 +234,7 @@ public class ServerWorld extends World implements IServerWorld {
 		for (int chunkX = 0; chunkX < CHUNKS_X; chunkX++) {
 			for (int chunkZ = 0; chunkZ < CHUNKS_Z; chunkZ++) {
 				WorldChunk chunk = getChunk(chunkX, chunkZ);
+				
 				if (chunk != null && chunk.hasRandomUpdates()) {
 					for (int i = 0; i < RANDOM_TICK_SPEED; i++) {
 						pos.x = random.nextInt(WorldChunk.CHUNK_SIZE) + chunkX * WorldChunk.CHUNK_SIZE;
@@ -240,7 +243,7 @@ public class ServerWorld extends World implements IServerWorld {
 
 						IBlockState state = chunk.getBlockState(pos);
 						
-						if (state.getBlock().hasRandomUpdate())
+						if (state.hasRandomUpdate())
 							state.onRandomUpdate(this, pos, random);
 					}
 				}

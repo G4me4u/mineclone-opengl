@@ -13,8 +13,6 @@ import mineclone.common.world.block.state.IBlockState;
 
 public abstract class World implements IWorld {
 	
-	protected static final int RANDOM_TICK_SPEED = 3;
-	
 	protected final WorldChunk[] chunks;
 	protected final Random random;
 	

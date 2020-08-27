@@ -35,6 +35,10 @@ public interface IBlockState {
 		getBlock().onRandomUpdate(world, pos, this, random);
 	}
 	
+	default public boolean hasRandomUpdate() {
+		return getBlock().hasRandomUpdate(this);
+	}
+	
 	default public void getEntityHitboxes(IWorld world, MutableBlockPosition pos, List<EntityHitbox> hitboxes) {
 		getBlock().getEntityHitboxes(world, pos, this, hitboxes);
 	}

@@ -123,7 +123,8 @@ public class WorldChunk {
 			if (state.getBlock().hasRandomUpdate())
 				randomUpdateCount++;
 			
-			updateHeight(x, z, y);
+			if (isBlockingLight(oldState) != isBlockingLight(state))
+				updateHeight(x, z, y);
 
 			return true;
 		}
@@ -141,11 +142,15 @@ public class WorldChunk {
 		for (int y = startHeight; y >= 0; y--) {
 			IBlockState state = getBlockState(x, y, z);
 			
-			if (state.getBlock().isSolid()) {
+			if (isBlockingLight(state)) {
 				heights[heightIndex] = y;
 				break;
 			}
 		}
+	}
+	
+	private boolean isBlockingLight(IBlockState state) {
+		return state.getBlock().isSolid();
 	}
 	
 	public boolean hasRandomUpdates() {

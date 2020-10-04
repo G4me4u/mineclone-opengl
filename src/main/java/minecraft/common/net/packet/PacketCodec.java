@@ -35,8 +35,6 @@ public class PacketCodec extends ByteToMessageCodec<IPacket<?>> {
 		if (DebugUtil.PERFORM_CHECKS && !outboundRegistry.containsElement(packet))
 			throw new EncoderException("Attempting to encode packet which is not in registry: " + packet);
 	
-		System.out.println(packet);
-		
 		int lengthIndex = outBuffer.writerIndex();
 		outBuffer.writeZero(LENGTH_BYTE_SIZE);
 
@@ -50,8 +48,6 @@ public class PacketCodec extends ByteToMessageCodec<IPacket<?>> {
 			throw new EncoderException("Packet length exceeds maximum (" + MAXIMUM_PACKET_LENGTH + "): " + packetLength);
 		
 		outBuffer.setShortLE(lengthIndex, (short)packetLength);
-	
-		System.out.println("Done!");
 	}
 
 	@Override

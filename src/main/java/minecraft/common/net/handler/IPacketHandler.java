@@ -1,4 +1,4 @@
-package minecraft.common.net.packet;
+package minecraft.common.net.handler;
 
 public interface IPacketHandler {
 

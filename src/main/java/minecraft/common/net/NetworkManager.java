@@ -1,22 +1,40 @@
 package minecraft.common.net;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import minecraft.common.IResource;
 
-public abstract class NetworkManager implements IResource {
+public class NetworkManager implements IResource {
 
 	protected final NetworkSide side;
 	
+	protected final List<INetworkConnection> connections;
+	
 	protected NetworkManager(NetworkSide side) {
 		this.side = side;
+		
+		this.connections = new ArrayList<>();
+	}
+
+	public void addConnection(INetworkConnection connection) {
+		connections.add(connection);
+	}
+
+	public void removeConnection(INetworkConnection connection) {
+		connections.remove(connection);
 	}
 	
-	public abstract Collection<NetworkConnection> getConnections();
+	public Collection<INetworkConnection> getConnections() {
+		return connections;
+	}
 
-	public abstract boolean isActive();
-	
 	public NetworkSide getSide() {
 		return side;
+	}
+
+	@Override
+	public void close() {
 	}
 }

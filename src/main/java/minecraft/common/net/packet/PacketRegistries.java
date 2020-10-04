@@ -7,7 +7,10 @@ import java.util.function.Supplier;
 import minecraft.common.SupplierRegistry;
 import minecraft.common.net.NetworkPhase;
 import minecraft.common.net.NetworkSide;
-import minecraft.common.net.packet.universal.HelloWorldUPacket;
+import minecraft.common.net.handler.IClientPacketHandler;
+import minecraft.common.net.handler.IServerPacketHandler;
+import minecraft.common.net.packet.c2s.PlayerJoinC2SPacket;
+import minecraft.common.net.packet.s2c.WorldChunkS2CPacket;
 
 public final class PacketRegistries {
 
@@ -16,8 +19,9 @@ public final class PacketRegistries {
 	static {
 		RegistryBank bank;
 		
-		bank = getRegistryBank(NetworkPhase.HANDSHAKE);
-		bank.registerUniversal(0, HelloWorldUPacket.class, HelloWorldUPacket::new);
+		bank = getRegistryBank(NetworkPhase.GAMEPLAY);
+		bank.registerC2S(0, PlayerJoinC2SPacket.class, PlayerJoinC2SPacket::new);
+		bank.registerS2C(0, WorldChunkS2CPacket.class, WorldChunkS2CPacket::new);
 	}
 	
 	private PacketRegistries() {
@@ -49,16 +53,11 @@ public final class PacketRegistries {
 			clientToServerRegistry = new SupplierRegistry<>();
 		}
 		
-		private <T extends IPacket<?>> void registerUniversal(int packetId, Class<T> clazz, Supplier<T> supplier) {
-			registerS2C(packetId, clazz, supplier);
-			registerC2S(packetId, clazz, supplier);
-		}
-		
-		private <T extends IPacket<?>> void registerS2C(int packetId, Class<T> clazz, Supplier<T> supplier) {
+		private <T extends IPacket<? extends IClientPacketHandler>> void registerS2C(int packetId, Class<T> clazz, Supplier<T> supplier) {
 			serverToClientRegistry.register(checkAndCastPacketId(packetId), clazz, supplier);
 		}
 
-		private <T extends IPacket<?>> void registerC2S(int packetId, Class<T> clazz, Supplier<T> supplier) {
+		private <T extends IPacket<? extends IServerPacketHandler>> void registerC2S(int packetId, Class<T> clazz, Supplier<T> supplier) {
 			clientToServerRegistry.register(checkAndCastPacketId(packetId), clazz, supplier);
 		}
 		

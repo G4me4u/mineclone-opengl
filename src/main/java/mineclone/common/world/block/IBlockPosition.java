@@ -45,7 +45,11 @@ public interface IBlockPosition {
 	public IBlockPosition offset(int xo, int yo, int zo);
 	
 	public static int hashCode(IBlockPosition pos) {
-		return 31 * (pos.getX() + 31 * (pos.getY() + 31 * pos.getZ()));
+		int hash = 0;
+		hash = 31 * (hash + pos.getZ());
+		hash = 31 * (hash + pos.getY());
+		hash = 31 * (hash + pos.getX());
+		return hash;
 	}
 	
 	default public boolean equals(int x, int y, int z) {

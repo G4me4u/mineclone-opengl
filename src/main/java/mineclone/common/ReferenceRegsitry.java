@@ -39,4 +39,8 @@ public class ReferenceRegsitry<K, V> {
 	public V getElement(K id) {
 		return idToElement.get(id);
 	}
+	
+	public int getSize() {
+		return idToElement.size();
+	}
 }

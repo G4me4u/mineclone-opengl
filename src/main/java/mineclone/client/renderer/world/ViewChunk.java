@@ -6,13 +6,14 @@ import mineclone.client.renderer.model.IBlockModel;
 import mineclone.common.IResource;
 import mineclone.common.math.Vec3;
 import mineclone.common.world.IClientWorld;
-import mineclone.common.world.WorldChunk;
 import mineclone.common.world.block.MutableBlockPosition;
 import mineclone.common.world.block.state.IBlockState;
+import mineclone.common.world.chunk.ChunkPosition;
+import mineclone.common.world.chunk.IWorldChunk;
 
 public class ViewChunk implements IResource {
 
-	public static final int CHUNK_SIZE = WorldChunk.CHUNK_SIZE;
+	public static final int CHUNK_SIZE = IWorldChunk.CHUNK_SIZE;
 	
 	private final IClientWorld world;
 	private final VertexBufferPool bufferPool;
@@ -54,17 +55,17 @@ public class ViewChunk implements IResource {
 		int zc = getZ();
 		
 		MutableBlockPosition pos = new MutableBlockPosition(xc, yc, zc);
-		WorldChunk chunk = world.getChunk(pos);
+		IWorldChunk chunk = world.getChunk(new ChunkPosition(pos));
 		
 		if (chunk != null) {
-			for (int zo = 0; zo < CHUNK_SIZE; zo++) {
-				for (int yo = 0; yo < CHUNK_SIZE; yo++) {
-					for (int xo = 0; xo < CHUNK_SIZE; xo++) {
-						pos.x = xc + xo;
-						pos.y = yc + yo;
-						pos.z = zc + zo;
+			for (int rz = 0; rz < CHUNK_SIZE; rz++) {
+				for (int ry = 0; ry < CHUNK_SIZE; ry++) {
+					for (int rx = 0; rx < CHUNK_SIZE; rx++) {
+						pos.x = xc + rx;
+						pos.y = yc + ry;
+						pos.z = zc + rz;
 						
-						IBlockState state = chunk.getBlockState(pos);
+						IBlockState state = chunk.getBlockState(rx, ry, rz);
 						IBlockModel blockModel = state.getModel(world, pos);
 						
 						if (blockModel != null)

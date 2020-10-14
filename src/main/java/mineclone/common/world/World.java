@@ -4,22 +4,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import mineclone.client.world.ClientWorldChunkManager;
 import mineclone.common.math.Vec3;
-import mineclone.common.world.block.Block;
-import mineclone.common.world.block.Blocks;
 import mineclone.common.world.block.IBlockPosition;
 import mineclone.common.world.block.MutableBlockPosition;
 import mineclone.common.world.block.state.IBlockState;
+import mineclone.common.world.chunk.IChunkPosition;
+import mineclone.common.world.chunk.IWorldChunkManager;
 
 public abstract class World implements IWorld {
 	
-	protected final WorldChunk[] chunks;
+	protected final IWorldChunkManager chunkManager;
 	protected final Random random;
 	
 	protected BlockRay blockRay;
 	
 	public World() {
-		chunks = new WorldChunk[CHUNKS_X * CHUNKS_Z];
+		chunkManager = new ClientWorldChunkManager();
 		random = new Random();
 
 		blockRay = new BlockRay(this, 0.01f);
@@ -31,64 +32,27 @@ public abstract class World implements IWorld {
 	}
 	
 	@Override
-	public WorldChunk getChunk(IBlockPosition pos) {
-		if (pos.getY() < 0 || pos.getY() >= WORLD_HEIGHT)
-			return null;
-		
-		int chunkX = Math.floorDiv(pos.getX(), WorldChunk.CHUNK_SIZE);
-		int chunkZ = Math.floorDiv(pos.getZ(), WorldChunk.CHUNK_SIZE);
-		
-		return getChunk(chunkX, chunkZ);
-	}
-
-	@Override
-	public WorldChunk getChunk(int chunkX, int chunkZ) {
-		if (chunkX < 0 || chunkX >= CHUNKS_X)
-			return null;
-		if (chunkZ < 0 || chunkZ >= CHUNKS_Z)
-			return null;
-		
-		return chunks[chunkX + chunkZ * CHUNKS_X];
-	}
-	
-	@Override
 	public IBlockState getBlockState(IBlockPosition pos) {
-		WorldChunk chunk = getChunk(pos);
-		if (chunk == null)
-			return Blocks.AIR_BLOCK.getDefaultState();
-		return chunk.getBlockState(pos);
-	}
-	
-	@Override
-	public Block getBlock(IBlockPosition pos) {
-		return getBlockState(pos).getBlock();
+		return chunkManager.getBlockState(pos);
 	}
 	
 	@Override
 	public int getHighestPoint(IBlockPosition pos) {
-		WorldChunk chunk = getChunk(pos);
-		if (chunk == null)
-			return 0;
-		return chunk.getHighestPoint(pos);
+		return chunkManager.getHighestPoint(pos.getX(), pos.getZ());
 	}
 	
 	@Override
 	public boolean isLoadedBlock(IBlockPosition pos) {
-		return getChunk(pos) != null;
+		return chunkManager.containsState(pos);
 	}
 	
 	@Override
-	public boolean isLoadedBlock(int chunkX, int chunkZ) {
-		return getChunk(chunkX, chunkZ) != null;
+	public boolean isLoadedChunk(IChunkPosition chunkPos) {
+		return chunkManager.containsChunk(chunkPos);
 	}
 	
 	@Override
 	public void update() {
-	}
-	
-	@Override
-	public int getHeight() {
-		return WORLD_HEIGHT;
 	}
 	
 	@Override

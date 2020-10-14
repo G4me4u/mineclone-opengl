@@ -2,11 +2,12 @@ package mineclone.client.world;
 
 import mineclone.client.MinecloneClient;
 import mineclone.common.world.IClientWorld;
-import mineclone.common.world.WorldChunk;
 import mineclone.common.world.block.Block;
 import mineclone.common.world.block.IBlockPosition;
 import mineclone.common.world.block.ImmutableBlockPosition;
 import mineclone.common.world.block.state.IBlockState;
+import mineclone.common.world.chunk.IChunkPosition;
+import mineclone.common.world.chunk.IWorldChunk;
 import mineclone.common.world.entity.PlayerEntity;
 import mineclone.server.world.ServerWorld;
 
@@ -23,35 +24,36 @@ public class ClientWorld extends ServerWorld implements IClientWorld {
 	}
 	
 	@Override
+	public IWorldChunk getChunk(IChunkPosition chunkPos) {
+		return chunkManager.getChunk(chunkPos);
+	}
+	
+	@Override
 	public boolean setBlockState(IBlockPosition pos, IBlockState state, boolean updateNeighbors) {
-		WorldChunk chunk = getChunk(pos);
-		
-		if (chunk != null) {
-			int oldHighestPoint = chunk.getHighestPoint(pos);
-			IBlockState oldState = chunk.getBlockState(pos);
+		int oldHighestPoint = getHighestPoint(pos);
+		IBlockState oldState = getBlockState(pos);
+			
+		if (super.setBlockState(pos, state, updateNeighbors)) {
+			int highestPoint = getHighestPoint(pos);
+			
+			if (oldHighestPoint != highestPoint) {
+				int x = pos.getX();
+				int z = pos.getZ();
 				
-			if (super.setBlockState(pos, state, updateNeighbors)) {
-				int highestPoint = chunk.getHighestPoint(pos);
+				markRangeDirty(new ImmutableBlockPosition(x, oldHighestPoint, z), 
+				               new ImmutableBlockPosition(x,    highestPoint, z), true);
+			} else {
+				Block oldBlock = oldState.getBlock();
+				Block newBlock = state.getBlock();
 				
-				if (oldHighestPoint != highestPoint) {
-					int x = pos.getX();
-					int z = pos.getZ();
-					
-					markRangeDirty(new ImmutableBlockPosition(x, oldHighestPoint, z), 
-					               new ImmutableBlockPosition(x,    highestPoint, z), true);
+				if (oldBlock.isSolid() || newBlock.isSolid()) {
+					markDirty(pos, (oldBlock != newBlock));
 				} else {
-					Block oldBlock = oldState.getBlock();
-					Block newBlock = state.getBlock();
-					
-					if (oldBlock.isSolid() || newBlock.isSolid()) {
-						markDirty(pos, (oldBlock != newBlock));
-					} else {
-						markDirty(pos, false);
-					}
+					markDirty(pos, false);
 				}
-				
-				return true;
 			}
+			
+			return true;
 		}
 		
 		return false;

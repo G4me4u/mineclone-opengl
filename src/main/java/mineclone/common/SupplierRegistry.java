@@ -45,4 +45,8 @@ public class SupplierRegistry<K, V> {
 		Supplier<? extends V> provider = getSupplier(id);
 		return provider == null ? null : provider.get();
 	}
+	
+	public int getSize() {
+		return idToSupplier.size();
+	}
 }

@@ -1,9 +1,10 @@
 package mineclone.server.world;
 
+import java.util.Iterator;
+
 import mineclone.common.world.Direction;
 import mineclone.common.world.IServerWorld;
 import mineclone.common.world.World;
-import mineclone.common.world.WorldChunk;
 import mineclone.common.world.block.Block;
 import mineclone.common.world.block.Blocks;
 import mineclone.common.world.block.IBlockPosition;
@@ -11,6 +12,11 @@ import mineclone.common.world.block.MutableBlockPosition;
 import mineclone.common.world.block.PlantBlock;
 import mineclone.common.world.block.PlantType;
 import mineclone.common.world.block.state.IBlockState;
+import mineclone.common.world.chunk.WorldChunk;
+import mineclone.common.world.chunk.ChunkEntry;
+import mineclone.common.world.chunk.ChunkPosition;
+import mineclone.common.world.chunk.IWorldChunk;
+import mineclone.common.world.chunk.IChunkPosition;
 import mineclone.common.world.gen.DiamondNoise;
 
 public class ServerWorld extends World implements IServerWorld {
@@ -22,32 +28,60 @@ public class ServerWorld extends World implements IServerWorld {
 	
 	@Override
 	public void generateWorld() {
-		DiamondNoise noise = new DiamondNoise(CHUNKS_X * WorldChunk.CHUNK_SIZE, random);
+		DiamondNoise noise = new DiamondNoise(CHUNKS_X * IWorldChunk.CHUNK_SIZE, random);
 		
-		int i = 0;
 		for (int cz = 0; cz < CHUNKS_Z; cz++) {
-			for (int cx = 0; cx < CHUNKS_X; cx++) {
-				WorldChunk chunk = new WorldChunk(cx, cz);
-				chunk.generateChunk(noise, random);
-				chunks[i++] = chunk;
+			for (int cy = 0; cy < CHUNKS_Y; cy++) {
+				for (int cx = 0; cx < CHUNKS_X; cx++)
+					chunkManager.setChunk(new ChunkPosition(cx, cy, cz), new WorldChunk());
 			}
 		}
+
+		for (int chunkZ = 0; chunkZ < CHUNKS_X; chunkZ++) {
+			for (int chunkX = 0; chunkX < CHUNKS_X; chunkX++)
+				generateChunk(chunkX, chunkZ, noise);
+		}
 		
-		for (i = 0; i < CHUNKS_Z * CHUNKS_X; i++)
-			populateChunk(chunks[i]);
+		for (int chunkZ = 0; chunkZ < CHUNKS_X; chunkZ++) {
+			for (int chunkX = 0; chunkX < CHUNKS_X; chunkX++)
+				populateChunk(chunkX, chunkZ);
+		}
 	}
 	
-	private void populateChunk(WorldChunk chunk) {
+	private void generateChunk(int chunkX, int chunkZ, DiamondNoise noise) {
+		int x0 = chunkX * IWorldChunk.CHUNK_SIZE; 
+		int x1 = x0 + IWorldChunk.CHUNK_SIZE; 
+
+		int z0 = chunkZ * IWorldChunk.CHUNK_SIZE; 
+		int z1 = z0 + IWorldChunk.CHUNK_SIZE;
+		
+		for (int z = z0; z < z1; z++) {
+			for (int x = x0; x < x1; x++) {
+				int y1 = Math.round(32 + 32 * noise.getNoise(x, z));
+
+				setBlock(new MutableBlockPosition(x, y1, z), Blocks.GRASS_BLOCK, false);
+
+				for (int y = y1 - 1; y >= y1 - 3; y--)
+					setBlock(new MutableBlockPosition(x, y, z), Blocks.DIRT_BLOCK, false);
+				for (int y = y1 - 4; y > 0; y--)
+					setBlock(new MutableBlockPosition(x, y, z), Blocks.STONE_BLOCK, false);
+
+				setBlock(new MutableBlockPosition(x, 0, z), Blocks.COBBLESTONE_BLOCK, false);
+			}
+		}
+	}
+	
+	private void populateChunk(int chunkX, int chunkZ) {
 		MutableBlockPosition pos = new MutableBlockPosition();
 		
-		int x0 = chunk.getChunkX() * WorldChunk.CHUNK_SIZE;
-		int z0 = chunk.getChunkZ() * WorldChunk.CHUNK_SIZE;
-		int x1 = x0 + WorldChunk.CHUNK_SIZE;
-		int z1 = z0 + WorldChunk.CHUNK_SIZE;
+		int x0 = chunkX * IWorldChunk.CHUNK_SIZE;
+		int z0 = chunkZ * IWorldChunk.CHUNK_SIZE;
+		int x1 = x0 + IWorldChunk.CHUNK_SIZE;
+		int z1 = z0 + IWorldChunk.CHUNK_SIZE;
 		
 		for (pos.z = z0; pos.z < z1; pos.z++) {
 			for (pos.x = x0; pos.x < x1; pos.x++) {
-				pos.y = chunk.getHighestPoint(pos) + 1;
+				pos.y = getHighestPoint(pos) + 1;
 				
 				if (random.nextInt(80) == 0) {
 					growTree(pos);
@@ -106,26 +140,22 @@ public class ServerWorld extends World implements IServerWorld {
 	
 	@Override
 	public boolean setBlockState(IBlockPosition pos, IBlockState newState, boolean updateNeighbors) {
-		WorldChunk chunk = getChunk(pos);
-		
-		if (chunk != null) {
-			IBlockState oldState = chunk.getBlockState(pos);
+		IBlockState oldState = chunkManager.getBlockState(pos);
 
-			if (chunk.setBlockState(pos, newState)) {
-				if (updateNeighbors) {
-					Block oldBlock = oldState.getBlock();
-					Block newBlock = newState.getBlock();
-					
-					if (oldBlock == newBlock) {
-						newBlock.onStateChanged(this, pos, oldState, newState);
-					} else {
-						oldBlock.onBlockRemoved(this, pos, oldState);
-						newBlock.onBlockAdded(this, pos, newState);
-					}
-				}
+		if (chunkManager.setBlockState(pos, newState)) {
+			if (updateNeighbors) {
+				Block oldBlock = oldState.getBlock();
+				Block newBlock = newState.getBlock();
 				
-				return true;
+				if (oldBlock == newBlock) {
+					newBlock.onStateChanged(this, pos, oldState, newState);
+				} else {
+					oldBlock.onBlockRemoved(this, pos, oldState);
+					newBlock.onBlockAdded(this, pos, newState);
+				}
 			}
+			
+			return true;
 		}
 		
 		return false;
@@ -228,21 +258,27 @@ public class ServerWorld extends World implements IServerWorld {
 	private void performRandomUpdates() {
 		MutableBlockPosition pos = new MutableBlockPosition();
 
-		for (int chunkX = 0; chunkX < CHUNKS_X; chunkX++) {
-			for (int chunkZ = 0; chunkZ < CHUNKS_Z; chunkZ++) {
-				WorldChunk chunk = getChunk(chunkX, chunkZ);
-				
-				if (chunk != null && chunk.hasRandomUpdates()) {
-					for (int i = 0; i < RANDOM_TICK_SPEED; i++) {
-						pos.x = random.nextInt(WorldChunk.CHUNK_SIZE) + chunkX * WorldChunk.CHUNK_SIZE;
-						pos.y = random.nextInt(WORLD_HEIGHT);
-						pos.z = random.nextInt(WorldChunk.CHUNK_SIZE) + chunkZ * WorldChunk.CHUNK_SIZE;
-
-						IBlockState state = chunk.getBlockState(pos);
-						
-						if (state.hasRandomUpdate())
-							state.onRandomUpdate(this, pos, random);
-					}
+		Iterator<ChunkEntry<IWorldChunk>> itr = chunkManager.chunkIterator();
+		while (itr.hasNext()) {
+			ChunkEntry<IWorldChunk> entry = itr.next();
+			
+			IChunkPosition chunkPos = entry.getChunkPos();
+			IWorldChunk chunk = entry.getChunk();
+			
+			if (chunk.hasRandomUpdates()) {
+				for (int i = 0; i < RANDOM_TICK_SPEED; i++) {
+					int rx = random.nextInt(IWorldChunk.CHUNK_SIZE);
+					int ry = random.nextInt(IWorldChunk.CHUNK_SIZE);
+					int rz = random.nextInt(IWorldChunk.CHUNK_SIZE);
+					
+					pos.x = rx + (chunkPos.getChunkX() << IWorldChunk.CHUNK_SHIFT);
+					pos.y = ry + (chunkPos.getChunkY() << IWorldChunk.CHUNK_SHIFT);
+					pos.z = rz + (chunkPos.getChunkZ() << IWorldChunk.CHUNK_SHIFT);
+	
+					IBlockState state = chunk.getBlockState(rx, ry, rz);
+					
+					if (state.hasRandomUpdate())
+						state.onRandomUpdate(this, pos, random);
 				}
 			}
 		}

@@ -15,16 +15,15 @@ import mineclone.common.IResource;
 import mineclone.common.math.ViewFrustum;
 import mineclone.common.world.IClientWorld;
 import mineclone.common.world.IWorld;
-import mineclone.common.world.WorldChunk;
 import mineclone.common.world.block.IBlockPosition;
+import mineclone.common.world.chunk.IWorldChunk;
 import mineclone.common.world.entity.PlayerEntity;
 
 public class WorldRenderer implements IResource {
 
-	private static final int CHUNKS_Y = IWorld.WORLD_HEIGHT / WorldChunk.CHUNK_SIZE;
-	private static final int NUM_VIEW_CHUNKS = IWorld.CHUNKS_X * CHUNKS_Y * IWorld.CHUNKS_Z;
+	private static final int NUM_VIEW_CHUNKS = IWorld.CHUNKS_X * IWorld.CHUNKS_Y * IWorld.CHUNKS_Z;
 	
-	private static final float CHUNK_SPHERE_RADIUS = (float)(Math.sqrt(3.0) * 0.5 * WorldChunk.CHUNK_SIZE);
+	private static final float CHUNK_SPHERE_RADIUS = (float)(Math.sqrt(3.0) * 0.5 * IWorldChunk.CHUNK_SIZE);
 	
 	private static final float CAMERA_FOV = (float)Math.toRadians(70.0f);
 	private static final float CAMERA_NEAR = 0.1f;
@@ -32,7 +31,7 @@ public class WorldRenderer implements IResource {
 	
 	public static final Color SKY_COLOR = new Color(0xFF84A5FF);
 
-	private static final float FOG_DENSITY = 2.0f / (IWorld.CHUNKS_X * WorldChunk.CHUNK_SIZE);
+	private static final float FOG_DENSITY = 2.0f / (IWorld.CHUNKS_X * IWorldChunk.CHUNK_SIZE);
 	private static final float FOG_GRADIENT = 10.0f;
 	public static final Color FOG_COLOR = SKY_COLOR;
 	
@@ -76,7 +75,7 @@ public class WorldRenderer implements IResource {
 		
 		int index = 0;
 		for (int chunkZ = 0; chunkZ < IWorld.CHUNKS_Z; chunkZ++) {
-			for (int chunkY = 0; chunkY < CHUNKS_Y; chunkY++) {
+			for (int chunkY = 0; chunkY < IWorld.CHUNKS_Y; chunkY++) {
 				for (int chunkX = 0; chunkX < IWorld.CHUNKS_X; chunkX++)
 					chunks[index++] = new ViewChunk(world, bufferPool, chunkX, chunkY, chunkZ);
 			}
@@ -166,7 +165,7 @@ public class WorldRenderer implements IResource {
 	public void markChunksDirty(int chunkX0, int chunkY0, int chunkZ0, int chunkX1, int chunkY1, int chunkZ1) {
 		if (chunkX1 < 0 || chunkX0 >= IWorld.CHUNKS_X)
 			return;
-		if (chunkY1 < 0 || chunkY0 >= CHUNKS_Y)
+		if (chunkY1 < 0 || chunkY0 >= IWorld.CHUNKS_Y)
 			return;
 		if (chunkZ1 < 0 || chunkZ0 >= IWorld.CHUNKS_Z)
 			return;
@@ -183,12 +182,12 @@ public class WorldRenderer implements IResource {
 	public void markChunkDirty(int chunkX, int chunkY, int chunkZ) {
 		if (chunkX < 0 || chunkX >= IWorld.CHUNKS_X)
 			return;
-		if (chunkY < 0 || chunkY >= CHUNKS_Y)
+		if (chunkY < 0 || chunkY >= IWorld.CHUNKS_Y)
 			return;
 		if (chunkZ < 0 || chunkZ >= IWorld.CHUNKS_Z)
 			return;
 		
-		chunks[chunkX + (chunkY + chunkZ * CHUNKS_Y) * IWorld.CHUNKS_X].markDirty();
+		chunks[chunkX + (chunkY + chunkZ * IWorld.CHUNKS_Y) * IWorld.CHUNKS_X].markDirty();
 	}
 	
 	public void update() {

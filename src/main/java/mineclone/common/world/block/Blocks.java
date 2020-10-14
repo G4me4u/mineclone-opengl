@@ -4,10 +4,12 @@ import java.util.NoSuchElementException;
 
 import mineclone.client.renderer.world.BlockTextures;
 import mineclone.common.ReferenceRegsitry;
+import mineclone.common.world.block.state.IBlockState;
 
 public class Blocks {
 
 	private static ReferenceRegsitry<String, Block> blockRegistry = null;
+	private static ReferenceRegsitry<Integer, IBlockState> stateRegistry = null;
 	
 	public static final Block AIR_BLOCK;
 	public static final Block DIRT_BLOCK;
@@ -28,6 +30,11 @@ public class Blocks {
 
 		blockRegistry.register(name, block);
 	
+		IBlockState state = block.getDefaultState();
+		do {
+			stateRegistry.register(stateRegistry.getSize(), state);
+		} while ((state = state.next()) != block.getDefaultState());
+		
 		return block;
 	}
 	
@@ -39,22 +46,31 @@ public class Blocks {
 
 		return block;
 	}
+
+	public static int getIdentifier(IBlockState state) {
+		return stateRegistry.getIdentifier(state);
+	}
+	
+	public static IBlockState getState(int identifier) {
+		return stateRegistry.getElement(identifier);
+	}
 	
 	static {
 		blockRegistry = new ReferenceRegsitry<>();
+		stateRegistry = new ReferenceRegsitry<>();
 		
-		AIR_BLOCK             = register("air"             , new Block());
-		DIRT_BLOCK            = register("dirt"            , new DirtBlock());
-		GRASS_BLOCK           = register("grass"           , new GrassBlock());
-		PLANKS_BLOCK          = register("planks"          , new WoodPlanksBlock());
-		STONE_BLOCK           = register("stone"           , new BasicSolidBlock(BlockTextures.STONE_TEXTURE));
-		COBBLESTONE_BLOCK     = register("cobblestone"     , new BasicSolidBlock(BlockTextures.COBBLESTONE_TEXTURE));
-		PLANT_BLOCK           = register("plant"           , new PlantBlock());
-		LEAVES_BLOCK          = register("leaves"          , new LeavesBlock());
-		LOG_BLOCK             = register("log"             , new WoodLogBlock());
-		REDSTONE_WIRE_BLOCK   = register("redstone_wire"   , new RedstoneWireBlock());
-		REDSTONE_BLOCK        = register("redstone_block"  , new RedstoneBlock());
-		STONE_SLAB_BLOCK      = register("stone_slab"      , new StoneSlabBlock());
-		PLANKS_SLAB_BLOCK     = register("planks_slab"     , new WoodPlanksSlabBlock());
+		AIR_BLOCK             = register("air"           , new Block());
+		DIRT_BLOCK            = register("dirt"          , new DirtBlock());
+		GRASS_BLOCK           = register("grass"         , new GrassBlock());
+		PLANKS_BLOCK          = register("planks"        , new WoodPlanksBlock());
+		STONE_BLOCK           = register("stone"         , new BasicSolidBlock(BlockTextures.STONE_TEXTURE));
+		COBBLESTONE_BLOCK     = register("cobblestone"   , new BasicSolidBlock(BlockTextures.COBBLESTONE_TEXTURE));
+		PLANT_BLOCK           = register("plant"         , new PlantBlock());
+		LEAVES_BLOCK          = register("leaves"        , new LeavesBlock());
+		LOG_BLOCK             = register("log"           , new WoodLogBlock());
+		REDSTONE_WIRE_BLOCK   = register("redstone_wire" , new RedstoneWireBlock());
+		REDSTONE_BLOCK        = register("redstone_block", new RedstoneBlock());
+		STONE_SLAB_BLOCK      = register("stone_slab"    , new StoneSlabBlock());
+		PLANKS_SLAB_BLOCK     = register("planks_slab"   , new WoodPlanksSlabBlock());
 	}
 }

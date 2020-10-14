@@ -114,11 +114,13 @@ public class Block {
 		return 0;
 	}
 
-	void setName(String name) {
+	Block setName(String name) {
 		if (this.name != null)
 			throw new IllegalStateException("Name has already been set!");
 		
 		this.name = name;
+	
+		return this;
 	}
 	
 	public final String getName() {

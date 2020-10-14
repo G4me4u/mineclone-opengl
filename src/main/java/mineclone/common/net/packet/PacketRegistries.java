@@ -10,7 +10,7 @@ import mineclone.common.net.NetworkSide;
 import mineclone.common.net.handler.IClientPacketHandler;
 import mineclone.common.net.handler.IServerPacketHandler;
 import mineclone.common.net.packet.c2s.PlayerJoinC2SPacket;
-import mineclone.common.net.packet.s2c.WorldChunkS2CPacket;
+import mineclone.common.net.packet.s2c.ChunkS2CPacket;
 
 public final class PacketRegistries {
 
@@ -21,7 +21,7 @@ public final class PacketRegistries {
 		
 		bank = getRegistryBank(NetworkPhase.GAMEPLAY);
 		bank.registerC2S(0, PlayerJoinC2SPacket.class, PlayerJoinC2SPacket::new);
-		bank.registerS2C(0, WorldChunkS2CPacket.class, WorldChunkS2CPacket::new);
+		bank.registerS2C(0, ChunkS2CPacket.class, ChunkS2CPacket::new);
 	}
 	
 	private PacketRegistries() {

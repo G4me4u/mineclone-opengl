@@ -1,6 +1,6 @@
 package mineclone.common.world.block;
 
-public class ImmutableBlockPosition implements IBlockPosition {
+public final class ImmutableBlockPosition implements IBlockPosition {
 
 	public final int x;
 	public final int y;

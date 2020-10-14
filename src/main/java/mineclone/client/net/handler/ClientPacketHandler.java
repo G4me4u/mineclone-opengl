@@ -3,7 +3,7 @@ package mineclone.client.net.handler;
 import mineclone.common.net.INetworkConnection;
 import mineclone.common.net.handler.AbstractPacketHandler;
 import mineclone.common.net.handler.IClientPacketHandler;
-import mineclone.common.net.packet.s2c.WorldChunkS2CPacket;
+import mineclone.common.net.packet.s2c.ChunkS2CPacket;
 import mineclone.common.net.NetworkManager;
 
 public class ClientPacketHandler extends AbstractPacketHandler implements IClientPacketHandler {
@@ -13,7 +13,7 @@ public class ClientPacketHandler extends AbstractPacketHandler implements IClien
 	}
 
 	@Override
-	public void onWorldChunk(WorldChunkS2CPacket packet) {
+	public void onWorldChunk(ChunkS2CPacket packet) {
 		
 	}
 }

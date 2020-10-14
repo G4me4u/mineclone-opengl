@@ -14,11 +14,11 @@ import mineclone.common.world.BlockHitResult;
 import mineclone.common.world.EntityHitbox;
 import mineclone.common.world.IServerWorld;
 import mineclone.common.world.IWorld;
-import mineclone.common.world.WorldChunk;
 import mineclone.common.world.block.Block;
 import mineclone.common.world.block.Blocks;
 import mineclone.common.world.block.IBlockPosition;
 import mineclone.common.world.block.state.IBlockState;
+import mineclone.common.world.chunk.IWorldChunk;
 
 public class PlayerEntity extends Entity {
 
@@ -40,9 +40,9 @@ public class PlayerEntity extends Entity {
 		
 		hotbar = new PlayerHotbar();
 
-		float x = IWorld.CHUNKS_X * WorldChunk.CHUNK_SIZE / 2;
-		float y = IWorld.WORLD_HEIGHT;
-		float z = IWorld.CHUNKS_Z * WorldChunk.CHUNK_SIZE / 2;
+		float x = IWorld.CHUNKS_X * IWorldChunk.CHUNK_SIZE / 2;
+		float y = IWorld.CHUNKS_Y * IWorldChunk.CHUNK_SIZE;
+		float z = IWorld.CHUNKS_Z * IWorldChunk.CHUNK_SIZE / 2;
 		moveHitboxTo(x, y, z);
 
 		controller.setPlayer(this);

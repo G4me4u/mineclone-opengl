@@ -13,9 +13,9 @@ public final class ChunkPosition implements IChunkPosition {
 	}
 
 	public ChunkPosition(IBlockPosition pos) {
-		chunkX = pos.getX() >>> IChunk.CHUNK_SHIFT;
-		chunkY = pos.getY() >>> IChunk.CHUNK_SHIFT;
-		chunkZ = pos.getZ() >>> IChunk.CHUNK_SHIFT;
+		chunkX = pos.getX() >> IChunk.CHUNK_SHIFT;
+		chunkY = pos.getY() >> IChunk.CHUNK_SHIFT;
+		chunkZ = pos.getZ() >> IChunk.CHUNK_SHIFT;
 	}
 
 	public ChunkPosition(IChunkPosition chunkPos) {

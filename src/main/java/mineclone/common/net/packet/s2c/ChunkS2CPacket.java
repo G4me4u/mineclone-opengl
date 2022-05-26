@@ -14,7 +14,7 @@ import mineclone.common.world.chunk.IWorldChunk;
 public class ChunkS2CPacket implements IPacket<IClientPacketHandler> {
 
 	private static final int CHUNK_SIZE = IWorldChunk.CHUNK_SIZE;
-	private static final int CHUNK_STATE_COUNT = CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE;
+	private static final int CHUNK_STATE_COUNT = IWorldChunk.CHUNK_VOLUME;
 	
 	private int chunkX;
 	private int chunkY;

@@ -8,16 +8,16 @@ public class HeightMapChunk implements IChunk {
 		heights = new int[CHUNK_SIZE * CHUNK_SIZE];
 	}
 	
-	private int getHeightIndex(int rx, int ry) {
-		return rx + (ry << CHUNK_SHIFT);
+	private int getHeightIndex(int rx, int rz) {
+		return rx + (rz << CHUNK_SHIFT);
 	}
 	
-	public int getHeight(int rx, int ry) {
-		return heights[getHeightIndex(rx, ry)];
+	public int getHeight(int rx, int rz) {
+		return heights[getHeightIndex(rx, rz)];
 	}
 	
-	public boolean getHeight(int rx, int ry, int height) {
-		heights[getHeightIndex(rx, ry)] = height;
+	public boolean setHeight(int rx, int rz, int height) {
+		heights[getHeightIndex(rx, rz)] = height;
 		return true;
 	}
 }

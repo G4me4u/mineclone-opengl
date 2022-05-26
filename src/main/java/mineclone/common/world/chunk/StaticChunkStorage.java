@@ -9,6 +9,8 @@ public class StaticChunkStorage<T extends IChunk> implements IChunkStorage<T> {
 	public static final int DEFAULT_CHUNK_COUNT_Y = 8;
 	public static final int DEFAULT_CHUNK_COUNT_Z = 16;
 	
+	public static final int OUT_OF_BOUNDS_CHUNK_OFFSET = -1;
+	
 	private int chunkCountX;
 	private int chunkCountY;
 	private int chunkCountZ;
@@ -21,10 +23,10 @@ public class StaticChunkStorage<T extends IChunk> implements IChunkStorage<T> {
 	private int originChunkOffset;
 	
 	public StaticChunkStorage() {
-		setSize(DEFAULT_CHUNK_COUNT_X, DEFAULT_CHUNK_COUNT_Y, DEFAULT_CHUNK_COUNT_Z);
-		
 		originChunkPos = new ChunkPosition();
 		originChunkOffset = 0;
+
+		setSize(DEFAULT_CHUNK_COUNT_X, DEFAULT_CHUNK_COUNT_Y, DEFAULT_CHUNK_COUNT_Z);
 	}
 	
 	public void setSize(int chunkCountX, int chunkCountY, int chunkCountZ) {
@@ -63,18 +65,18 @@ public class StaticChunkStorage<T extends IChunk> implements IChunkStorage<T> {
 		chunks = newChunks;
 		originChunkOffset = 0;
 	}
-
+	
 	private int getChunkOffset(IChunkPosition chunkPos) {
 		int rx = chunkPos.getChunkX() - originChunkPos.getChunkX();
 		int ry = chunkPos.getChunkY() - originChunkPos.getChunkY();
 		int rz = chunkPos.getChunkZ() - originChunkPos.getChunkZ();
 		
 		if (rx < 0 || rx >= chunkCountX)
-			return -1;
+			return OUT_OF_BOUNDS_CHUNK_OFFSET;
 		if (ry < 0 || ry >= chunkCountY)
-			return -1;
+			return OUT_OF_BOUNDS_CHUNK_OFFSET;
 		if (rz < 0 || rz >= chunkCountZ)
-			return -1;
+			return OUT_OF_BOUNDS_CHUNK_OFFSET;
 		
 		return getRelativeChunkOffset(rx, ry, rz);
 	}
@@ -82,43 +84,6 @@ public class StaticChunkStorage<T extends IChunk> implements IChunkStorage<T> {
 	private int getRelativeChunkOffset(int rx, int ry, int rz) {
 		int offset = rx + ry * chunkCountX + rz * strideZ + originChunkOffset;
 		return (offset + chunks.length) % chunks.length;
-	}
-	
-	@Override
-	public T getChunk(IChunkPosition chunkPos) {
-		int offset = getChunkOffset(chunkPos);
-		if (offset < 0)
-			return null;
-
-		@SuppressWarnings("unchecked")
-		T chunk = (T)chunks[offset];
-		
-		return chunk;
-	}
-	
-	@Override
-	public boolean setChunk(IChunkPosition chunkPos, T chunk) {
-		int offset = getChunkOffset(chunkPos);
-		if (offset < 0)
-			return false;
-		
-		chunks[offset] = chunk;
-		
-		return true;
-	}
-
-	@Override
-	public boolean contains(IChunkPosition chunkPos) {
-		return (getChunkOffset(chunkPos) >= 0);
-	}
-	
-	@Override
-	public Iterator<ChunkEntry<T>> chunkIterator() {
-		return new ChunkIterator();
-	}
-	
-	public IChunkPosition getOriginChunkPos() {
-		return originChunkPos;
 	}
 	
 	public void setOrigin(IChunkPosition chunkPos) {
@@ -185,6 +150,43 @@ public class StaticChunkStorage<T extends IChunk> implements IChunkStorage<T> {
 	
 	private void invalidateChunk(IChunkPosition chunkPos, int offset) {
 		chunks[offset] = null;
+	}
+
+	@Override
+	public boolean contains(IChunkPosition chunkPos) {
+		return (getChunkOffset(chunkPos) != OUT_OF_BOUNDS_CHUNK_OFFSET);
+	}
+	
+	@Override
+	public T getChunk(IChunkPosition chunkPos) {
+		int offset = getChunkOffset(chunkPos);
+		if (offset == OUT_OF_BOUNDS_CHUNK_OFFSET)
+			return null;
+
+		@SuppressWarnings("unchecked")
+		T chunk = (T)chunks[offset];
+		
+		return chunk;
+	}
+	
+	@Override
+	public boolean setChunk(IChunkPosition chunkPos, T chunk) {
+		int offset = getChunkOffset(chunkPos);
+		if (offset == OUT_OF_BOUNDS_CHUNK_OFFSET)
+			return false;
+		
+		chunks[offset] = chunk;
+		
+		return true;
+	}
+
+	@Override
+	public Iterator<ChunkEntry<T>> chunkIterator() {
+		return new ChunkIterator();
+	}
+	
+	public IChunkPosition getOriginChunkPos() {
+		return originChunkPos;
 	}
 	
 	private class ChunkIterator implements Iterator<ChunkEntry<T>> {

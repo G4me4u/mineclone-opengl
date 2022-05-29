@@ -23,4 +23,5 @@ bin/
 .gradle
 
 # Ignore Gradle build output directory
-build
+client/build
+server/build

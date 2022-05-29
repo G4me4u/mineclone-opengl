@@ -1,1 +1,6 @@
-rootProject.name = 'mineclone-opengl'
+include "client"
+include "server"
+
+rootProject.name = "mineclone"
+project(":server").name = "mineclone-server"
+project(":client").name = "mineclone-client"

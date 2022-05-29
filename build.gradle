@@ -1,80 +1,27 @@
-import org.gradle.internal.os.OperatingSystem
-import org.gradle.plugins.ide.eclipse.model.AccessRule
-
-plugins {
+subprojects {
     // Apply the java plugin to add support for Java
-    id 'java'
-
+    apply plugin: "java"
     // Apply the application plugin to add support for building a CLI application.
-    id 'application'
-
+    apply plugin: "application"
     // Apply the Eclipse plugin to add tasks for generating eclipse project files.
-    id 'eclipse'
-}
+    apply plugin: "eclipse"
 
-repositories {
-    mavenCentral()
-}
-
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
-
-switch (OperatingSystem.current()) {
-    case OperatingSystem.LINUX:
-        def osArch = System.getProperty("os.arch")
-        project.ext.lwjgl_natives = osArch.startsWith("arm") || osArch.startsWith("aarch64")
-            ? "natives-linux-${osArch.contains("64") || osArch.startsWith("armv8") ? "arm64" : "arm32"}"
-            : "natives-linux"
-        break
-    case OperatingSystem.MAC_OS:
-        project.ext.lwjgl_natives = "natives-macos"
-        break
-    case OperatingSystem.WINDOWS:
-        project.ext.lwjgl_natives = System.getProperty("os.arch").contains("64") ? "natives-windows" : "natives-windows-x86"
-        break
-}
-
-dependencies {
-    // LWJGL dependencies
-    implementation platform("org.lwjgl:lwjgl-bom:${lwjgl_version}")
-
-    implementation "org.lwjgl:lwjgl"
-    implementation "org.lwjgl:lwjgl-glfw"
-    implementation "org.lwjgl:lwjgl-openal"
-    implementation "org.lwjgl:lwjgl-opengl"
-    implementation "org.lwjgl:lwjgl-stb"
-
-    runtimeOnly "org.lwjgl:lwjgl::${lwjgl_natives}"
-    runtimeOnly "org.lwjgl:lwjgl-glfw::${lwjgl_natives}"
-    runtimeOnly "org.lwjgl:lwjgl-openal::${lwjgl_natives}"
-    runtimeOnly "org.lwjgl:lwjgl-opengl::${lwjgl_natives}"
-    runtimeOnly "org.lwjgl:lwjgl-stb::${lwjgl_natives}"
-
-    // Netty IO dependencies
-    implementation "io.netty:netty-all:${netty_version}"
-}
-
-// ensure that the encoding is set to UTF-8, no matter what the system default is
-// this fixes some edge cases with special characters not displaying correctly
-// see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
-tasks.withType(JavaCompile) {
-    options.encoding = "UTF-8"
-}
-
-eclipse {
-    classpath {
-        file {
-            whenMerged {
-                def jre = entries.find { it.path.contains 'org.eclipse.jdt.launching.JRE_CONTAINER' }
-
-                // Allow for uses of the Unsafe Object. Although this is not public API,
-                // it allows us to do great optimizations for native memory manipulations.
-                jre.accessRules.add(new AccessRule('accessible', 'sun/misc/Unsafe'))
-            }
-        }
+    repositories {
+        mavenCentral()
     }
-}
 
-application {
-    mainClassName = "mineclone.client.MinecloneClient"
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+
+    dependencies {
+        // Netty IO dependencies
+        implementation "io.netty:netty-all:${netty_version}"
+    }
+
+    // ensure that the encoding is set to UTF-8, no matter what the system default is
+    // this fixes some edge cases with special characters not displaying correctly
+    // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
+    tasks.withType(JavaCompile) {
+        options.encoding = "UTF-8"
+    }
 }

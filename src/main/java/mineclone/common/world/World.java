@@ -74,4 +74,9 @@ public abstract class World implements IWorld {
 		
 		return hitboxes;
 	}
+	
+	@Override
+	public IWorldChunkManager getChunkManager() {
+		return chunkManager;
+	}
 }

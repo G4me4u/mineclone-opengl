@@ -14,20 +14,30 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.internal.SocketUtils;
 import mineclone.common.net.INetworkConnection;
+import mineclone.common.net.NetworkManager;
+import mineclone.common.net.NetworkPhase;
+import mineclone.common.net.NetworkSide;
 import mineclone.common.net.NetworkSocket;
 import mineclone.common.net.PacketChannelHandler;
 import mineclone.common.net.SocketNetworkConnection;
-import mineclone.server.net.handler.ServerPacketHandler;
-import mineclone.common.net.NetworkPhase;
-import mineclone.common.net.NetworkSide;
 import mineclone.common.net.packet.PacketCodec;
+import mineclone.server.MinecloneServer;
+import mineclone.server.net.handler.ServerPacketHandler;
 
 public class ServerNetworkSocket extends NetworkSocket {
 
+	private final MinecloneServer server;
+	private final NetworkManager manager;
+	
 	private EventLoopGroup parentGroup;
 	private EventLoopGroup childGroup;
 	
 	private Channel socket;
+	
+	public ServerNetworkSocket(MinecloneServer server, NetworkManager manager) {
+		this.server = server;
+		this.manager = manager;
+	}
 	
 	public void bind(int port) throws Exception {
 		bind(new InetSocketAddress(port));
@@ -58,9 +68,9 @@ public class ServerNetworkSocket extends NetworkSocket {
 				ChannelPipeline pipeline = channel.pipeline();
 				
 				pipeline.addLast(PacketCodec.create(NetworkPhase.GAMEPLAY, NetworkSide.SERVER));
-				pipeline.addLast(new PacketChannelHandler(new ServerPacketHandler(connection)));
+				pipeline.addLast(new PacketChannelHandler(new ServerPacketHandler(server, connection)));
 
-				// TODO: add the connection to something? :D
+				manager.addConnection(connection);
 			}
 		});
 		

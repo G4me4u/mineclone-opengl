@@ -16,8 +16,8 @@ public class SocketNetworkConnection implements INetworkConnection {
 	}
 
 	@Override
-	public void send(IPacket<?> packet) {
-		channel.write(packet);
+	public void send(IPacket packet) {
+		channel.writeAndFlush(packet);
 	}
 	
 	@Override

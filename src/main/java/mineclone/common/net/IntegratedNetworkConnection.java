@@ -1,29 +1,31 @@
 package mineclone.common.net;
 
+import mineclone.common.net.handler.IPacketHandler;
 import mineclone.common.net.packet.IPacket;
 
 public class IntegratedNetworkConnection implements INetworkConnection {
 
-	private IntegratedEndpoint endpoint;
+	private IPacketHandler endpoint;
 	
 	public IntegratedNetworkConnection() {
 		this(null);
 	}
 
-	public IntegratedNetworkConnection(IntegratedEndpoint endpoint) {
+	public IntegratedNetworkConnection(IPacketHandler endpoint) {
 		this.endpoint = endpoint;
 	}
 	
-	public void setEndpoint(IntegratedEndpoint endpoint) {
-		if (endpoint != null)
+	public void setEndpoint(IPacketHandler endpoint) {
+		if (this.endpoint != null)
 			throw new IllegalStateException("Endpoint is already set!");
 
 		this.endpoint = endpoint;
 	}
 	
 	@Override
-	public void send(IPacket<?> packet) {
-		endpoint.handlePacket(packet);
+	public void send(IPacket packet) {
+		if (endpoint != null)
+			endpoint.onPacket(packet);
 	}
 
 	@Override

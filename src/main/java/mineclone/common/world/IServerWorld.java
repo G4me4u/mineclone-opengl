@@ -3,6 +3,7 @@ package mineclone.common.world;
 import mineclone.common.world.block.Block;
 import mineclone.common.world.block.IBlockPosition;
 import mineclone.common.world.block.state.IBlockState;
+import mineclone.common.world.chunk.IWorldChunkManager;
 
 public interface IServerWorld extends IWorld {
 	
@@ -36,7 +37,9 @@ public interface IServerWorld extends IWorld {
 	
 	public boolean setBlockState(IBlockPosition pos, IBlockState newState, boolean updateNeighbors);
 	
-	public boolean setBlock(IBlockPosition pos, Block newBlock, boolean updateNeighbors);
+	default public boolean setBlock(IBlockPosition pos, Block newBlock, boolean updateNeighbors) {
+		return setBlockState(pos, newBlock.getDefaultState(), updateNeighbors);
+	}
 	
 	public void updateNeighbors(IBlockPosition pos, int updateFlags);
 	
@@ -47,5 +50,7 @@ public interface IServerWorld extends IWorld {
 	public int getPowerExceptFrom(IBlockPosition pos, Direction exceptDir, int powerFlags);
 
 	public int getPowerFrom(IBlockPosition pos, Direction dir, int powerFlags);
+
+	public IWorldChunkManager getChunkManager();
 
 }

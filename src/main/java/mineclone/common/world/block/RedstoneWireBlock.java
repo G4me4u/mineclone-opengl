@@ -47,7 +47,7 @@ public class RedstoneWireBlock extends Block {
 	}
 	
 	@Override
-	public IBlockState getPlacementState(IServerWorld world, IBlockPosition pos, IBlockState state) {
+	public IBlockState getPlacementState(IWorld world, IBlockPosition pos, IBlockState state) {
 		if (!isWireSupported(world, pos))
 			return Blocks.AIR_BLOCK.getDefaultState();
 		
@@ -148,23 +148,23 @@ public class RedstoneWireBlock extends Block {
 		return (dir == Direction.DOWN);
 	}
 	
-	private boolean isWireSupported(IServerWorld world, IBlockPosition pos) {
+	private boolean isWireSupported(IWorld world, IBlockPosition pos) {
 		return world.getBlockState(pos.down()).isAligned(Direction.UP);
 	}
 	
-	private IBlockState updateAndResolveState(IServerWorld world, IBlockPosition pos, IBlockState state) {
+	private IBlockState updateAndResolveState(IWorld world, IBlockPosition pos, IBlockState state) {
 		for (Direction dir : Direction.HORIZONTAL)
 			state = updateStateConnectionTo(world, pos, state, dir);
 		
 		return resolveState(state);
 	}
 	
-	private IBlockState updateStateConnectionTo(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir) {
+	private IBlockState updateStateConnectionTo(IWorld world, IBlockPosition pos, IBlockState state, Direction dir) {
 		WireConnection connection = getWireConnection(world, pos, dir);
 		return state.with(CONNECTIONS.get(dir), connection);
 	}
 	
-	private WireConnection getWireConnection(IServerWorld world, IBlockPosition pos, Direction dir) {
+	private WireConnection getWireConnection(IWorld world, IBlockPosition pos, Direction dir) {
 		IBlockPosition sidePos = pos.offset(dir);
 		IBlockState sideState = world.getBlockState(sidePos);
 		

@@ -8,6 +8,8 @@ public interface IClientWorld extends IWorld {
 
 	public IWorldChunk getChunk(IChunkPosition chunkPos);
 	
+	public boolean setChunk(IChunkPosition chunkPos, IWorldChunk chunk);
+	
 	public PlayerEntity getPlayer();
 
 }

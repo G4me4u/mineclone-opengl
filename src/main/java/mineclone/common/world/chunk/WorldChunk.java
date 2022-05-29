@@ -2,21 +2,43 @@ package mineclone.common.world.chunk;
 
 import java.util.Arrays;
 
+import mineclone.common.net.packet.PacketDecodeBuffer;
+import mineclone.common.net.packet.PacketEncodeBuffer;
 import mineclone.common.world.block.Blocks;
 import mineclone.common.world.block.state.IBlockState;
 
 public class WorldChunk implements IWorldChunk {
 
-	private static final int STATE_COUNT = CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE;
-	
 	private final IBlockState[] states;
 	private int randomUpdateCount;
 
 	public WorldChunk() {
-		states = new IBlockState[STATE_COUNT];
+		states = new IBlockState[CHUNK_VOLUME];
 		randomUpdateCount = 0;
 
 		Arrays.fill(states, Blocks.AIR_BLOCK.getDefaultState());
+	}
+	
+	public WorldChunk(IWorldChunk other) {
+		states = new IBlockState[CHUNK_VOLUME];
+
+		if (other instanceof WorldChunk) {
+			WorldChunk otherWorldChunk = (WorldChunk)other;
+			for (int i = 0; i < CHUNK_VOLUME; i++)
+				states[i] = otherWorldChunk.states[i];
+			randomUpdateCount = otherWorldChunk.randomUpdateCount;
+		} else {
+			randomUpdateCount = 0;
+			
+			for (int rz = 0; rz < CHUNK_SIZE; rz++) {
+				for (int ry = 0; ry < CHUNK_SIZE; ry++) {
+					for (int rx = 0; rx < CHUNK_SIZE; rx++) {
+						IBlockState state = other.getBlockState(rx, ry, rz);
+						setBlockState(rx, ry, rz, state);
+					}
+				}
+			}
+		}
 	}
 	
 	private int getStateIndex(int rx, int ry, int rz) {
@@ -56,5 +78,22 @@ public class WorldChunk implements IWorldChunk {
 	@Override
 	public boolean isEmpty() {
 		return false;
+	}
+
+	public static void write(PacketEncodeBuffer buffer, WorldChunk chunk) {
+		for (int i = 0; i < CHUNK_VOLUME; i++) {
+			IBlockState state = chunk.states[i];
+			buffer.writeInt(Blocks.getIdentifier(state));
+		}
+	}
+	
+	public static WorldChunk read(PacketDecodeBuffer buffer) {
+		WorldChunk chunk = new WorldChunk();
+		for (int i = 0; i < CHUNK_VOLUME; i++) {
+			IBlockState state = Blocks.getState(buffer.readInt());
+			chunk.states[i] = (state == null) ? Blocks.AIR_BLOCK.getDefaultState() : state;
+		}
+		
+		return chunk;
 	}
 }

@@ -94,28 +94,28 @@ public class WorldRenderer implements IResource {
 	}
 
 	public void markDirty(IBlockPosition pos, boolean includeBorders) {
-		int chunkX = pos.getX() / ViewChunk.CHUNK_SIZE;
-		int chunkY = pos.getY() / ViewChunk.CHUNK_SIZE;
-		int chunkZ = pos.getZ() / ViewChunk.CHUNK_SIZE;
+		int chunkX = pos.getX() >> ViewChunk.CHUNK_SHIFT;
+		int chunkY = pos.getY() >> ViewChunk.CHUNK_SHIFT;
+		int chunkZ = pos.getZ() >> ViewChunk.CHUNK_SHIFT;
 
 		markChunkDirty(chunkX, chunkY, chunkZ);
 	
 		if (includeBorders) {
-			int xSub = Math.abs(pos.getX() % ViewChunk.CHUNK_SIZE);
+			int xSub = Math.abs(pos.getX() & ViewChunk.CHUNK_MASK);
 			if (xSub == 0) {
 				markChunkDirty(chunkX - 1, chunkY, chunkZ);
 			} else if (xSub == ViewChunk.CHUNK_SIZE - 1) {
 				markChunkDirty(chunkX + 1, chunkY, chunkZ);
 			}
 			
-			int ySub = Math.abs(pos.getY() % ViewChunk.CHUNK_SIZE);
+			int ySub = Math.abs(pos.getY() & ViewChunk.CHUNK_MASK);
 			if (ySub == 0) {
 				markChunkDirty(chunkX, chunkY - 1, chunkZ);
 			} else if (ySub == ViewChunk.CHUNK_SIZE - 1) {
 				markChunkDirty(chunkX, chunkY + 1, chunkZ);
 			}
 			
-			int zSub = Math.abs(pos.getZ() % ViewChunk.CHUNK_SIZE);
+			int zSub = Math.abs(pos.getZ() & ViewChunk.CHUNK_MASK);
 			if (zSub == 0) {
 				markChunkDirty(chunkX, chunkY, chunkZ - 1);
 			} else if (zSub == ViewChunk.CHUNK_SIZE - 1) {
@@ -133,33 +133,26 @@ public class WorldRenderer implements IResource {
 		int y1 = Math.max(p0.getY(), p1.getY());
 		int z1 = Math.max(p0.getZ(), p1.getZ());
 		
-		int chunkX0 = x0 / ViewChunk.CHUNK_SIZE;
-		int chunkX1 = x1 / ViewChunk.CHUNK_SIZE;
+		if (includeBorders) {
+			x0--;
+			y0--;
+			z0--;
+			
+			x1++;
+			y1++;
+			z1++;
+		}
+		
+		int chunkX0 = x0 >> ViewChunk.CHUNK_SHIFT;
+		int chunkX1 = x1 >> ViewChunk.CHUNK_SHIFT;
 
-		int chunkY0 = y0 / ViewChunk.CHUNK_SIZE;
-		int chunkY1 = y1 / ViewChunk.CHUNK_SIZE;
+		int chunkY0 = y0 >> ViewChunk.CHUNK_SHIFT;
+		int chunkY1 = y1 >> ViewChunk.CHUNK_SHIFT;
 
-		int chunkZ0 = z0 / ViewChunk.CHUNK_SIZE;
-		int chunkZ1 = z1 / ViewChunk.CHUNK_SIZE;
+		int chunkZ0 = z0 >> ViewChunk.CHUNK_SHIFT;
+		int chunkZ1 = z1 >> ViewChunk.CHUNK_SHIFT;
 
 		markChunksDirty(chunkX0, chunkY0, chunkZ0, chunkX1, chunkY1, chunkZ1);
-		
-		if (includeBorders) {
-			if (x0 % ViewChunk.CHUNK_SIZE == 0)
-				markChunksDirty(chunkX0 - 1, chunkY0, chunkZ0, chunkX0 - 1, chunkY1, chunkZ1);
-			if (x1 % ViewChunk.CHUNK_SIZE == ViewChunk.CHUNK_SIZE - 1)
-				markChunksDirty(chunkX1 + 1, chunkY0, chunkZ0, chunkX1 + 1, chunkY1, chunkZ1);
-			
-			if (y0 % ViewChunk.CHUNK_SIZE == 0)
-				markChunksDirty(chunkX0, chunkY0 - 1, chunkZ0, chunkX1, chunkY0 - 1, chunkZ1);
-			if (y1 % ViewChunk.CHUNK_SIZE == ViewChunk.CHUNK_SIZE - 1)
-				markChunksDirty(chunkX0, chunkY1 + 1, chunkZ0, chunkX1, chunkY1 + 1, chunkZ1);
-	
-			if (z0 % ViewChunk.CHUNK_SIZE == 0)
-				markChunksDirty(chunkX0, chunkY0, chunkZ0 - 1, chunkX1, chunkY1, chunkZ0 - 1);
-			if (z1 % ViewChunk.CHUNK_SIZE == ViewChunk.CHUNK_SIZE - 1)
-				markChunksDirty(chunkX0, chunkY0, chunkZ1 + 1, chunkX1, chunkY1, chunkZ1 + 1);
-		}
 	}
 
 	public void markChunksDirty(int chunkX0, int chunkY0, int chunkZ0, int chunkX1, int chunkY1, int chunkZ1) {

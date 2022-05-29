@@ -23,7 +23,7 @@ public class Block {
 		defaultState = createDefaultState();
 	}
 	
-	public IBlockState getPlacementState(IServerWorld world, IBlockPosition pos, IBlockState state) {
+	public IBlockState getPlacementState(IWorld world, IBlockPosition pos, IBlockState state) {
 		return state;
 	}
 	

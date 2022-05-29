@@ -12,11 +12,9 @@ import mineclone.common.world.block.MutableBlockPosition;
 import mineclone.common.world.block.PlantBlock;
 import mineclone.common.world.block.PlantType;
 import mineclone.common.world.block.state.IBlockState;
-import mineclone.common.world.chunk.WorldChunk;
 import mineclone.common.world.chunk.ChunkEntry;
-import mineclone.common.world.chunk.ChunkPosition;
-import mineclone.common.world.chunk.IWorldChunk;
 import mineclone.common.world.chunk.IChunkPosition;
+import mineclone.common.world.chunk.IWorldChunk;
 import mineclone.common.world.gen.DiamondNoise;
 
 public class ServerWorld extends World implements IServerWorld {
@@ -24,19 +22,13 @@ public class ServerWorld extends World implements IServerWorld {
 	private static final int RANDOM_TICK_SPEED = 3;
 	
 	public ServerWorld() {
+		generateWorld();
 	}
 	
 	@Override
 	public void generateWorld() {
 		DiamondNoise noise = new DiamondNoise(CHUNKS_X * IWorldChunk.CHUNK_SIZE, random);
 		
-		for (int cz = 0; cz < CHUNKS_Z; cz++) {
-			for (int cy = 0; cy < CHUNKS_Y; cy++) {
-				for (int cx = 0; cx < CHUNKS_X; cx++)
-					chunkManager.setChunk(new ChunkPosition(cx, cy, cz), new WorldChunk());
-			}
-		}
-
 		for (int chunkZ = 0; chunkZ < CHUNKS_X; chunkZ++) {
 			for (int chunkX = 0; chunkX < CHUNKS_X; chunkX++)
 				generateChunk(chunkX, chunkZ, noise);
@@ -139,6 +131,11 @@ public class ServerWorld extends World implements IServerWorld {
 	}
 	
 	@Override
+	public boolean setBlockState(IBlockPosition pos, IBlockState newState) {
+		return setBlockState(pos, newState, true);
+	}
+	
+	@Override
 	public boolean setBlockState(IBlockPosition pos, IBlockState newState, boolean updateNeighbors) {
 		IBlockState oldState = chunkManager.getBlockState(pos);
 
@@ -159,11 +156,6 @@ public class ServerWorld extends World implements IServerWorld {
 		}
 		
 		return false;
-	}
-	
-	@Override
-	public boolean setBlock(IBlockPosition pos, Block newBlock, boolean updateNeighbors) {
-		return setBlockState(pos, newBlock.getDefaultState(), updateNeighbors);
 	}
 	
 	@Override

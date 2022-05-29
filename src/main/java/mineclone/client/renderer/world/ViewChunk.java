@@ -14,6 +14,8 @@ import mineclone.common.world.chunk.IWorldChunk;
 public class ViewChunk implements IResource {
 
 	public static final int CHUNK_SIZE = IWorldChunk.CHUNK_SIZE;
+	public static final int CHUNK_SHIFT = IWorldChunk.CHUNK_SHIFT;
+	public static final int CHUNK_MASK = IWorldChunk.CHUNK_MASK;
 	
 	private final IClientWorld world;
 	private final VertexBufferPool bufferPool;

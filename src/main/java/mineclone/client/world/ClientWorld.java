@@ -1,7 +1,9 @@
 package mineclone.client.world;
 
 import mineclone.client.MinecloneClient;
+import mineclone.client.renderer.world.WorldRenderer;
 import mineclone.common.world.IClientWorld;
+import mineclone.common.world.World;
 import mineclone.common.world.block.Block;
 import mineclone.common.world.block.IBlockPosition;
 import mineclone.common.world.block.ImmutableBlockPosition;
@@ -9,9 +11,8 @@ import mineclone.common.world.block.state.IBlockState;
 import mineclone.common.world.chunk.IChunkPosition;
 import mineclone.common.world.chunk.IWorldChunk;
 import mineclone.common.world.entity.PlayerEntity;
-import mineclone.server.world.ServerWorld;
 
-public class ClientWorld extends ServerWorld implements IClientWorld {
+public class ClientWorld extends World implements IClientWorld {
 
 	private final MinecloneClient app;
 	
@@ -29,11 +30,27 @@ public class ClientWorld extends ServerWorld implements IClientWorld {
 	}
 	
 	@Override
-	public boolean setBlockState(IBlockPosition pos, IBlockState state, boolean updateNeighbors) {
+	public boolean setChunk(IChunkPosition chunkPos, IWorldChunk chunk) {
+		if (chunkManager.setChunk(chunkPos, chunk)) {
+			int chunkX = chunkPos.getChunkX();
+			int chunkY = chunkPos.getChunkY();
+			int chunkZ = chunkPos.getChunkZ();
+
+			WorldRenderer renderer = app.getWorldRenderer();
+			renderer.markChunksDirty(chunkX - 1, 0     , chunkZ - 1,
+			                         chunkX + 1, chunkY, chunkZ + 1);
+			return true;
+		}
+		
+		return false;
+	}
+	
+	@Override
+	public boolean setBlockState(IBlockPosition pos, IBlockState state) {
 		int oldHighestPoint = getHighestPoint(pos);
 		IBlockState oldState = getBlockState(pos);
 			
-		if (super.setBlockState(pos, state, updateNeighbors)) {
+		if (chunkManager.setBlockState(pos, state)) {
 			int highestPoint = getHighestPoint(pos);
 			
 			if (oldHighestPoint != highestPoint) {

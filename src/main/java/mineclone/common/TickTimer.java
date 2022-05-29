@@ -2,13 +2,18 @@ package mineclone.common;
 
 public class TickTimer {
 
-	private static final float MILLIS_PER_SECOND = 1000.0f;
+	public static final float MILLIS_PER_SECOND = 1000.0f;
+	public static final float DEFAULT_TPS = 20.0f;
 	
 	private final float tps;
 	private final float millisPerTick;
 	
 	private long last;
 	private float dt;
+
+	public TickTimer() {
+		this(DEFAULT_TPS);
+	}
 	
 	public TickTimer(float tps) {
 		this.tps = tps;
@@ -32,6 +37,10 @@ public class TickTimer {
 		dt -= ticksThisFrame;
 		
 		return ticksThisFrame;
+	}
+	
+	public long remainingMillis() {
+		return (long)(millisPerTick * (1.0f - dt)) + 1;
 	}
 	
 	public float getDeltaTick() {

@@ -7,12 +7,11 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageCodec;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.EncoderException;
-import mineclone.common.SupplierRegistry;
 import mineclone.common.net.NetworkPhase;
 import mineclone.common.net.NetworkSide;
 import mineclone.common.util.DebugUtil;
 
-public class PacketCodec extends ByteToMessageCodec<IPacket<?>> {
+public class PacketCodec extends ByteToMessageCodec<IPacket> {
 
 	private static final int LENGTH_BYTE_SIZE      = 2;
 	private static final int IDENTIFIER_BYTE_SIZE  = 2;
@@ -20,23 +19,21 @@ public class PacketCodec extends ByteToMessageCodec<IPacket<?>> {
 	
 	private static final int MAXIMUM_PACKET_LENGTH = 0xFFFF; // 2^16 - 1
 	
-	private final SupplierRegistry<Short, IPacket<?>> inboundRegistry;
-	private final SupplierRegistry<Short, IPacket<?>> outboundRegistry;
+	private final PacketRegistry<?> inboundRegistry;
+	private final PacketRegistry<?> outboundRegistry;
 	
-	private PacketCodec(SupplierRegistry<Short, IPacket<?>> inboundRegistry,
-	                    SupplierRegistry<Short, IPacket<?>> outboundRegistry) {
-		
+	private PacketCodec(PacketRegistry<?> inboundRegistry, PacketRegistry<?> outboundRegistry) {
 		this.inboundRegistry = inboundRegistry;
 		this.outboundRegistry = outboundRegistry;
 	}
 
 	@Override
-	protected void encode(ChannelHandlerContext ctx, IPacket<?> packet, ByteBuf outBuffer) throws Exception {
+	protected void encode(ChannelHandlerContext ctx, IPacket packet, ByteBuf outBuffer) throws Exception {
 		if (DebugUtil.PERFORM_CHECKS) {
-			if (!outboundRegistry.containsElement(packet))
+			if (!outboundRegistry.containsPacket(packet))
 				throw new EncoderException("Attempting to encode packet which is not in registry: " + packet);
 		}
-	
+		
 		int lengthIndex = outBuffer.writerIndex();
 		outBuffer.writeZero(LENGTH_BYTE_SIZE);
 
@@ -65,7 +62,7 @@ public class PacketCodec extends ByteToMessageCodec<IPacket<?>> {
 				
 				short packetId = buffer.readShortLE();
 				
-				IPacket<?> packet = inboundRegistry.createNewElement(packetId);
+				IPacket packet = inboundRegistry.createPacket(packetId);
 				if (packet == null)
 					throw new DecoderException("Attempting to decode unknown packet: " + packetId);
 

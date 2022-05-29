@@ -15,7 +15,7 @@ import mineclone.common.world.block.MutableBlockPosition;
 
 public interface IBlockState {
 
-	default public IBlockState getPlacementState(IServerWorld world, IBlockPosition pos) {
+	default public IBlockState getPlacementState(IWorld world, IBlockPosition pos) {
 		return getBlock().getPlacementState(world, pos, this);
 	}
 	

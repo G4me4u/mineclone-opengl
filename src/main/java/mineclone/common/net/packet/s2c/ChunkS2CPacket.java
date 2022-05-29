@@ -1,90 +1,59 @@
 package mineclone.common.net.packet.s2c;
 
-import java.util.Arrays;
-
-import mineclone.common.net.handler.IClientPacketHandler;
 import mineclone.common.net.packet.IPacket;
 import mineclone.common.net.packet.PacketDecodeBuffer;
 import mineclone.common.net.packet.PacketEncodeBuffer;
-import mineclone.common.util.DebugUtil;
-import mineclone.common.world.block.Blocks;
-import mineclone.common.world.block.state.IBlockState;
+import mineclone.common.world.chunk.ChunkPosition;
+import mineclone.common.world.chunk.IChunkPosition;
 import mineclone.common.world.chunk.IWorldChunk;
+import mineclone.common.world.chunk.WorldChunk;
 
-public class ChunkS2CPacket implements IPacket<IClientPacketHandler> {
+public class ChunkS2CPacket implements IPacket {
 
-	private static final int CHUNK_SIZE = IWorldChunk.CHUNK_SIZE;
-	private static final int CHUNK_STATE_COUNT = IWorldChunk.CHUNK_VOLUME;
-	
-	private int chunkX;
-	private int chunkY;
-	private int chunkZ;
-	
-	private IBlockState[] states;
+	private IChunkPosition chunkPos;
+	private WorldChunk chunk;
 	
 	public ChunkS2CPacket() {
 	}
 
-	public ChunkS2CPacket(int chunkX, int chunkY, int chunkZ, IBlockState[] states) {
-		if (DebugUtil.PERFORM_CHECKS) {
-			if (states.length != CHUNK_STATE_COUNT)
-				throw new IllegalArgumentException("The states array be an entire chunk!");
-		}
-		
-		this.chunkX = chunkX;
-		this.chunkY = chunkY;
-		this.chunkZ = chunkZ;
-		
-		this.states = Arrays.copyOf(states, states.length);
+	public ChunkS2CPacket(IChunkPosition chunkPos, IWorldChunk chunk) {
+		this.chunkPos = new ChunkPosition(chunkPos);
+		this.chunk = (chunk == null) ? null : new WorldChunk(chunk);
 	}
 	
 	@Override
 	public void encode(PacketEncodeBuffer buffer) {
-		buffer.writeInt(chunkX);
-		buffer.writeInt(chunkY);
-		buffer.writeInt(chunkZ);
+		buffer.writeInt(chunkPos.getChunkX());
+		buffer.writeInt(chunkPos.getChunkY());
+		buffer.writeInt(chunkPos.getChunkZ());
 		
-		for (IBlockState state : states)
-			buffer.writeInt(Blocks.getIdentifier(state));
-	}
-
-	@Override
-	public void decode(PacketDecodeBuffer buffer) {
-		chunkX = buffer.readInt();
-		chunkY = buffer.readInt();
-		chunkZ = buffer.readInt();
-
-		states = new IBlockState[CHUNK_STATE_COUNT];
-		
-		int i = 0;
-		for (int z = 0; z < CHUNK_SIZE; z++) {
-			for (int y = 0; y < CHUNK_SIZE; y++) {
-				for (int x = 0; x < CHUNK_SIZE; x++) {
-					IBlockState state = Blocks.getState(buffer.readInt());
-					states[i++] = (state == null) ? Blocks.AIR_BLOCK.getDefaultState() : state;
-				}
-			}
+		if (chunk != null) {
+			buffer.writeBoolean(true);
+			WorldChunk.write(buffer, chunk);
+		} else {
+			buffer.writeBoolean(false);
 		}
 	}
 
 	@Override
-	public void handle(IClientPacketHandler handler) {
-		handler.onWorldChunk(this);
+	public void decode(PacketDecodeBuffer buffer) {
+		int chunkX = buffer.readInt();
+		int chunkY = buffer.readInt();
+		int chunkZ = buffer.readInt();
+		chunkPos = new ChunkPosition(chunkX, chunkY, chunkZ);
+
+		if (buffer.readBoolean()) {
+			chunk = WorldChunk.read(buffer);
+		} else {
+			chunk = null;
+		}
 	}
 	
-	public int getChunkX() {
-		return chunkX;
-	}
-
-	public int getChunkY() {
-		return chunkY;
-	}
-
-	public int getChunkZ() {
-		return chunkZ;
+	public IChunkPosition getChunkPos() {
+		return chunkPos;
 	}
 	
-	public IBlockState[] getStates() {
-		return states;
+	public IWorldChunk getChunk() {
+		return chunk;
 	}
 }

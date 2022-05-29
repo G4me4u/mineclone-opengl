@@ -5,7 +5,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import mineclone.common.net.handler.IPacketHandler;
 import mineclone.common.net.packet.IPacket;
 
-public class PacketChannelHandler extends SimpleChannelInboundHandler<IPacket<?>> {
+public class PacketChannelHandler extends SimpleChannelInboundHandler<IPacket> {
 
 	private final IPacketHandler handler;
 	
@@ -14,12 +14,7 @@ public class PacketChannelHandler extends SimpleChannelInboundHandler<IPacket<?>
 	}
 	
 	@Override
-	protected void channelRead0(ChannelHandlerContext ctx, IPacket<?> packet) throws Exception {
-		handlePacket(packet);
-	}
-	
-	@SuppressWarnings("unchecked")
-	private <T extends IPacketHandler> void handlePacket(IPacket<T> packet) {
-		packet.handle((T)handler);
+	protected void channelRead0(ChannelHandlerContext ctx, IPacket packet) throws Exception {
+		handler.onPacket(packet);
 	}
 }

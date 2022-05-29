@@ -21,27 +21,47 @@ import mineclone.client.graphic.DisplaySize;
 import mineclone.client.input.IKeyboardListener;
 import mineclone.client.input.Keyboard;
 import mineclone.client.input.Mouse;
+import mineclone.client.net.ClientNetworkSocket;
+import mineclone.client.net.handler.ClientPacketHandler;
 import mineclone.client.renderer.world.BlockTextures;
 import mineclone.client.renderer.world.WorldRenderer;
 import mineclone.client.world.ClientWorld;
+import mineclone.common.TaskScheduler;
 import mineclone.common.TickTimer;
+import mineclone.common.net.INetworkConnection;
+import mineclone.common.net.INetworkListener;
+import mineclone.common.net.IntegratedNetworkConnection;
+import mineclone.common.net.NetworkManager;
+import mineclone.common.net.NetworkSide;
+import mineclone.common.net.packet.c2s.PlayerJoinC2SPacket;
+import mineclone.common.util.DebugUtil;
+import mineclone.common.world.IClientWorld;
+import mineclone.server.IntegratedMinecloneServer;
 
-public class MinecloneClient implements DisplayListener, IKeyboardListener {
+public class MinecloneClient implements DisplayListener, IKeyboardListener, INetworkListener {
 
 	private static final String TITLE = "Mineclone";
 	private static final int DEFAULT_WIDTH  = 856;
 	private static final int DEFAULT_HEIGHT = 480;
 	
-	private static final float TPS = 20.0f;
+	private static final boolean CONNECT_INTEGRATED = false;
+	private static final String SERVER_HOSTNAME = "localhost";
+	private static final int SERVER_PORT = 2202;
 	
 	private Display display;
+
+	private TickTimer timer;
+	private TaskScheduler taskScheduler;
 	
 	private PlayerController controller;
 
 	private ClientWorld world;
 	private WorldRenderer worldRenderer;
 	
-	private TickTimer timer;
+	private IntegratedMinecloneServer integratedServer;
+	private ClientNetworkSocket socket;
+	private NetworkManager networkManager;
+	private INetworkConnection outgoingConnection;
 	
 	private MinecloneClient() {
 	}
@@ -50,6 +70,8 @@ public class MinecloneClient implements DisplayListener, IKeyboardListener {
 		display = new Display();
 		display.initDisplay(TITLE, DEFAULT_WIDTH, DEFAULT_HEIGHT);
 
+		taskScheduler = new TaskScheduler();
+		
 		Mouse.init(display);
 		Keyboard.init(display);
 		
@@ -67,9 +89,33 @@ public class MinecloneClient implements DisplayListener, IKeyboardListener {
 		world = new ClientWorld(this);
 		worldRenderer = new WorldRenderer(world);
 		
-		timer = new TickTimer(TPS);
-
-		world.generateWorld();
+		networkManager = new NetworkManager(NetworkSide.CLIENT);
+		networkManager.addListener(this);
+	
+		connectToServer();
+	}
+	
+	private void connectToServer() {
+		if (CONNECT_INTEGRATED) {
+			integratedServer = new IntegratedMinecloneServer();
+			try {
+				integratedServer.startAsync();
+			} catch (InterruptedException e) {
+				throw new RuntimeException("Unable to start integrated server.", e);
+			}
+			
+			IntegratedNetworkConnection ingoingConnection = new IntegratedNetworkConnection();
+			INetworkConnection connection = integratedServer.connect(ingoingConnection);
+			ingoingConnection.setEndpoint(new ClientPacketHandler(this, connection));
+			networkManager.addConnection(connection);
+		} else {
+			socket = new ClientNetworkSocket(this, networkManager);
+			try {
+				socket.connect(SERVER_HOSTNAME, SERVER_PORT);
+			} catch (Exception e) {
+				throw new RuntimeException("Unable to connect to dedicated server.", e);
+			}
+		}
 	}
 	
 	private void initGLState() {
@@ -86,7 +132,7 @@ public class MinecloneClient implements DisplayListener, IKeyboardListener {
 		             WorldRenderer.SKY_COLOR.getAlphaN());
 	}
 	
-	public void run() {
+	private void run() {
 		init();
 		
 		DisplaySize size = display.getDisplaySize();
@@ -96,6 +142,7 @@ public class MinecloneClient implements DisplayListener, IKeyboardListener {
 
 		initGLState();
 
+		timer = new TickTimer();
 		timer.init();
 		
 		long last = System.currentTimeMillis();
@@ -103,28 +150,43 @@ public class MinecloneClient implements DisplayListener, IKeyboardListener {
 		
 		while (!display.isCloseRequested()) {
 			int ticksThisFrame = timer.clock();
-			
 			for (int i = 0; i < ticksThisFrame; i++)
 				tick();
 			
 			render(timer.getDeltaTick());
 
-			frames++;
-			
-			long now = System.currentTimeMillis();
-			if (now - last >= 1000L) {
-				last += 1000L;
+			if (DebugUtil.PRINT_FPS_AND_TPS) {
+				frames++;
 				
-				System.out.println("FPS: " + frames);
-				
-				frames = 0;
+				long now = System.currentTimeMillis();
+				if (now - last >= 1000L) {
+					last += 1000L;
+					
+					System.out.println("[Client]: " + frames + " fps");
+					
+					frames = 0;
+				}
 			}
+			
+			taskScheduler.executeAll();
 			
 			display.update();
 		}
 	}
 	
 	private void stop() {
+		networkManager.close();
+		
+		if (integratedServer != null) {
+			integratedServer.requestStop();
+			integratedServer = null;
+		}
+		
+		if (socket != null) {
+			socket.close();
+			socket = null;
+		}
+		
 		worldRenderer.close();
 		
 		// TODO: replace this with an asset manager
@@ -141,8 +203,9 @@ public class MinecloneClient implements DisplayListener, IKeyboardListener {
 	}
 	
 	private void tick() {
-		world.update();
+		networkManager.update();
 		
+		world.update();
 		worldRenderer.update();
 	}
 
@@ -152,12 +215,20 @@ public class MinecloneClient implements DisplayListener, IKeyboardListener {
 		worldRenderer.render(dt);
 	}
 
+	public TaskScheduler getTaskScheduler() {
+		return taskScheduler;
+	}
+	
 	public WorldRenderer getWorldRenderer() {
 		return worldRenderer;
 	}
 
 	public PlayerController getController() {
 		return controller;
+	}
+	
+	public IClientWorld getWorld() {
+		return world;
 	}
 	
 	@Override
@@ -176,6 +247,28 @@ public class MinecloneClient implements DisplayListener, IKeyboardListener {
 
 	@Override
 	public void keyTyped(int codePoint) {
+	}
+	
+	@Override
+	public void connectionAdded(INetworkConnection connection) {
+		if (outgoingConnection != null)
+			throw new IllegalStateException("Already connected");
+
+		outgoingConnection = connection;
+		
+		System.out.println("[Client]: Connected to server!");
+		
+		connection.send(new PlayerJoinC2SPacket());
+	}
+
+	@Override
+	public void connectionRemoved(INetworkConnection connection) {
+		if (outgoingConnection == null)
+			throw new IllegalArgumentException("Not connected");
+		
+		outgoingConnection = null;
+
+		System.out.println("[Client]: Disconnected from server!");
 	}
 	
 	public static void main(String[] args) throws Exception {

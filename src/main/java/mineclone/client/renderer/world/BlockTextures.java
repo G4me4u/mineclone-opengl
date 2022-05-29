@@ -5,6 +5,7 @@ import java.io.IOException;
 import mineclone.client.graphic.ITexture;
 import mineclone.client.graphic.ITextureRegion;
 import mineclone.client.graphic.opengl.TextureLoader;
+import mineclone.common.util.DebugUtil;
 
 public class BlockTextures {
 
@@ -13,11 +14,15 @@ public class BlockTextures {
 	public static final ITexture blocksTexture;
 	
 	static {
-		try {
-			// TODO: Add a proper asset manager.
-			blocksTexture = TextureLoader.loadTexture(BLOCKS_TEXTURE_FILE);
-		} catch (IOException e) {
-			throw new RuntimeException("Unable to load blocks texture", e);
+		if (DebugUtil.RUNNING_SERVER) {
+			blocksTexture = null;
+		} else {
+			try {
+				// TODO: Add a proper asset manager.
+				blocksTexture = TextureLoader.loadTexture(BLOCKS_TEXTURE_FILE);
+			} catch (IOException e) {
+				throw new RuntimeException("Unable to load blocks texture", e);
+			}
 		}
 	}
 	
@@ -47,6 +52,9 @@ public class BlockTextures {
 	public static final ITextureRegion WIRE_HLINE_TEXTURE        = getRegion(3, 4);
 	
 	private static ITextureRegion getRegion(int sx, int sy) {
+		if (DebugUtil.RUNNING_SERVER)
+			return null;
+
 		int xs0 = sx * 16;
 		int ys0 = sy * 16;
 		

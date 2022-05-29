@@ -21,7 +21,7 @@ public class GrassBlock extends Block {
 	}
 	
 	@Override
-	public IBlockState getPlacementState(IServerWorld world, IBlockPosition pos, IBlockState state) {
+	public IBlockState getPlacementState(IWorld world, IBlockPosition pos, IBlockState state) {
 		if (isValidGrassCondition(world, pos))
 			return state;
 		

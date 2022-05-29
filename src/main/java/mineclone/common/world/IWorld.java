@@ -7,6 +7,7 @@ import mineclone.common.world.block.Block;
 import mineclone.common.world.block.IBlockPosition;
 import mineclone.common.world.block.state.IBlockState;
 import mineclone.common.world.chunk.IChunkPosition;
+import mineclone.common.world.chunk.IWorldChunkManager;
 
 public interface IWorld {
 	
@@ -18,8 +19,14 @@ public interface IWorld {
 	
 	public IBlockState getBlockState(IBlockPosition pos);
 	
+	public boolean setBlockState(IBlockPosition pos, IBlockState state);
+	
 	default public Block getBlock(IBlockPosition pos) {
 		return getBlockState(pos).getBlock();
+	}
+
+	default public boolean setBlock(IBlockPosition pos, Block block) {
+		return setBlockState(pos, block.getDefaultState());
 	}
 	
 	public int getHighestPoint(IBlockPosition pos);
@@ -31,5 +38,7 @@ public interface IWorld {
 	public void update();
 	
 	public List<EntityHitbox> getBlockHitboxes(EntityHitbox hitbox);
+	
+	public IWorldChunkManager getChunkManager();
 	
 }

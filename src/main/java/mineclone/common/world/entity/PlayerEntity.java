@@ -12,7 +12,6 @@ import mineclone.common.math.Mat3;
 import mineclone.common.math.Vec3;
 import mineclone.common.world.BlockHitResult;
 import mineclone.common.world.EntityHitbox;
-import mineclone.common.world.IServerWorld;
 import mineclone.common.world.IWorld;
 import mineclone.common.world.block.Block;
 import mineclone.common.world.block.Blocks;
@@ -67,14 +66,14 @@ public class PlayerEntity extends Entity {
 					boolean success = false;
 					
 					if (remove) {
-						((IServerWorld)world).setBlock(hitResult.pos, Blocks.AIR_BLOCK, true);
+						world.setBlock(hitResult.pos, Blocks.AIR_BLOCK);
 						success = true;
 					} else {
 						IBlockPosition placePos = hitResult.pos.offset(hitResult.face);
-						IBlockState placeState = hotbar.getHotbarBlock().getPlacementState((IServerWorld)world, placePos);
+						IBlockState placeState = hotbar.getHotbarBlock().getPlacementState(world, placePos);
 						
 						if (!isBlockInsidePlayer(placeState, placePos)) {
-							((IServerWorld)world).setBlockState(placePos, placeState, true);
+							world.setBlockState(placePos, placeState);
 							success = true;
 						}
 					}

@@ -112,6 +112,7 @@ public class MinecloneClient implements DisplayListener, IKeyboardListener, INet
 			try {
 				socket.connect(SERVER_HOSTNAME, SERVER_PORT);
 			} catch (Exception e) {
+				socket.close();
 				throw new RuntimeException("Unable to connect to dedicated server.", e);
 			}
 		}

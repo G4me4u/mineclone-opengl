@@ -11,6 +11,7 @@ import mineclone.common.net.handler.IServerPacketHandler;
 import mineclone.common.net.packet.PacketRegistries;
 import mineclone.common.net.packet.c2s.PlayerJoinC2SPacket;
 import mineclone.common.net.packet.s2c.ChunkS2CPacket;
+import mineclone.common.net.packet.universal.StateChangeUPacket;
 import mineclone.common.world.chunk.ChunkEntry;
 import mineclone.common.world.chunk.IWorldChunk;
 import mineclone.common.world.chunk.IWorldChunkManager;
@@ -36,6 +37,11 @@ public class ServerPacketHandler extends AbstractPacketHandler implements IServe
 			ChunkEntry<IWorldChunk> entry = itr.next();
 			connection.send(new ChunkS2CPacket(entry.getChunkPos(), entry.getChunk()));
 		}
+	}
+	
+	@Override
+	public void onStateChange(StateChangeUPacket packet) {
+		server.getWorld().setBlockState(packet.getPos(), packet.getState(), true);
 	}
 	
 	@Override

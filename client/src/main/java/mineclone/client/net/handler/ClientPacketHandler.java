@@ -9,6 +9,7 @@ import mineclone.common.net.handler.AbstractPacketHandler;
 import mineclone.common.net.handler.IClientPacketHandler;
 import mineclone.common.net.packet.PacketRegistries;
 import mineclone.common.net.packet.s2c.ChunkS2CPacket;
+import mineclone.common.net.packet.universal.StateChangeUPacket;
 
 public class ClientPacketHandler extends AbstractPacketHandler implements IClientPacketHandler {
 
@@ -23,6 +24,11 @@ public class ClientPacketHandler extends AbstractPacketHandler implements IClien
 	@Override
 	public void onWorldChunk(ChunkS2CPacket packet) {
 		client.getWorld().setChunk(packet.getChunkPos(), packet.getChunk());
+	}
+	
+	@Override
+	public void onStateChange(StateChangeUPacket packet) {
+		client.getWorld().setBlockState(packet.getPos(), packet.getState());
 	}
 	
 	@Override

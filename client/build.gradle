@@ -50,6 +50,10 @@ eclipse {
     }
 }
 
-application {
-    mainClassName = "mineclone.client.MinecloneClient"
+mainClassName = "mineclone.client.MinecloneClient"
+
+jar {
+    manifest {
+        attributes "Main-Class": mainClassName
+    }
 }

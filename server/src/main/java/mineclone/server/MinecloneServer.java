@@ -6,6 +6,7 @@ import mineclone.common.net.INetworkConnection;
 import mineclone.common.net.INetworkListener;
 import mineclone.common.net.NetworkManager;
 import mineclone.common.net.NetworkSide;
+import mineclone.common.net.packet.IPacket;
 import mineclone.common.util.DebugUtil;
 import mineclone.common.world.IServerWorld;
 import mineclone.server.world.ServerWorld;
@@ -28,7 +29,7 @@ public abstract class MinecloneServer implements INetworkListener {
 
 		taskScheduler = new TaskScheduler();
 		
-		world = new ServerWorld();
+		world = new ServerWorld(this);
 		
 		run();
 		stopAll();
@@ -91,6 +92,13 @@ public abstract class MinecloneServer implements INetworkListener {
 	
 	protected void tick() {
 		networkManager.update();
+		
+		world.update();
+	}
+	
+	public void sendToAll(IPacket packet) {
+		for (INetworkConnection connection : networkManager.getConnections())
+			connection.send(packet);
 	}
 	
 	public void requestStop() {

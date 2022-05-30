@@ -10,6 +10,7 @@ import mineclone.common.world.block.MutableBlockPosition;
 import mineclone.common.world.block.state.IBlockState;
 import mineclone.common.world.chunk.IChunkPosition;
 import mineclone.common.world.chunk.IWorldChunkManager;
+import mineclone.common.world.entity.Entity;
 
 public abstract class World implements IWorld {
 	
@@ -18,11 +19,15 @@ public abstract class World implements IWorld {
 	protected final Random random;
 	protected BlockRay blockRay;
 	
+	protected final List<Entity> entities;
+	
 	public World(IWorldChunkManager chunkManager) {
 		this.chunkManager = chunkManager;
 	
 		random = new Random();
 		blockRay = new BlockRay(this, 0.01f);
+	
+		entities = new ArrayList<Entity>();
 	}
 	
 	@Override
@@ -52,6 +57,21 @@ public abstract class World implements IWorld {
 	
 	@Override
 	public void update() {
+		updateEntities();
+	}
+	
+	public void addEntity(Entity entity) {
+		entities.add(entity);
+	}
+
+	public void removeEntity(Entity entity) {
+		entities.remove(entity);
+	}
+	
+	private void updateEntities() {
+		for (Entity entity : entities) {
+			entity.update();
+		}
 	}
 	
 	@Override

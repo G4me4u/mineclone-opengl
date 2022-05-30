@@ -1,11 +1,13 @@
 package mineclone.client.renderer.world.entity;
 
+import mineclone.client.MinecloneClient;
 import mineclone.client.controller.PlayerController;
 import mineclone.client.controller.PlayerHotbar;
 import mineclone.client.input.Keyboard;
 import mineclone.client.input.Mouse;
 import mineclone.common.math.Mat3;
 import mineclone.common.math.Vec3;
+import mineclone.common.net.packet.universal.StateChangeUPacket;
 import mineclone.common.world.BlockHitResult;
 import mineclone.common.world.IWorld;
 import mineclone.common.world.block.Blocks;
@@ -17,17 +19,19 @@ public class ClientPlayerEntity extends PlayerEntity {
 
 	private static final int INTERACT_INTERVAL = 4;
 	
+	private final MinecloneClient client;
+	
 	private final PlayerController controller;
-
 	private final PlayerHotbar hotbar;
 	
 	private int interactTimer;
 	
-	public ClientPlayerEntity(IWorld world, PlayerController controller) {
+	public ClientPlayerEntity(IWorld world, MinecloneClient client) {
 		super(world);
 		
-		this.controller = controller;
-		
+		this.client = client;
+
+		controller = client.getController();
 		hotbar = new PlayerHotbar();
 
 		controller.setPlayer(this);
@@ -51,21 +55,24 @@ public class ClientPlayerEntity extends PlayerEntity {
 				if (hitResult != null) {
 					boolean success = false;
 					
+					IBlockPosition placePos;
+					IBlockState placeState;
+					
 					if (remove) {
-						world.setBlock(hitResult.pos, Blocks.AIR_BLOCK);
+						placePos = hitResult.pos;
+						placeState = Blocks.AIR_BLOCK.getDefaultState();
 						success = true;
 					} else {
-						IBlockPosition placePos = hitResult.pos.offset(hitResult.face);
-						IBlockState placeState = hotbar.getHotbarBlock().getPlacementState(world, placePos);
-						
-						if (!isBlockInsidePlayer(placeState, placePos)) {
-							world.setBlockState(placePos, placeState);
-							success = true;
-						}
+						placePos = hitResult.pos.offset(hitResult.face);
+						placeState = hotbar.getHotbarBlock().getPlacementState(world, placePos);
+						success = !isBlockInsidePlayer(placeState, placePos);
 					}
 					
-					if (success)
+					if (success) {
+						world.setBlockState(placePos, placeState);
+						client.send(new StateChangeUPacket(placePos, placeState));
 						interactTimer = INTERACT_INTERVAL;
+					}
 				}
 			}
 		} else {

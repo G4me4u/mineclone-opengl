@@ -12,6 +12,7 @@ import mineclone.common.net.handler.IPacketHandler;
 import mineclone.common.net.handler.IServerPacketHandler;
 import mineclone.common.net.packet.c2s.PlayerJoinC2SPacket;
 import mineclone.common.net.packet.s2c.ChunkS2CPacket;
+import mineclone.common.net.packet.universal.StateChangeUPacket;
 
 public final class PacketRegistries {
 
@@ -19,8 +20,12 @@ public final class PacketRegistries {
 
 	static {
 		RegistryBank<IClientPacketHandler, IServerPacketHandler> gameplay = getBank(NetworkPhase.GAMEPLAY);
+		// Client to server packets
 		gameplay.registerC2S(0, PlayerJoinC2SPacket.class, PlayerJoinC2SPacket::new, IServerPacketHandler::onPlayerJoin, true);
-		gameplay.registerS2C(1, ChunkS2CPacket.class, ChunkS2CPacket::new, IClientPacketHandler::onWorldChunk, true);
+		gameplay.registerC2S(1, StateChangeUPacket.class, StateChangeUPacket::new, IServerPacketHandler::onStateChange, true);
+		// Server to client packets
+		gameplay.registerS2C(0, ChunkS2CPacket.class, ChunkS2CPacket::new, IClientPacketHandler::onWorldChunk, true);
+		gameplay.registerS2C(1, StateChangeUPacket.class, StateChangeUPacket::new, IClientPacketHandler::onStateChange, true);
 	}
 	
 	private PacketRegistries() {

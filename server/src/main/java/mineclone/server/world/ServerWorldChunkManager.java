@@ -1,7 +1,10 @@
 package mineclone.server.world;
 
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
+import mineclone.common.net.packet.universal.StateChangeUPacket;
 import mineclone.common.world.block.IBlockPosition;
 import mineclone.common.world.block.state.IBlockState;
 import mineclone.common.world.chunk.ChunkEntry;
@@ -13,16 +16,25 @@ import mineclone.common.world.chunk.IWorldChunkManager;
 import mineclone.common.world.chunk.StaticChunkStorage;
 import mineclone.common.world.chunk.StaticHeightMap;
 import mineclone.common.world.chunk.WorldChunk;
+import mineclone.server.MinecloneServer;
 
 public class ServerWorldChunkManager implements IWorldChunkManager {
 
+	private final MinecloneServer server;
+	
 	private final StaticChunkStorage<IWorldChunk> storage;
 	private final StaticHeightMap heightMap;
 	
-	public ServerWorldChunkManager() {
+	private final Set<IBlockPosition> dirtyPositions;
+	
+	public ServerWorldChunkManager(MinecloneServer server) {
+		this.server = server;
+		
 		// TODO: make this dynamic :-)
 		storage = new StaticChunkStorage<IWorldChunk>();
 		heightMap = new StaticHeightMap();
+		
+		dirtyPositions = new HashSet<>();
 	}
 	
 	public IWorldChunk getChunk(IChunkPosition chunkPos, boolean initAbsent) {
@@ -74,11 +86,19 @@ public class ServerWorldChunkManager implements IWorldChunkManager {
 		int rz = pos.getZ() & IWorldChunk.CHUNK_MASK;
 		
 		if (chunk.setBlockState(rx, ry, rz, state)) {
+			// TODO: make the dirty positions more efficient.
+			dirtyPositions.add(pos);
 			heightMap.updateHeightMap(pos, this);
 			return true;
 		}
 		
 		return false;
+	}
+	
+	public void broadcastDirtyStates() {
+		for (IBlockPosition pos : dirtyPositions)
+			server.sendToAll(new StateChangeUPacket(pos, getBlockState(pos)));
+		dirtyPositions.clear();
 	}
 
 	@Override

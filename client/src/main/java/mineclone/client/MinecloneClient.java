@@ -33,6 +33,7 @@ import mineclone.common.net.INetworkConnection;
 import mineclone.common.net.INetworkListener;
 import mineclone.common.net.NetworkManager;
 import mineclone.common.net.NetworkSide;
+import mineclone.common.net.packet.IPacket;
 import mineclone.common.net.packet.c2s.PlayerJoinC2SPacket;
 import mineclone.common.util.DebugUtil;
 import mineclone.common.world.IClientWorld;
@@ -214,6 +215,11 @@ public class MinecloneClient implements DisplayListener, IKeyboardListener, INet
 		
 		worldRenderer.render(dt);
 	}
+	
+	public void send(IPacket packet) {
+		if (outgoingConnection != null)
+			outgoingConnection.send(packet);
+	}
 
 	public TaskScheduler getTaskScheduler() {
 		return taskScheduler;
@@ -258,7 +264,7 @@ public class MinecloneClient implements DisplayListener, IKeyboardListener, INet
 		
 		System.out.println("[Client]: Connected to server!");
 		
-		connection.send(new PlayerJoinC2SPacket());
+		send(new PlayerJoinC2SPacket());
 	}
 
 	@Override

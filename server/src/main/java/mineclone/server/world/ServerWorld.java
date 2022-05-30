@@ -16,13 +16,14 @@ import mineclone.common.world.chunk.ChunkEntry;
 import mineclone.common.world.chunk.IChunkPosition;
 import mineclone.common.world.chunk.IWorldChunk;
 import mineclone.common.world.gen.DiamondNoise;
+import mineclone.server.MinecloneServer;
 
 public class ServerWorld extends World implements IServerWorld {
 
 	private static final int RANDOM_TICK_SPEED = 3;
 	
-	public ServerWorld() {
-		super(new ServerWorldChunkManager());
+	public ServerWorld(MinecloneServer server) {
+		super(new ServerWorldChunkManager(server));
 		
 		generateWorld();
 	}
@@ -247,6 +248,8 @@ public class ServerWorld extends World implements IServerWorld {
 		super.update();
 		
 		performRandomUpdates();
+		
+		getChunkManager().broadcastDirtyStates();
 	}
 	
 	private void performRandomUpdates() {
@@ -259,7 +262,7 @@ public class ServerWorld extends World implements IServerWorld {
 			IChunkPosition chunkPos = entry.getChunkPos();
 			IWorldChunk chunk = entry.getChunk();
 			
-			if (chunk.hasRandomUpdates()) {
+			if (chunk != null && chunk.hasRandomUpdates()) {
 				for (int i = 0; i < RANDOM_TICK_SPEED; i++) {
 					int rx = random.nextInt(IWorldChunk.CHUNK_SIZE);
 					int ry = random.nextInt(IWorldChunk.CHUNK_SIZE);
@@ -276,5 +279,10 @@ public class ServerWorld extends World implements IServerWorld {
 				}
 			}
 		}
+	}
+	
+	@Override
+	public ServerWorldChunkManager getChunkManager() {
+		return (ServerWorldChunkManager)super.getChunkManager();
 	}
 }

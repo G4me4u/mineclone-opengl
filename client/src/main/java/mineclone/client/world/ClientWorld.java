@@ -23,7 +23,9 @@ public class ClientWorld extends World implements IClientWorld {
 		
 		this.client = client;
 
-		player = new ClientPlayerEntity(this, client.getController());
+		// Add the player outside of the constructor...
+		player = new ClientPlayerEntity(this, client);
+		addEntity(player);
 	}
 	
 	@Override
@@ -89,10 +91,13 @@ public class ClientWorld extends World implements IClientWorld {
 	@Override
 	public void update() {
 		super.update();
-
-		player.update();
 	}
-
+	
+	@Override
+	public ClientWorldChunkManager getChunkManager() {
+		return (ClientWorldChunkManager)super.getChunkManager();
+	}
+	
 	@Override
 	public ClientPlayerEntity getPlayer() {
 		return player;

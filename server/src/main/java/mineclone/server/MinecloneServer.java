@@ -74,7 +74,7 @@ public abstract class MinecloneServer implements INetworkListener {
 			
 			long remainingMs = timer.remainingMillis();
 			if (remainingWaits > 0) {
-				remainingMs = Math.ceilDiv(remainingMs, remainingWaits);
+				remainingMs = (remainingMs - 1) / remainingWaits + 1; // ceilDiv(ms, waits)
 				remainingWaits--;
 			}
 			

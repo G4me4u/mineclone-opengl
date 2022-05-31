@@ -20,16 +20,18 @@ public class ClientWorldChunkManager implements IWorldChunkManager {
 	private final StaticHeightMap heightMap;
 	
 	public ClientWorldChunkManager() {
-		storage = new StaticChunkStorage<IWorldChunk>();
+		storage = new StaticChunkStorage<IWorldChunk>(EmptyWorldChunk.INSTANCE);
 		heightMap = new StaticHeightMap();
+	}
+
+	public void setSize(int chunkCountX, int chunkCountY, int chunkCountZ) {
+		storage.setSize(chunkCountX, chunkCountY, chunkCountZ);
+		heightMap.setSize(chunkCountX, chunkCountZ);
 	}
 	
 	public IWorldChunk getChunk(IChunkPosition chunkPos, boolean initAbsent) {
 		IWorldChunk chunk = storage.getChunk(chunkPos);
-		if (chunk == null) {
-			if (!initAbsent || !storage.contains(chunkPos))
-				return EmptyWorldChunk.INSTANCE;
-			
+		if (initAbsent && chunk == EmptyWorldChunk.INSTANCE) {
 			chunk = new WorldChunk();
 			// Note: no need to update height map, since
 			//       the entire chunk is air.
@@ -37,7 +39,7 @@ public class ClientWorldChunkManager implements IWorldChunkManager {
 		}
 		return chunk;
 	}
-
+	
 	@Override
 	public IWorldChunk getChunk(IChunkPosition chunkPos) {
 		return getChunk(chunkPos, false);
@@ -66,7 +68,7 @@ public class ClientWorldChunkManager implements IWorldChunkManager {
 
 	@Override
 	public boolean setBlockState(IBlockPosition pos, IBlockState state) {
-		IWorldChunk chunk = getChunk(new ChunkPosition(pos), true);
+		IWorldChunk chunk = getChunk(new ChunkPosition(pos), !state.isAir());
 
 		int rx = pos.getX() & IWorldChunk.CHUNK_MASK;
 		int ry = pos.getY() & IWorldChunk.CHUNK_MASK;

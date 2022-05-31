@@ -1,5 +1,6 @@
 package mineclone.common.world.chunk;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -10,6 +11,8 @@ public class StaticChunkStorage<T extends IChunk> implements IChunkStorage<T> {
 	public static final int DEFAULT_CHUNK_COUNT_Z = 16;
 	
 	public static final int OUT_OF_BOUNDS_CHUNK_OFFSET = -1;
+	
+	private final T emptyChunk;
 	
 	private int chunkCountX;
 	private int chunkCountY;
@@ -22,7 +25,9 @@ public class StaticChunkStorage<T extends IChunk> implements IChunkStorage<T> {
 	private final ChunkPosition originChunkPos;
 	private int originChunkOffset;
 	
-	public StaticChunkStorage() {
+	public StaticChunkStorage(T emptyChunk) {
+		this.emptyChunk = emptyChunk;
+		
 		originChunkPos = new ChunkPosition();
 		originChunkOffset = 0;
 
@@ -36,24 +41,28 @@ public class StaticChunkStorage<T extends IChunk> implements IChunkStorage<T> {
 		int strideZ = chunkCountX * chunkCountY;
 		
 		IChunk[] newChunks = new IChunk[strideZ * chunkCountZ];
+		Arrays.fill(newChunks, emptyChunk);
 		
-		int rx1 = Math.min(this.chunkCountX, chunkCountX);
-		int ry1 = Math.min(this.chunkCountY, chunkCountY);
-		int rz1 = Math.min(this.chunkCountZ, chunkCountZ);
-		
-		int i0 = originChunkOffset, i1 = 0;
-		
-		for (int rz = 0; rz < rz1; rz++) {
-			for (int ry = 0; ry < ry1; ry++) {
-				for (int rx = 0; rx < rx1; rx++)
-					newChunks[i1++] = chunks[i0++ % chunks.length];
-				
-				i0 += this.chunkCountX - rx1;
-				i1 += chunkCountX - rx1;
-			}
+		if (chunks != null) {
+			// Copy existing chunks into newChunks array.
+			int rx1 = Math.min(this.chunkCountX, chunkCountX);
+			int ry1 = Math.min(this.chunkCountY, chunkCountY);
+			int rz1 = Math.min(this.chunkCountZ, chunkCountZ);
 			
-			i0 += this.strideZ - ry1 * this.chunkCountX;
-			i1 += strideZ - ry1 * chunkCountX;
+			int i0 = originChunkOffset, i1 = 0;
+			
+			for (int rz = 0; rz < rz1; rz++) {
+				for (int ry = 0; ry < ry1; ry++) {
+					for (int rx = 0; rx < rx1; rx++)
+						newChunks[i1++] = chunks[i0++ % chunks.length];
+					
+					i0 += this.chunkCountX - rx1;
+					i1 += chunkCountX - rx1;
+				}
+				
+				i0 += this.strideZ - ry1 * this.chunkCountX;
+				i1 += strideZ - ry1 * chunkCountX;
+			}
 		}
 		
 		this.chunkCountX = chunkCountX;
@@ -143,15 +152,11 @@ public class StaticChunkStorage<T extends IChunk> implements IChunkStorage<T> {
 		for (int rz = rz0; rz < rz1; rz++, iz += strideZ) {
 			for (int ry = ry0, iy = iz; ry < ry1; ry++, iy += chunkCountX) {
 				for (int rx = rx0, i = iy; rx < rx1; rx++, i++)
-					invalidateChunk(originChunkPos.offset(rx, ry, rz), i % chunks.length);
+					chunks[i % chunks.length] = emptyChunk;
 			}
 		}
 	}
 	
-	private void invalidateChunk(IChunkPosition chunkPos, int offset) {
-		chunks[offset] = null;
-	}
-
 	@Override
 	public boolean contains(IChunkPosition chunkPos) {
 		return (getChunkOffset(chunkPos) != OUT_OF_BOUNDS_CHUNK_OFFSET);
@@ -161,7 +166,7 @@ public class StaticChunkStorage<T extends IChunk> implements IChunkStorage<T> {
 	public T getChunk(IChunkPosition chunkPos) {
 		int offset = getChunkOffset(chunkPos);
 		if (offset == OUT_OF_BOUNDS_CHUNK_OFFSET)
-			return null;
+			return emptyChunk;
 
 		@SuppressWarnings("unchecked")
 		T chunk = (T)chunks[offset];
@@ -171,6 +176,9 @@ public class StaticChunkStorage<T extends IChunk> implements IChunkStorage<T> {
 	
 	@Override
 	public boolean setChunk(IChunkPosition chunkPos, T chunk) {
+		if (chunk == null)
+			throw new IllegalArgumentException("chunk is null");
+		
 		int offset = getChunkOffset(chunkPos);
 		if (offset == OUT_OF_BOUNDS_CHUNK_OFFSET)
 			return false;

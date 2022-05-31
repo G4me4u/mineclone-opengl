@@ -20,7 +20,7 @@ public class ClientPacketHandler extends AbstractPacketHandler implements IClien
 		
 		this.client = client;
 	}
-
+	
 	@Override
 	public void onWorldChunk(ChunkS2CPacket packet) {
 		client.getWorld().setChunk(packet.getChunkPos(), packet.getChunk());

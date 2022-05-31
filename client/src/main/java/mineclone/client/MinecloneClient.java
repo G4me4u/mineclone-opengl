@@ -44,7 +44,7 @@ public class MinecloneClient implements DisplayListener, IKeyboardListener, INet
 	private static final int DEFAULT_WIDTH  = 856;
 	private static final int DEFAULT_HEIGHT = 480;
 	
-	private static final boolean CONNECT_INTEGRATED = false;
+	private static final boolean CONNECT_INTEGRATED = true;
 	private static final String SERVER_HOSTNAME = "localhost";
 	private static final int SERVER_PORT = 2202;
 	

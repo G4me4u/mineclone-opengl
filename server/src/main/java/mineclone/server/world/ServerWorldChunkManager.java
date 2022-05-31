@@ -31,7 +31,7 @@ public class ServerWorldChunkManager implements IWorldChunkManager {
 		this.server = server;
 		
 		// TODO: make this dynamic :-)
-		storage = new StaticChunkStorage<IWorldChunk>();
+		storage = new StaticChunkStorage<IWorldChunk>(EmptyWorldChunk.INSTANCE);
 		heightMap = new StaticHeightMap();
 		
 		dirtyPositions = new HashSet<>();
@@ -39,10 +39,7 @@ public class ServerWorldChunkManager implements IWorldChunkManager {
 	
 	public IWorldChunk getChunk(IChunkPosition chunkPos, boolean initAbsent) {
 		IWorldChunk chunk = storage.getChunk(chunkPos);
-		if (chunk == null) {
-			if (!initAbsent || !storage.contains(chunkPos))
-				return EmptyWorldChunk.INSTANCE;
-			
+		if (initAbsent && chunk == EmptyWorldChunk.INSTANCE) {
 			chunk = new WorldChunk();
 			// Note: no need to update height map, since
 			//       the entire chunk is air.
@@ -79,7 +76,7 @@ public class ServerWorldChunkManager implements IWorldChunkManager {
 
 	@Override
 	public boolean setBlockState(IBlockPosition pos, IBlockState state) {
-		IWorldChunk chunk = getChunk(new ChunkPosition(pos), true);
+		IWorldChunk chunk = getChunk(new ChunkPosition(pos), !state.isAir());
 
 		int rx = pos.getX() & IWorldChunk.CHUNK_MASK;
 		int ry = pos.getY() & IWorldChunk.CHUNK_MASK;

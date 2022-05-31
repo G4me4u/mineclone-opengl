@@ -24,5 +24,5 @@ public interface IWorldChunkManager {
 	}
 	
 	public Iterator<ChunkEntry<IWorldChunk>> chunkIterator();
-	
+
 }

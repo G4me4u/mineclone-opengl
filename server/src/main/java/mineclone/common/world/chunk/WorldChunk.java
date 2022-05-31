@@ -2,8 +2,6 @@ package mineclone.common.world.chunk;
 
 import java.util.Arrays;
 
-import mineclone.common.net.packet.PacketDecodeBuffer;
-import mineclone.common.net.packet.PacketEncodeBuffer;
 import mineclone.common.world.block.Blocks;
 import mineclone.common.world.block.state.IBlockState;
 
@@ -11,11 +9,13 @@ public class WorldChunk implements IWorldChunk {
 
 	private final IBlockState[] states;
 	private int randomUpdateCount;
+	private int airStateCount;
 
 	public WorldChunk() {
 		states = new IBlockState[CHUNK_VOLUME];
 		randomUpdateCount = 0;
-
+		airStateCount = CHUNK_VOLUME;
+	
 		Arrays.fill(states, Blocks.AIR_BLOCK.getDefaultState());
 	}
 	
@@ -27,8 +27,12 @@ public class WorldChunk implements IWorldChunk {
 			for (int i = 0; i < CHUNK_VOLUME; i++)
 				states[i] = otherWorldChunk.states[i];
 			randomUpdateCount = otherWorldChunk.randomUpdateCount;
+			airStateCount = otherWorldChunk.airStateCount;
 		} else {
 			randomUpdateCount = 0;
+			airStateCount = CHUNK_VOLUME;
+
+			Arrays.fill(states, Blocks.AIR_BLOCK.getDefaultState());
 			
 			for (int rz = 0; rz < CHUNK_SIZE; rz++) {
 				for (int ry = 0; ry < CHUNK_SIZE; ry++) {
@@ -64,6 +68,11 @@ public class WorldChunk implements IWorldChunk {
 			if (newState.hasRandomUpdate())
 				randomUpdateCount++;
 
+			if (oldState.isAir())
+				airStateCount--;
+			if (newState.isAir())
+				airStateCount++;
+			
 			return true;
 		}
 
@@ -77,23 +86,6 @@ public class WorldChunk implements IWorldChunk {
 
 	@Override
 	public boolean isEmpty() {
-		return false;
-	}
-
-	public static void write(PacketEncodeBuffer buffer, WorldChunk chunk) {
-		for (int i = 0; i < CHUNK_VOLUME; i++) {
-			IBlockState state = chunk.states[i];
-			buffer.writeInt(Blocks.getIdentifier(state));
-		}
-	}
-	
-	public static WorldChunk read(PacketDecodeBuffer buffer) {
-		WorldChunk chunk = new WorldChunk();
-		for (int i = 0; i < CHUNK_VOLUME; i++) {
-			IBlockState state = Blocks.getState(buffer.readInt());
-			chunk.states[i] = (state == null) ? Blocks.AIR_BLOCK.getDefaultState() : state;
-		}
-		
-		return chunk;
+		return (airStateCount == CHUNK_VOLUME);
 	}
 }

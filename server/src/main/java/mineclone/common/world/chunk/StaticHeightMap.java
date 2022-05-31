@@ -12,7 +12,7 @@ public class StaticHeightMap implements IHeightMap {
 	private static StaticChunkStorage<HeightMapChunk> chunkStorage;
 	
 	public StaticHeightMap() {
-		chunkStorage = new StaticChunkStorage<>();
+		chunkStorage = new StaticChunkStorage<>(null);
 	}
 	
 	public void setSize(int chunkCountX, int chunkCountZ) {

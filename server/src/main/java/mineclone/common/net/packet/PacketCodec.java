@@ -57,7 +57,7 @@ public class PacketCodec extends ByteToMessageCodec<IPacket> {
 			if (packetLength > MAXIMUM_PACKET_LENGTH)
 				throw new DecoderException("Packet length exceeds maximum (" + MAXIMUM_PACKET_LENGTH + "): " + packetLength);
 			
-			if (buffer.isReadable(packetLength + IDENTIFIER_BYTE_SIZE)) {
+			if (buffer.isReadable(packetLength + HEADER_BYTE_SIZE)) {
 				buffer.skipBytes(LENGTH_BYTE_SIZE);
 				
 				short packetId = buffer.readShortLE();

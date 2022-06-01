@@ -23,10 +23,8 @@ public class NetworkManager implements IResource {
 	}
 
 	public void addConnection(INetworkConnection connection) {
-		if (connection.isConnected()) {
-			connections.add(connection);
-			onConnectionAdded(connection);
-		}
+		connections.add(connection);
+		onConnectionAdded(connection);
 	}
 
 	public void removeConnection(INetworkConnection connection) {

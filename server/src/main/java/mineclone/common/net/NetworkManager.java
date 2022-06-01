@@ -1,10 +1,10 @@
 package mineclone.common.net;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Consumer;
 
 import mineclone.common.IResource;
 
@@ -33,12 +33,14 @@ public class NetworkManager implements IResource {
 	}
 	
 	public void update() {
-		Iterator<INetworkConnection> itr = connections.iterator();
-		while (itr.hasNext()) {
-			INetworkConnection connection = itr.next();
-			if (!connection.isConnected()) {
-				itr.remove();
-				onConnectionRemoved(connection);
+		synchronized (connections) {
+			Iterator<INetworkConnection> itr = connections.iterator();
+			while (itr.hasNext()) {
+				INetworkConnection connection = itr.next();
+				if (!connection.isConnected()) {
+					itr.remove();
+					onConnectionRemoved(connection);
+				}
 			}
 		}
 	}
@@ -52,19 +54,25 @@ public class NetworkManager implements IResource {
 	}
 	
 	private void onConnectionAdded(INetworkConnection connection) {
-		for (INetworkListener listener : listeners)
-			listener.connectionAdded(connection);
+		synchronized (listeners) {
+			for (INetworkListener listener : listeners)
+				listener.connectionAdded(connection);
+		}
 	}
 	
 	private void onConnectionRemoved(INetworkConnection connection) {
 		connection.close();
 		
-		for (INetworkListener listener : listeners)
-			listener.connectionRemoved(connection);
+		synchronized (listeners) {
+			for (INetworkListener listener : listeners)
+				listener.connectionRemoved(connection);
+		}
 	}
 
-	public Collection<INetworkConnection> getConnections() {
-		return connections;
+	public void forEach(Consumer<INetworkConnection> action) {
+		synchronized (connections) {
+			connections.iterator().forEachRemaining(action);
+		}
 	}
 
 	public NetworkSide getSide() {
@@ -73,8 +81,9 @@ public class NetworkManager implements IResource {
 
 	@Override
 	public void close() {
-		for (int i = connections.size(); i-- > 0; )
-			onConnectionRemoved(connections.remove(i));
-		connections.clear();
+		synchronized (connections) {
+			for (int i = connections.size(); i-- > 0; )
+				onConnectionRemoved(connections.remove(i));
+		}
 	}
 }

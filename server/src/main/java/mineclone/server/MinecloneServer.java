@@ -97,8 +97,9 @@ public abstract class MinecloneServer implements INetworkListener {
 	}
 	
 	public void sendToAll(IPacket packet) {
-		for (INetworkConnection connection : networkManager.getConnections())
+		networkManager.forEach((connection) -> {
 			connection.send(packet);
+		});
 	}
 	
 	public void requestStop() {

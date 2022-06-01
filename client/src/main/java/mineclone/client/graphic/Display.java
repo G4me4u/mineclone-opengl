@@ -135,7 +135,7 @@ public class Display implements IResource {
 	
 			glfwGetFramebufferSize(windowHandle, pWidth, pHeight);
 		
-			return new DisplaySize(pWidth.get(), pHeight.get());
+			return new DisplaySize(pWidth.get(0), pHeight.get(0));
 		}
 	}
 	
@@ -233,13 +233,13 @@ public class Display implements IResource {
 					
 					glfwGetWindowPos(windowHandle, pX, pY);
 					
-					prevX = pX.get();
-					prevY = pY.get();
+					prevX = pX.get(0);
+					prevY = pY.get(0);
 
 					glfwGetWindowSize(windowHandle, pX, pY);
 					
-					prevWidth = pX.get();
-					prevHeight = pY.get();
+					prevWidth = pX.get(0);
+					prevHeight = pY.get(0);
 				}
 
 				glfwSetWindowMonitor(windowHandle, monitor, 0, 0, mode.width(), mode.height(), mode.refreshRate());

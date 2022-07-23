@@ -18,13 +18,13 @@ public class GrassBlock extends Block {
 	}
 	
 	@Override
-	public void onStateUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction fromDir, IBlockState fromState) {
-		if (fromDir == Direction.UP && !isValidGrassCondition(world, pos))
+	public void updateShape(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir, IBlockPosition neighborPos, IBlockState neighborState) {
+		if (dir == Direction.UP && !isValidGrassCondition(world, pos))
 			world.setBlock(pos, Blocks.DIRT_BLOCK, true);
 	}
 	
 	@Override
-	public void onRandomUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Random random) {
+	public void randomTick(IServerWorld world, IBlockPosition pos, IBlockState state, Random random) {
 		if (!isValidGrassCondition(world, pos)) {
 			world.setBlock(pos, Blocks.DIRT_BLOCK, true);
 			return;
@@ -47,7 +47,7 @@ public class GrassBlock extends Block {
 	}
 	
 	@Override
-	public boolean hasRandomUpdate(IBlockState state) {
+	public boolean doesRandomTicks(IBlockState state) {
 		return true;
 	}
 

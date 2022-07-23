@@ -5,8 +5,8 @@ import java.util.Iterator;
 import mineclone.common.world.Direction;
 import mineclone.common.world.IServerWorld;
 import mineclone.common.world.World;
-import mineclone.common.world.block.Block;
 import mineclone.common.world.block.Blocks;
+import mineclone.common.world.block.IBlock;
 import mineclone.common.world.block.IBlockPosition;
 import mineclone.common.world.block.MutableBlockPosition;
 import mineclone.common.world.block.PlantBlock;
@@ -144,14 +144,14 @@ public class ServerWorld extends World implements IServerWorld {
 
 		if (chunkManager.setBlockState(pos, newState)) {
 			if (updateNeighbors) {
-				Block oldBlock = oldState.getBlock();
-				Block newBlock = newState.getBlock();
+				IBlock oldBlock = oldState.getBlock();
+				IBlock newBlock = newState.getBlock();
 				
 				if (oldBlock == newBlock) {
-					newBlock.onStateChanged(this, pos, oldState, newState);
+					newBlock.onChanged(this, pos, oldState, newState);
 				} else {
-					oldBlock.onBlockRemoved(this, pos, oldState);
-					newBlock.onBlockAdded(this, pos, newState);
+					oldBlock.onRemoved(this, pos, oldState);
+					newBlock.onAdded(this, pos, newState);
 				}
 			}
 			
@@ -213,19 +213,14 @@ public class ServerWorld extends World implements IServerWorld {
 	private void dispatchInventoryUpdate(IBlockPosition pos, Direction fromDir, IBlockState fromState) {
 		getBlockState(pos).onInventoryUpdate(this, pos, fromDir, fromState);
 	}
-	
-	@Override
-	public int getPower(IBlockPosition pos, int powerFlags) {
-		return getPowerExceptFrom(pos, null, powerFlags);
-	}
 
 	@Override
-	public int getPowerExceptFrom(IBlockPosition pos, Direction exceptDir, int powerFlags) {
+	public int getPowerExceptFrom(IBlockPosition pos, Direction exceptDir) {
 		int highestPower = 0;
 		
 		for (Direction dir : Direction.DIRECTIONS) {
 			if (dir != exceptDir) {
-				int power = getPowerFrom(pos, dir, powerFlags);
+				int power = getPowerFrom(pos, dir);
 				
 				if (power > highestPower)
 					highestPower = power;
@@ -236,11 +231,11 @@ public class ServerWorld extends World implements IServerWorld {
 	}
 	
 	@Override
-	public int getPowerFrom(IBlockPosition pos, Direction dir, int powerFlags) {
+	public int getPowerFrom(IBlockPosition pos, Direction dir) {
 		IBlockPosition neighborPos = pos.offset(dir);
 		IBlockState state = getBlockState(neighborPos);
 	
-		return state.getPowerTo(this, neighborPos, dir.getOpposite(), powerFlags);
+		return state.getPowerTo(this, neighborPos, dir.getOpposite());
 	}
 	
 	@Override
@@ -274,8 +269,8 @@ public class ServerWorld extends World implements IServerWorld {
 	
 					IBlockState state = chunk.getBlockState(rx, ry, rz);
 					
-					if (state.hasRandomUpdate())
-						state.onRandomUpdate(this, pos, random);
+					if (state.doesRandomTicks())
+						state.randomTick(this, pos, random);
 				}
 			}
 		}

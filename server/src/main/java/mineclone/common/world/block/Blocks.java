@@ -8,24 +8,24 @@ import mineclone.common.world.block.state.IBlockState;
 
 public class Blocks {
 
-	private static ReferenceRegsitry<String, Block> blockRegistry = null;
+	private static ReferenceRegsitry<String, IBlock> blockRegistry = null;
 	private static ReferenceRegsitry<Integer, IBlockState> stateRegistry = null;
 	
-	public static final Block AIR_BLOCK;
-	public static final Block DIRT_BLOCK;
-	public static final Block GRASS_BLOCK;
-	public static final Block PLANKS_BLOCK;
-	public static final Block STONE_BLOCK;
-	public static final Block COBBLESTONE_BLOCK;
-	public static final Block PLANT_BLOCK;
-	public static final Block LEAVES_BLOCK;
-	public static final Block LOG_BLOCK;
-	public static final Block REDSTONE_WIRE_BLOCK;
-	public static final Block REDSTONE_BLOCK;
-	public static final Block STONE_SLAB_BLOCK;
-	public static final Block PLANKS_SLAB_BLOCK;
+	public static final IBlock AIR_BLOCK;
+	public static final IBlock DIRT_BLOCK;
+	public static final IBlock GRASS_BLOCK;
+	public static final IBlock PLANKS_BLOCK;
+	public static final IBlock STONE_BLOCK;
+	public static final IBlock COBBLESTONE_BLOCK;
+	public static final IBlock PLANT_BLOCK;
+	public static final IBlock LEAVES_BLOCK;
+	public static final IBlock LOG_BLOCK;
+	public static final IBlock REDSTONE_WIRE_BLOCK;
+	public static final IBlock REDSTONE_BLOCK;
+	public static final IBlock STONE_SLAB_BLOCK;
+	public static final IBlock PLANKS_SLAB_BLOCK;
 	
-	private static Block register(String name, Block block) {
+	private static IBlock register(String name, Block block) {
 		block.setName(name);
 
 		blockRegistry.register(name, block);
@@ -38,8 +38,8 @@ public class Blocks {
 		return block;
 	}
 	
-	public static Block getBlock(String name) {
-		Block block = blockRegistry.getElement(name);
+	public static IBlock getBlock(String name) {
+		IBlock block = blockRegistry.getElement(name);
 		
 		if (block == null)
 			throw new NoSuchElementException("Block with name '" + name + "' does not exist!");
@@ -59,7 +59,7 @@ public class Blocks {
 		return stateRegistry.getSize();
 	}
 	
-	public static Set<Block> getBlocks() {
+	public static Set<IBlock> getBlocks() {
 		return blockRegistry.elements();
 	}
 

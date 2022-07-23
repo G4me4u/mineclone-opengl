@@ -63,9 +63,9 @@ public class WorldChunk implements IWorldChunk {
 		if (newState != oldState) {
 			states[index] = newState;
 			
-			if (oldState.hasRandomUpdate())
+			if (oldState.doesRandomTicks())
 				randomUpdateCount--;
-			if (newState.hasRandomUpdate())
+			if (newState.doesRandomTicks())
 				randomUpdateCount++;
 
 			if (oldState.isAir())

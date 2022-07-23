@@ -12,8 +12,8 @@ public class PlantBlock extends Block {
 	public static final IBlockProperty<PlantType> PLANT_TYPE = new EnumBlockProperty<>("type", PlantType.TYPES);
 	
 	@Override
-	public void onStateUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction fromDir, IBlockState fromState) {
-		if (fromDir == Direction.DOWN && !world.getBlockState(pos.down()).canGrowVegetation())
+	public void updateShape(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir, IBlockPosition neighborPos, IBlockState neighborState) {
+		if (dir == Direction.DOWN && !world.getBlockState(pos.down()).canGrowVegetation())
 			world.setBlock(pos, Blocks.AIR_BLOCK, true);
 	}
 	

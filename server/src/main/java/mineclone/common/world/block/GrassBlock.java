@@ -6,6 +6,7 @@ import mineclone.common.world.Direction;
 import mineclone.common.world.IServerWorld;
 import mineclone.common.world.IWorld;
 import mineclone.common.world.block.state.IBlockState;
+import mineclone.common.world.flags.SetBlockFlags;
 
 public class GrassBlock extends Block {
 
@@ -20,13 +21,13 @@ public class GrassBlock extends Block {
 	@Override
 	public void updateShape(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir, IBlockPosition neighborPos, IBlockState neighborState) {
 		if (dir == Direction.UP && !isValidGrassCondition(world, pos))
-			world.setBlock(pos, Blocks.DIRT_BLOCK, true);
+			world.setBlock(pos, Blocks.DIRT_BLOCK, SetBlockFlags.UPDATE_NEIGHBOR_SHAPES | SetBlockFlags.UPDATE_NEIGHBORS);
 	}
 	
 	@Override
 	public void randomTick(IServerWorld world, IBlockPosition pos, IBlockState state, Random random) {
 		if (!isValidGrassCondition(world, pos)) {
-			world.setBlock(pos, Blocks.DIRT_BLOCK, true);
+			world.setBlock(pos, Blocks.DIRT_BLOCK, SetBlockFlags.UPDATE_NEIGHBOR_SHAPES | SetBlockFlags.UPDATE_NEIGHBORS);
 			return;
 		}
 		
@@ -38,7 +39,7 @@ public class GrassBlock extends Block {
 			IBlockPosition dirtPos = pos.offset(xo, yo, zo);
 			
 			if (world.getBlockState(dirtPos).isOf(Blocks.DIRT_BLOCK) && isValidGrassCondition(world, dirtPos))
-				world.setBlock(dirtPos, Blocks.GRASS_BLOCK, true);
+				world.setBlock(dirtPos, Blocks.GRASS_BLOCK, SetBlockFlags.UPDATE_NEIGHBOR_SHAPES | SetBlockFlags.UPDATE_NEIGHBORS);
 		}
 	}
 	

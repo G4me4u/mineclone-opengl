@@ -7,6 +7,8 @@ import mineclone.common.world.Direction;
 import mineclone.common.world.EntityHitbox;
 import mineclone.common.world.IServerWorld;
 import mineclone.common.world.IWorld;
+import mineclone.common.world.block.signal.SignalType;
+import mineclone.common.world.block.signal.wire.WireType;
 import mineclone.common.world.block.state.BlockState;
 import mineclone.common.world.block.state.IBlockState;
 
@@ -23,21 +25,48 @@ public class Block implements IBlock {
 	}
 
 	public void onAdded(IServerWorld world, IBlockPosition pos, IBlockState state) {
-		if (!state.isAir())
-			world.updateNeighbors(pos, IServerWorld.COMMON_UPDATE_FLAGS);
 	}
 
 	public void onRemoved(IServerWorld world, IBlockPosition pos, IBlockState state) {
-		if (!state.isAir())
-			world.updateNeighbors(pos, IServerWorld.COMMON_UPDATE_FLAGS);
 	}
 
 	public void onChanged(IServerWorld world, IBlockPosition pos, IBlockState oldState, IBlockState newState) {
 	}
 
+	void setName(String name) {
+		if (this.name != null)
+			throw new IllegalStateException("Name has already been set!");
+
+		this.name = name;
+	}
+
+	@Override
+	public final String getName() {
+		return name;
+	}
+
+	protected IBlockState createDefaultState() {
+		return BlockState.createStateTree(this);
+	}
+
+	@Override
+	public IBlockState getDefaultState() {
+		return defaultState;
+	}
+
 	@Override
 	public IBlockState getPlacementState(IWorld world, IBlockPosition pos, IBlockState state) {
 		return state;
+	}
+
+	@Override
+	public void updateNeighbors(IServerWorld world, IBlockPosition pos, IBlockState state) {
+		world.updateNeighbors(pos);
+	}
+
+	@Override
+	public void updateNeighborShapes(IServerWorld world, IBlockPosition pos, IBlockState state) {
+		world.updateNeighborShapes(pos, state);
 	}
 
 	@Override
@@ -87,24 +116,53 @@ public class Block implements IBlock {
 		return isSolid();
 	}
 
-	void setName(String name) {
-		if (this.name != null)
-			throw new IllegalStateException("Name has already been set!");
-
-		this.name = name;
+	@Override
+	public boolean isSignalSource(IBlockState state, SignalType type) {
+		return false;
 	}
 
 	@Override
-	public final String getName() {
-		return name;
-	}
-
-	protected IBlockState createDefaultState() {
-		return BlockState.createStateTree(this);
+	public int getSignal(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir, SignalType type) {
+		return type.min();
 	}
 
 	@Override
-	public IBlockState getDefaultState() {
-		return defaultState;
+	public int getDirectSignal(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir, SignalType type) {
+		return type.min();
+	}
+
+	@Override
+	public boolean isAnalogSignalSource(IBlockState state, SignalType type) {
+		return false;
+	}
+
+	@Override
+	public int getAnalogSignal(IServerWorld world, IBlockPosition pos, IBlockState state, SignalType type) {
+		return type.min();
+	}
+
+	@Override
+	public boolean isWire(IBlockState state) {
+		return false;
+	}
+
+	@Override
+	public boolean isWire(IBlockState state, WireType type) {
+		return false;
+	}
+
+	@Override
+	public boolean connectsToWire(IBlockState state, Direction dir) {
+		return false;
+	}
+
+	@Override
+	public boolean isSignalConsumer(IBlockState state, SignalType type) {
+		return false;
+	}
+
+	@Override
+	public boolean isSignalConductor(IBlockState state, Direction face, SignalType type) {
+		return isSolid();
 	}
 }

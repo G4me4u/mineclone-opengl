@@ -7,15 +7,25 @@ import mineclone.common.world.Direction;
 import mineclone.common.world.EntityHitbox;
 import mineclone.common.world.IServerWorld;
 import mineclone.common.world.IWorld;
-import mineclone.common.world.block.IBlock;
 import mineclone.common.world.block.Blocks;
+import mineclone.common.world.block.IBlock;
 import mineclone.common.world.block.IBlockPosition;
 import mineclone.common.world.block.MutableBlockPosition;
+import mineclone.common.world.block.signal.SignalType;
+import mineclone.common.world.block.signal.wire.WireType;
 
 public interface IBlockState {
 
 	default IBlockState getPlacementState(IWorld world, IBlockPosition pos) {
 		return getBlock().getPlacementState(world, pos, this);
+	}
+
+	default void updateNeighbors(IServerWorld world, IBlockPosition pos) {
+		getBlock().updateNeighbors(world, pos, this);
+	}
+
+	default void updateNeighborShapes(IServerWorld world, IBlockPosition pos) {
+		getBlock().updateNeighborShapes(world, pos, this);
 	}
 
 	default void update(IServerWorld world, IBlockPosition pos) {
@@ -44,6 +54,46 @@ public interface IBlockState {
 
 	default boolean isAligned(Direction dir) {
 		return getBlock().isAligned(this, dir);
+	}
+
+	default boolean isSignalSource(SignalType type) {
+		return getBlock().isSignalSource(this, type);
+	}
+
+	default int getSignal(IServerWorld world, IBlockPosition pos, Direction dir, SignalType type) {
+		return getBlock().getSignal(world, pos, this, dir, type);
+	}
+
+	default int getDirectSignal(IServerWorld world, IBlockPosition pos, Direction dir, SignalType type) {
+		return getBlock().getDirectSignal(world, pos, this, dir, type);
+	}
+
+	default boolean isAnalogSignalSource(SignalType type) {
+		return getBlock().isAnalogSignalSource(this, type);
+	}
+
+	default int getAnalogSignal(IServerWorld world, IBlockPosition pos, SignalType type) {
+		return getBlock().getAnalogSignal(world, pos, this, type);
+	}
+
+	default boolean isWire() {
+		return getBlock().isWire(this);
+	}
+
+	default boolean isWire(WireType type) {
+		return getBlock().isWire(this, type);
+	}
+
+	default boolean canConnectToWire(Direction dir) {
+		return getBlock().connectsToWire(this, dir);
+	}
+
+	default boolean isSignalConsumer(SignalType type) {
+		return getBlock().isSignalConsumer(this, type);
+	}
+
+	default boolean isSignalConductor(Direction face, SignalType type) {
+		return getBlock().isSignalConductor(this, face, type);
 	}
 
 	default boolean isAir() {

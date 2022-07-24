@@ -1,11 +1,11 @@
 package mineclone.client.renderer.model;
 
-import static mineclone.common.world.block.RedstoneWireBlock.CONNECTIONS;
-import static mineclone.common.world.block.RedstoneWireBlock.EAST_CONNECTION;
-import static mineclone.common.world.block.RedstoneWireBlock.NORTH_CONNECTION;
-import static mineclone.common.world.block.RedstoneWireBlock.POWER;
-import static mineclone.common.world.block.RedstoneWireBlock.SOUTH_CONNECTION;
-import static mineclone.common.world.block.RedstoneWireBlock.WEST_CONNECTION;
+import static mineclone.common.world.block.WireBlock.CONNECTIONS;
+import static mineclone.common.world.block.WireBlock.EAST_CONNECTION;
+import static mineclone.common.world.block.WireBlock.NORTH_CONNECTION;
+import static mineclone.common.world.block.WireBlock.POWER;
+import static mineclone.common.world.block.WireBlock.SOUTH_CONNECTION;
+import static mineclone.common.world.block.WireBlock.WEST_CONNECTION;
 
 import mineclone.client.graphic.ITextureRegion;
 import mineclone.client.graphic.tessellator.VertexAttribBuilder;

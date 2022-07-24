@@ -33,4 +33,9 @@ public class PoweredBlock extends Block implements SignalSource {
 	public int getDirectSignal(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir) {
 		return type.min();
 	}
+
+	@Override
+	public boolean connectsToWire(IBlockState state, Direction dir) {
+		return true;
+	}
 }

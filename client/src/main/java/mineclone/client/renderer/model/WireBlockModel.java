@@ -3,7 +3,6 @@ package mineclone.client.renderer.model;
 import static mineclone.common.world.block.WireBlock.CONNECTIONS;
 import static mineclone.common.world.block.WireBlock.EAST_CONNECTION;
 import static mineclone.common.world.block.WireBlock.NORTH_CONNECTION;
-import static mineclone.common.world.block.WireBlock.POWER;
 import static mineclone.common.world.block.WireBlock.SOUTH_CONNECTION;
 import static mineclone.common.world.block.WireBlock.WEST_CONNECTION;
 
@@ -15,6 +14,8 @@ import mineclone.common.world.Direction;
 import mineclone.common.world.IClientWorld;
 import mineclone.common.world.block.IBlockPosition;
 import mineclone.common.world.block.WireConnection;
+import mineclone.common.world.block.signal.wire.Wire;
+import mineclone.common.world.block.signal.wire.WireType;
 import mineclone.common.world.block.state.IBlockState;
 
 public class WireBlockModel extends AbstractBlockModel {
@@ -26,39 +27,51 @@ public class WireBlockModel extends AbstractBlockModel {
 	private final ITextureRegion vLineTexture;
 	private final ITextureRegion hLineTexture;
 
-	private final int[] wireColorTable;
+	private final Wire wire;
+	private final WireType type;
+
+	private final int[] colorTable;
 	
-	public WireBlockModel(ITextureRegion crossTexture, ITextureRegion vLineTexture, ITextureRegion hLineTexture) {
+	public WireBlockModel(ITextureRegion crossTexture, ITextureRegion vLineTexture, ITextureRegion hLineTexture, Wire wire, int color) {
 		this.crossTexture = crossTexture;
 		this.vLineTexture = vLineTexture;
 		this.hLineTexture = hLineTexture;
 	
-		wireColorTable = createColorTable();
-	}
-	
-	private static int[] createColorTable() {
-		int count = POWER.getValueCount();
-		int maxPower = POWER.getValue(count - 1);
-		
-		int[] colorTable = new int[count];
-		for (int i = 0; i < count; i++)
-			colorTable[i] = createWireColor(POWER.getValue(i), maxPower);
-	
-		return colorTable;
-	}
-	
-	private static int createWireColor(int power, int maxPower) {
-		float level = (float)power / maxPower;
+		this.wire = wire;
+		this.type = this.wire.getWireType();
 
-		float r = (power == 0) ? 0.3f : (level * 0.6f + 0.4f);
-		float g = level * level * 0.7f - 0.5f;
-		float b = level * level * 0.6f - 0.7f;
-		
-		return ColorUtil.pack(r, g, b);
+		this.colorTable = createColorTable(color);
 	}
 	
+	private int[] createColorTable(int baseColor) {
+		int br = ColorUtil.unpackR(baseColor);
+		int bg = ColorUtil.unpackG(baseColor);
+		int bb = ColorUtil.unpackB(baseColor);
+
+		ColorUtil.checkARGB(0, br, bg, bb);
+
+		int min = type.min();
+		int max = type.max();
+		int count = (max - min) + 1;
+
+		int[] table = new int[count];
+		int index = 0;
+
+		for (int signal = min; signal <= max; signal++) {
+			float f = (float)(signal - min) / (max - min);
+
+			float r = ColorUtil.normalize(br) * ((signal == min) ? 0.3F : (0.6F * f + 0.4F));
+			float g = ColorUtil.normalize(bg) * ((signal == min) ? 0.3F : (0.6F * f + 0.4F));
+			float b = ColorUtil.normalize(bb) * ((signal == min) ? 0.3F : (0.6F * f + 0.4F));
+
+			table[index++] = ColorUtil.pack(r, g, b);
+		}
+
+		return table;
+	}
+
 	private int getWireColor(IClientWorld world, IBlockPosition pos, IBlockState state) {
-		return wireColorTable[POWER.getValueIndex(state.get(POWER))];
+		return colorTable[wire.getSignal(state) - type.min()];
 	}
 
 	@Override

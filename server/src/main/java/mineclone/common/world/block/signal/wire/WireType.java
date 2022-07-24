@@ -55,4 +55,12 @@ public enum WireType {
 	public int step() {
 		return step;
 	}
+
+	public int clamp(int signal) {
+		return signal >= max ? max : (signal <= min ? min : signal);
+	}
+
+	public boolean isCompatible(WireType type) {
+		return signal.is(type.signal);
+	}
 }

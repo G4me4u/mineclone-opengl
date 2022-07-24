@@ -84,8 +84,8 @@ public interface IBlockState {
 		return getBlock().isWire(this, type);
 	}
 
-	default boolean canConnectToWire(Direction dir) {
-		return getBlock().connectsToWire(this, dir);
+	default boolean connectsToWire(Direction dir, WireType type) {
+		return getBlock().connectsToWire(this, dir, type);
 	}
 
 	default boolean isSignalConsumer(SignalType type) {

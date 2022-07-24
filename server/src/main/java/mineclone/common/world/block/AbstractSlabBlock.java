@@ -32,7 +32,7 @@ public abstract class AbstractSlabBlock extends Block {
 	}
 	
 	@Override
-	protected boolean hasEntityHitbox(IWorld world, IBlockPosition pos, IBlockState state) {
+	public boolean hasEntityHitbox(IWorld world, IBlockPosition pos, IBlockState state) {
 		return true;
 	}
 	

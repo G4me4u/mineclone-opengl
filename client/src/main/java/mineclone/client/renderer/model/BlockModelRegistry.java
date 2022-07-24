@@ -14,12 +14,13 @@ import static mineclone.client.renderer.world.BlockTextures.MARIGOLD_PLANT_TEXTU
 import static mineclone.client.renderer.world.BlockTextures.OAK_LOG_SIDE_TEXTURE;
 import static mineclone.client.renderer.world.BlockTextures.OAK_LOG_TOP_TEXTURE;
 import static mineclone.client.renderer.world.BlockTextures.OAK_PLANKS_TEXTURE;
-import static mineclone.client.renderer.world.BlockTextures.REDSTONE_BLOCK_TEXTURE;
+import static mineclone.client.renderer.world.BlockTextures.POWERED_BLOCK_TEXTURE;
 import static mineclone.client.renderer.world.BlockTextures.STONE_TEXTURE;
 import static mineclone.client.renderer.world.BlockTextures.WIRE_CROSS_TEXTURE;
 import static mineclone.client.renderer.world.BlockTextures.WIRE_HLINE_TEXTURE;
 import static mineclone.client.renderer.world.BlockTextures.WIRE_VLINE_TEXTURE;
 
+import mineclone.common.util.ColorUtil;
 import mineclone.common.util.DebugUtil;
 import mineclone.common.world.block.IBlock;
 import mineclone.common.world.block.Blocks;
@@ -30,6 +31,7 @@ import mineclone.common.world.block.StoneType;
 import mineclone.common.world.block.WoodPlanksBlock;
 import mineclone.common.world.block.WoodPlanksSlabBlock;
 import mineclone.common.world.block.WoodType;
+import mineclone.common.world.block.signal.wire.Wire;
 import mineclone.common.world.block.state.IBlockState;
 
 public final class BlockModelRegistry {
@@ -61,9 +63,10 @@ public final class BlockModelRegistry {
 		
 		register(Blocks.LEAVES_BLOCK, new BasicBlockModel(LEAVES_TEXTURE));
 		register(Blocks.LOG_BLOCK, new BasicBlockModel(OAK_LOG_TOP_TEXTURE, OAK_LOG_TOP_TEXTURE, OAK_LOG_SIDE_TEXTURE));
-		register(Blocks.REDSTONE_WIRE_BLOCK, new WireBlockModel(WIRE_CROSS_TEXTURE, WIRE_VLINE_TEXTURE, WIRE_HLINE_TEXTURE));
-		register(Blocks.REDSTONE_BLOCK, new BasicBlockModel(REDSTONE_BLOCK_TEXTURE));
-		register(Blocks.BLUESTONE_BLOCK, new BasicBlockModel(REDSTONE_BLOCK_TEXTURE));
+		register(Blocks.REDSTONE_WIRE_BLOCK, new WireBlockModel(WIRE_CROSS_TEXTURE, WIRE_VLINE_TEXTURE, WIRE_HLINE_TEXTURE, (Wire)Blocks.REDSTONE_WIRE_BLOCK, ColorUtil.pack(0xFF, 0x00, 0x00)));
+		register(Blocks.BLUESTONE_WIRE_BLOCK, new WireBlockModel(WIRE_CROSS_TEXTURE, WIRE_VLINE_TEXTURE, WIRE_HLINE_TEXTURE, (Wire)Blocks.BLUESTONE_WIRE_BLOCK, ColorUtil.pack(0x00, 0x00, 0xFF)));
+		register(Blocks.REDSTONE_BLOCK, new PoweredBlockModel(POWERED_BLOCK_TEXTURE, ColorUtil.pack(0xFF, 0x00, 0x00)));
+		register(Blocks.BLUESTONE_BLOCK, new PoweredBlockModel(POWERED_BLOCK_TEXTURE, ColorUtil.pack(0x00, 0x00, 0xFF)));
 		
 		// Models for StoneSlabBlock
 		IBlockState stoneSlab = Blocks.STONE_SLAB_BLOCK.getDefaultState();

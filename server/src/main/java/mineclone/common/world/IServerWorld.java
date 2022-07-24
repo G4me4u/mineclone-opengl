@@ -5,6 +5,7 @@ import mineclone.common.world.block.IBlockPosition;
 import mineclone.common.world.block.signal.SignalType;
 import mineclone.common.world.block.state.IBlockState;
 import mineclone.common.world.chunk.IWorldChunkManager;
+import mineclone.server.world.block.signal.wire.WireHandler;
 
 public interface IServerWorld extends IWorld {
 
@@ -51,6 +52,8 @@ public interface IServerWorld extends IWorld {
 	int getDirectSignalFrom(IBlockPosition pos, Direction dir, SignalType type);
 
 	int getAnalogSignalFrom(IBlockPosition pos, Direction dir, SignalType type);
+
+	WireHandler getWireHandler();
 
 	IWorldChunkManager getChunkManager();
 

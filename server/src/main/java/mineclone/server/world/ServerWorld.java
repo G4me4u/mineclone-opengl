@@ -19,13 +19,18 @@ import mineclone.common.world.chunk.IWorldChunk;
 import mineclone.common.world.flags.SetBlockFlags;
 import mineclone.common.world.gen.DiamondNoise;
 import mineclone.server.MinecloneServer;
+import mineclone.server.world.block.signal.wire.WireHandler;
 
 public class ServerWorld extends World implements IServerWorld {
 
 	private static final int RANDOM_TICK_SPEED = 3;
 
+	private final WireHandler wireHandler;
+
 	public ServerWorld(MinecloneServer server) {
 		super(new ServerWorldChunkManager(server));
+
+		this.wireHandler = new WireHandler(this);
 
 		generateWorld();
 	}
@@ -281,6 +286,11 @@ public class ServerWorld extends World implements IServerWorld {
 		IBlockState neighborState = getBlockState(neighborPos);
 
 		return type.clamp(neighborState.getAnalogSignal(this, neighborPos, type));
+	}
+
+	@Override
+	public WireHandler getWireHandler() {
+		return wireHandler;
 	}
 
 	@Override

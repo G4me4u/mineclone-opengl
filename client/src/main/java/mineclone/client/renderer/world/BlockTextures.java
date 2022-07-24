@@ -41,7 +41,7 @@ public class BlockTextures {
 	public static final ITextureRegion MARIGOLD_PLANT_TEXTURE    = getRegion(3, 2);
 	public static final ITextureRegion DAISY_PLANT_TEXTURE       = getRegion(3, 3);
 	
-	public static final ITextureRegion REDSTONE_BLOCK_TEXTURE    = getRegion(0, 4);
+	public static final ITextureRegion POWERED_BLOCK_TEXTURE     = getRegion(0, 4);
 	public static final ITextureRegion WIRE_CROSS_TEXTURE        = getRegion(1, 4);
 	public static final ITextureRegion WIRE_VLINE_TEXTURE        = getRegion(2, 4);
 	public static final ITextureRegion WIRE_HLINE_TEXTURE        = getRegion(3, 4);

@@ -4,28 +4,31 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import mineclone.common.ReferenceRegsitry;
+import mineclone.common.world.block.signal.SignalType;
+import mineclone.common.world.block.signal.wire.WireType;
 import mineclone.common.world.block.state.IBlockState;
 
 public class Blocks {
 
-	private static ReferenceRegsitry<String, Block> blockRegistry = null;
+	private static ReferenceRegsitry<String, IBlock> blockRegistry = null;
 	private static ReferenceRegsitry<Integer, IBlockState> stateRegistry = null;
 	
-	public static final Block AIR_BLOCK;
-	public static final Block DIRT_BLOCK;
-	public static final Block GRASS_BLOCK;
-	public static final Block PLANKS_BLOCK;
-	public static final Block STONE_BLOCK;
-	public static final Block COBBLESTONE_BLOCK;
-	public static final Block PLANT_BLOCK;
-	public static final Block LEAVES_BLOCK;
-	public static final Block LOG_BLOCK;
-	public static final Block REDSTONE_WIRE_BLOCK;
-	public static final Block REDSTONE_BLOCK;
-	public static final Block STONE_SLAB_BLOCK;
-	public static final Block PLANKS_SLAB_BLOCK;
+	public static final IBlock AIR_BLOCK;
+	public static final IBlock DIRT_BLOCK;
+	public static final IBlock GRASS_BLOCK;
+	public static final IBlock PLANKS_BLOCK;
+	public static final IBlock STONE_BLOCK;
+	public static final IBlock COBBLESTONE_BLOCK;
+	public static final IBlock PLANT_BLOCK;
+	public static final IBlock LEAVES_BLOCK;
+	public static final IBlock LOG_BLOCK;
+	public static final IBlock REDSTONE_WIRE_BLOCK;
+	public static final IBlock REDSTONE_BLOCK;
+	public static final IBlock BLUESTONE_BLOCK;
+	public static final IBlock STONE_SLAB_BLOCK;
+	public static final IBlock PLANKS_SLAB_BLOCK;
 	
-	private static Block register(String name, Block block) {
+	private static IBlock register(String name, Block block) {
 		block.setName(name);
 
 		blockRegistry.register(name, block);
@@ -38,8 +41,8 @@ public class Blocks {
 		return block;
 	}
 	
-	public static Block getBlock(String name) {
-		Block block = blockRegistry.getElement(name);
+	public static IBlock getBlock(String name) {
+		IBlock block = blockRegistry.getElement(name);
 		
 		if (block == null)
 			throw new NoSuchElementException("Block with name '" + name + "' does not exist!");
@@ -59,7 +62,7 @@ public class Blocks {
 		return stateRegistry.getSize();
 	}
 	
-	public static Set<Block> getBlocks() {
+	public static Set<IBlock> getBlocks() {
 		return blockRegistry.elements();
 	}
 
@@ -71,18 +74,19 @@ public class Blocks {
 		blockRegistry = new ReferenceRegsitry<>();
 		stateRegistry = new ReferenceRegsitry<>();
 		
-		AIR_BLOCK             = register("air"           , new Block());
-		DIRT_BLOCK            = register("dirt"          , new DirtBlock());
-		GRASS_BLOCK           = register("grass"         , new GrassBlock());
-		PLANKS_BLOCK          = register("planks"        , new WoodPlanksBlock());
-		STONE_BLOCK           = register("stone"         , new BasicSolidBlock());
-		COBBLESTONE_BLOCK     = register("cobblestone"   , new BasicSolidBlock());
-		PLANT_BLOCK           = register("plant"         , new PlantBlock());
-		LEAVES_BLOCK          = register("leaves"        , new LeavesBlock());
-		LOG_BLOCK             = register("log"           , new WoodLogBlock());
-		REDSTONE_WIRE_BLOCK   = register("redstone_wire" , new RedstoneWireBlock());
-		REDSTONE_BLOCK        = register("redstone_block", new RedstoneBlock());
-		STONE_SLAB_BLOCK      = register("stone_slab"    , new StoneSlabBlock());
-		PLANKS_SLAB_BLOCK     = register("planks_slab"   , new WoodPlanksSlabBlock());
+		AIR_BLOCK             = register("air"            , new Block());
+		DIRT_BLOCK            = register("dirt"           , new DirtBlock());
+		GRASS_BLOCK           = register("grass"          , new GrassBlock());
+		PLANKS_BLOCK          = register("planks"         , new WoodPlanksBlock());
+		STONE_BLOCK           = register("stone"          , new BasicSolidBlock());
+		COBBLESTONE_BLOCK     = register("cobblestone"    , new BasicSolidBlock());
+		PLANT_BLOCK           = register("plant"          , new PlantBlock());
+		LEAVES_BLOCK          = register("leaves"         , new LeavesBlock());
+		LOG_BLOCK             = register("log"            , new WoodLogBlock());
+		REDSTONE_WIRE_BLOCK   = register("redstone_wire"  , new WireBlock(WireType.REDSTONE));
+		REDSTONE_BLOCK        = register("redstone_block" , new PoweredBlock(SignalType.REDSTONE));
+		BLUESTONE_BLOCK       = register("bluestone_block", new PoweredBlock(SignalType.BLUESTONE));
+		STONE_SLAB_BLOCK      = register("stone_slab"     , new StoneSlabBlock());
+		PLANKS_SLAB_BLOCK     = register("planks_slab"    , new WoodPlanksSlabBlock());
 	}
 }

@@ -7,60 +7,92 @@ import mineclone.common.world.Direction;
 import mineclone.common.world.EntityHitbox;
 import mineclone.common.world.IServerWorld;
 import mineclone.common.world.IWorld;
+import mineclone.common.world.block.signal.SignalType;
+import mineclone.common.world.block.signal.wire.WireType;
 import mineclone.common.world.block.state.BlockState;
 import mineclone.common.world.block.state.IBlockState;
 
-public class Block {
+public class Block implements IBlock {
+
+	private final IBlockState defaultState;
 
 	private String name;
-	
-	private final IBlockState defaultState;
-	
+
 	protected Block() {
 		name = null;
-		
+
 		defaultState = createDefaultState();
 	}
-	
+
+	public void onAdded(IServerWorld world, IBlockPosition pos, IBlockState state) {
+	}
+
+	public void onRemoved(IServerWorld world, IBlockPosition pos, IBlockState state) {
+	}
+
+	public void onChanged(IServerWorld world, IBlockPosition pos, IBlockState oldState, IBlockState newState) {
+	}
+
+	void setName(String name) {
+		if (this.name != null)
+			throw new IllegalStateException("Name has already been set!");
+
+		this.name = name;
+	}
+
+	@Override
+	public final String getName() {
+		return name;
+	}
+
+	protected IBlockState createDefaultState() {
+		return BlockState.createStateTree(this);
+	}
+
+	@Override
+	public IBlockState getDefaultState() {
+		return defaultState;
+	}
+
+	@Override
 	public IBlockState getPlacementState(IWorld world, IBlockPosition pos, IBlockState state) {
 		return state;
 	}
-	
-	public void onBlockAdded(IServerWorld world, IBlockPosition pos, IBlockState state) {
-		if (!state.isOf(Blocks.AIR_BLOCK))
-			world.updateNeighbors(pos, IServerWorld.COMMON_UPDATE_FLAGS);
-	}
-	
-	public void onBlockRemoved(IServerWorld world, IBlockPosition pos, IBlockState state) {
-		if (!state.isOf(Blocks.AIR_BLOCK))
-			world.updateNeighbors(pos, IServerWorld.COMMON_UPDATE_FLAGS);
-	}
-	
-	public void onStateChanged(IServerWorld world, IBlockPosition pos, IBlockState oldState, IBlockState newState) {
-	}
-	
-	public void onStateUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction fromDir, IBlockState fromState) {
+
+	@Override
+	public void updateNeighbors(IServerWorld world, IBlockPosition pos, IBlockState state) {
+		world.updateNeighbors(pos);
 	}
 
-	public void onBlockUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction fromDir, IBlockState fromState) {
+	@Override
+	public void updateNeighborShapes(IServerWorld world, IBlockPosition pos, IBlockState state) {
+		world.updateNeighborShapes(pos, state);
 	}
-	
-	public void onInventoryUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction fromDir, IBlockState fromState) {
+
+	@Override
+	public void update(IServerWorld world, IBlockPosition pos, IBlockState state) {
 	}
-	
-	public void onRandomUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Random random) {
+
+	@Override
+	public void updateShape(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir, IBlockPosition neighborPos, IBlockState neighborState) {
 	}
-	
-	public boolean hasRandomUpdate(IBlockState state) {
+
+	@Override
+	public void randomTick(IServerWorld world, IBlockPosition pos, IBlockState state, Random random) {
+	}
+
+	@Override
+	public boolean doesRandomTicks(IBlockState state) {
 		return false;
 	}
-	
+
+	@Override
 	public void getEntityHitboxes(IWorld world, IBlockPosition pos, IBlockState state, List<EntityHitbox> hitboxes) {
 		if (hasEntityHitbox(world, pos, state)) {
 			float x = pos.getX();
 			float y = pos.getY();
 			float z = pos.getZ();
-			
+
 			hitboxes.add(new EntityHitbox(x, y, z, x + 1.0f, y + 1.0f, z + 1.0f));
 		}
 	}
@@ -69,63 +101,68 @@ public class Block {
 		return isSolid();
 	}
 
+	@Override
 	public boolean isSolid() {
 		return false;
 	}
-	
+
+	@Override
 	public boolean canGrowVegetation(IBlockState state) {
 		return false;
 	}
-	
+
+	@Override
 	public boolean isAligned(IBlockState state, Direction dir) {
 		return isSolid();
 	}
-	
-	public boolean isPowerComponent() {
+
+	@Override
+	public boolean isSignalSource(IBlockState state, SignalType type) {
 		return false;
 	}
-	
-	public boolean canPowerIndirectly(IBlockState state, Direction dir) {
+
+	@Override
+	public int getSignal(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir, SignalType type) {
+		return type.min();
+	}
+
+	@Override
+	public int getDirectSignal(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir, SignalType type) {
+		return type.min();
+	}
+
+	@Override
+	public boolean isAnalogSignalSource(IBlockState state, SignalType type) {
+		return false;
+	}
+
+	@Override
+	public int getAnalogSignal(IServerWorld world, IBlockPosition pos, IBlockState state, SignalType type) {
+		return type.min();
+	}
+
+	@Override
+	public boolean isWire(IBlockState state) {
+		return false;
+	}
+
+	@Override
+	public boolean isWire(IBlockState state, WireType type) {
+		return false;
+	}
+
+	@Override
+	public boolean connectsToWire(IBlockState state, Direction dir) {
+		return false;
+	}
+
+	@Override
+	public boolean isSignalConsumer(IBlockState state, SignalType type) {
+		return false;
+	}
+
+	@Override
+	public boolean isSignalConductor(IBlockState state, Direction face, SignalType type) {
 		return isSolid();
-	}
-	
-	public boolean canConnectToWire(IBlockState state, Direction dir) {
-		return isPowerComponent();
-	}
-	
-	public int getOutputPowerFlags(IBlockState state, Direction dir) {
-		return canPowerIndirectly(state, dir) ? IServerWorld.INDIRECT_POWER_FLAGS : IServerWorld.NO_FLAGS;
-	}
-
-	public int getPowerTo(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir, int powerFlags) {
-		if ((powerFlags & IServerWorld.INDIRECT_POWER_FLAGS) != 0 && canPowerIndirectly(state, dir)) {
-			if ((powerFlags & IServerWorld.INDIRECT_WEAK_POWER_FLAG) != 0)
-				return world.getPowerExceptFrom(pos, dir, IServerWorld.DIRECT_POWER_FLAGS);
-			
-			return world.getPowerExceptFrom(pos, dir, IServerWorld.DIRECT_STRONG_POWER_FLAG);
-		}
-		
-		return 0;
-	}
-
-	Block setName(String name) {
-		if (this.name != null)
-			throw new IllegalStateException("Name has already been set!");
-		
-		this.name = name;
-	
-		return this;
-	}
-	
-	public final String getName() {
-		return name;
-	}
-	
-	protected IBlockState createDefaultState() {
-		return BlockState.createStateTree(this);
-	}
-	
-	public IBlockState getDefaultState() {
-		return defaultState;
 	}
 }

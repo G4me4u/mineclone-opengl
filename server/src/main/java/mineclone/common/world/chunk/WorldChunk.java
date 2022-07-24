@@ -8,12 +8,12 @@ import mineclone.common.world.block.state.IBlockState;
 public class WorldChunk implements IWorldChunk {
 
 	private final IBlockState[] states;
-	private int randomUpdateCount;
+	private int randomTickingCount;
 	private int airStateCount;
 
 	public WorldChunk() {
 		states = new IBlockState[CHUNK_VOLUME];
-		randomUpdateCount = 0;
+		randomTickingCount = 0;
 		airStateCount = CHUNK_VOLUME;
 	
 		Arrays.fill(states, Blocks.AIR_BLOCK.getDefaultState());
@@ -26,10 +26,10 @@ public class WorldChunk implements IWorldChunk {
 			WorldChunk otherWorldChunk = (WorldChunk)other;
 			for (int i = 0; i < CHUNK_VOLUME; i++)
 				states[i] = otherWorldChunk.states[i];
-			randomUpdateCount = otherWorldChunk.randomUpdateCount;
+			randomTickingCount = otherWorldChunk.randomTickingCount;
 			airStateCount = otherWorldChunk.airStateCount;
 		} else {
-			randomUpdateCount = 0;
+			randomTickingCount = 0;
 			airStateCount = CHUNK_VOLUME;
 
 			Arrays.fill(states, Blocks.AIR_BLOCK.getDefaultState());
@@ -63,10 +63,10 @@ public class WorldChunk implements IWorldChunk {
 		if (newState != oldState) {
 			states[index] = newState;
 			
-			if (oldState.hasRandomUpdate())
-				randomUpdateCount--;
-			if (newState.hasRandomUpdate())
-				randomUpdateCount++;
+			if (oldState.doesRandomTicks())
+				randomTickingCount--;
+			if (newState.doesRandomTicks())
+				randomTickingCount++;
 
 			if (oldState.isAir())
 				airStateCount--;
@@ -80,8 +80,8 @@ public class WorldChunk implements IWorldChunk {
 	}
 
 	@Override
-	public boolean hasRandomUpdates() {
-		return (randomUpdateCount > 0);
+	public boolean hasRandomTickingBlocks() {
+		return (randomTickingCount > 0);
 	}
 
 	@Override

@@ -7,13 +7,16 @@ import mineclone.common.world.Direction;
 import mineclone.common.world.IServerWorld;
 import mineclone.common.world.IWorld;
 import mineclone.common.world.block.handler.WireHandler;
+import mineclone.common.world.block.signal.wire.Wire;
+import mineclone.common.world.block.signal.wire.WireType;
 import mineclone.common.world.block.state.BlockState;
 import mineclone.common.world.block.state.EnumBlockProperty;
 import mineclone.common.world.block.state.IBlockProperty;
 import mineclone.common.world.block.state.IBlockState;
 import mineclone.common.world.block.state.IntBlockProperty;
+import mineclone.common.world.flags.SetBlockFlags;
 
-public class RedstoneWireBlock extends Block {
+public class WireBlock extends Block implements Wire {
 	
 	public static final IBlockProperty<Integer> POWER = new IntBlockProperty("power", 16);
 	
@@ -24,6 +27,8 @@ public class RedstoneWireBlock extends Block {
 	
 	public static final Map<Direction, IBlockProperty<WireConnection>> CONNECTIONS = new EnumMap<>(Direction.class);
 	
+	private static boolean wiresGiveSignal = true;
+
 	static {
 		CONNECTIONS.put(Direction.NORTH, NORTH_CONNECTION);
 		CONNECTIONS.put(Direction.SOUTH, SOUTH_CONNECTION);
@@ -32,9 +37,43 @@ public class RedstoneWireBlock extends Block {
 	}
 	
 	private final WireHandler handler;
+	private final WireType type;
 	
-	public RedstoneWireBlock() {
+	public WireBlock(WireType type) {
 		handler = new WireHandler(this);
+		this.type = type;
+	}
+
+	@Override
+	public WireType getWireType() {
+		return type;
+	}
+
+	@Override
+	public int getSignal(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir) {
+		if (!wiresGiveSignal) {
+			return type.min();
+		}
+		if (dir == Direction.UP) {
+			return type.min();
+		}
+		if (dir == Direction.DOWN) {
+			return type.max();
+		}
+
+		IBlockProperty<WireConnection> property = CONNECTIONS.get(dir);
+		WireConnection connection = state.get(property);
+
+		if (connection == WireConnection.NONE) {
+			return type.min();
+		}
+
+		return state.get(POWER);
+	}
+
+	@Override
+	public int getDirectSignal(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir) {
+		return getSignal(world, pos, state, dir);
 	}
 	
 	@Override
@@ -46,55 +85,60 @@ public class RedstoneWireBlock extends Block {
 	}
 	
 	@Override
-	public void onBlockAdded(IServerWorld world, IBlockPosition pos, IBlockState state) {
-		world.updateNeighbors(pos, IServerWorld.STATE_UPDATE_FLAG);
-		
-		for (Direction vertical : Direction.VERTICAL) {
-			IBlockPosition vpos = pos.offset(vertical);
-			
-			for (Direction horizontal : Direction.HORIZONTAL)
-				world.updateNeighbor(vpos.offset(horizontal), horizontal.getOpposite(), state, IServerWorld.STATE_UPDATE_FLAG);
-		}
-		
+	public void onAdded(IServerWorld world, IBlockPosition pos, IBlockState state) {
 		handler.updateNetwork(world, pos, state);
 	}
 	
 	@Override
-	public void onBlockRemoved(IServerWorld world, IBlockPosition pos, IBlockState state) {
-		world.updateNeighbors(pos, IServerWorld.STATE_UPDATE_FLAG);
-		
-		for (Direction vertical : Direction.VERTICAL) {
-			IBlockPosition vpos = pos.offset(vertical);
-			
-			for (Direction horizontal : Direction.HORIZONTAL)
-				world.updateNeighbor(vpos.offset(horizontal), horizontal.getOpposite(), state, IServerWorld.STATE_UPDATE_FLAG);
+	public void onRemoved(IServerWorld world, IBlockPosition pos, IBlockState state) {
+	}
+
+	@Override
+	public void updateNeighbors(IServerWorld world, IBlockPosition pos, IBlockState state) {
+		world.updateNeighbors(pos);
+
+		for (Direction dir : Direction.ALL) {
+			world.updateNeighborsExceptFrom(pos.offset(dir), dir.getOpposite());
 		}
 	}
-	
+
 	@Override
-	public void onStateChanged(IServerWorld world, IBlockPosition pos, IBlockState newState, IBlockState oldState) {
-		world.updateNeighbors(pos, IServerWorld.STATE_UPDATE_FLAG);
+	public void updateNeighborShapes(IServerWorld world, IBlockPosition pos, IBlockState state) {
+		world.updateNeighborShapes(pos, state);
+
+		for (Direction ver : Direction.VERTICAL) {
+			IBlockPosition verPos = pos.offset(ver);
+
+			for (Direction hor : Direction.HORIZONTAL) {
+				world.updateNeighborShape(verPos.offset(hor), hor.getOpposite(), pos, state);
+			}
+		}
+	}
+
+	@Override
+	public void update(IServerWorld world, IBlockPosition pos, IBlockState state) {
+		handler.updateNetwork(world, pos, state);
 	}
 	
 	@Override
-	public void onStateUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction fromDir, IBlockState fromState) {
+	public void updateShape(IServerWorld world, IBlockPosition pos, IBlockState state, Direction neighborDir, IBlockPosition neighborPos, IBlockState neighborState) {
 		IBlockState newState = state;
 		
-		if (fromDir.isHorizontal()) {
-			WireConnection newConnection = getWireConnection(world, pos, fromDir);
-			IBlockProperty<WireConnection> property = CONNECTIONS.get(fromDir);
+		if (neighborDir.isHorizontal()) {
+			WireConnection newConnection = getWireConnection(world, pos, neighborDir);
+			IBlockProperty<WireConnection> property = CONNECTIONS.get(neighborDir);
 			
 			if (newConnection != state.get(property) || newConnection == WireConnection.SIDE) {
 				newState = state.with(property, newConnection);
 				
 				// Update connections in the remaining horizontal directions.
-				for (Direction dir = fromDir; (dir = dir.rotateCCW()) != fromDir; )
+				for (Direction dir = neighborDir; (dir = dir.rotateCCW()) != neighborDir; )
 					newState = updateStateConnectionTo(world, pos, newState, dir);
 
 				newState = resolveState(newState);
 			}
-		} else if (!fromState.isOf(Blocks.REDSTONE_WIRE_BLOCK)) {
-			if (fromDir == Direction.DOWN) {
+		} else if (!neighborState.isOf(Blocks.REDSTONE_WIRE_BLOCK)) {
+			if (neighborDir == Direction.DOWN) {
 				// Update might come from the supporting block
 				if (!isWireSupported(world, pos))
 					newState = Blocks.AIR_BLOCK.getDefaultState();
@@ -105,33 +149,7 @@ public class RedstoneWireBlock extends Block {
 		}
 
 		if (state != newState)
-			world.setBlockState(pos, newState, true);
-	}
-	
-	@Override
-	public void onBlockUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Direction fromDir, IBlockState fromState) {
-		handler.updateNetworkFrom(world, pos, state, fromDir);
-	}
-	
-	@Override
-	public boolean isPowerComponent() {
-		return true;
-	}
-	
-	@Override
-	public int getOutputPowerFlags(IBlockState state, Direction dir) {
-		return canGivePowerTo(state, dir) ? IServerWorld.DIRECT_WEAK_POWER_FLAG : IServerWorld.NO_FLAGS;
-	}
-	
-	@Override
-	public int getPowerTo(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir, int powerFlags) {
-		return ((powerFlags & IServerWorld.DIRECT_WEAK_POWER_FLAG) != 0 && canGivePowerTo(state, dir)) ? state.get(POWER) : 0;
-	}
-	
-	private boolean canGivePowerTo(IBlockState state, Direction dir) {
-		if (dir.isHorizontal())
-			return (state.get(CONNECTIONS.get(dir)) != WireConnection.NONE);
-		return (dir == Direction.DOWN);
+			world.setBlockState(pos, newState, SetBlockFlags.UPDATE_NEIGHBOR_SHAPES | SetBlockFlags.UPDATE_NEIGHBORS);
 	}
 	
 	private boolean isWireSupported(IWorld world, IBlockPosition pos) {

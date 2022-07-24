@@ -1,7 +1,7 @@
 package mineclone.common.world.block.handler;
 
-import static mineclone.common.world.block.RedstoneWireBlock.CONNECTIONS;
-import static mineclone.common.world.block.RedstoneWireBlock.POWER;
+import static mineclone.common.world.block.WireBlock.CONNECTIONS;
+import static mineclone.common.world.block.WireBlock.POWER;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,14 +12,14 @@ import mineclone.common.world.IServerWorld;
 import mineclone.common.world.block.Block;
 import mineclone.common.world.block.IBlockPosition;
 import mineclone.common.world.block.WireConnection;
+import mineclone.common.world.block.signal.SignalType;
 import mineclone.common.world.block.state.IBlockState;
+import mineclone.common.world.flags.SetBlockFlags;
 
 public class WireHandler {
 	
 	private static final int MAX_WIRE_CONNECTIONS = 8;
 	private static final int INITIAL_CAPACITY = 64;
-	
-	private static final int EXTERNAL_POWER_FLAGS = IServerWorld.STRONG_POWER_FLAGS;
 	
 	private final Block wireBlock;
 
@@ -57,10 +57,10 @@ public class WireHandler {
 	}
 
 	public void updateNetworkFrom(IServerWorld world, IBlockPosition pos, IBlockState state, Direction fromDir) {
-		int externalPower = world.getPowerFrom(pos, fromDir, EXTERNAL_POWER_FLAGS);
+		int externalPower = world.getSignalFrom(pos, fromDir, SignalType.ANY);
 
 		if (externalPower < state.get(POWER)) {
-			int otherPower = world.getPowerExceptFrom(pos, fromDir, EXTERNAL_POWER_FLAGS);
+			int otherPower = world.getSignalExceptFrom(pos, fromDir, SignalType.ANY);
 
 			if (otherPower > externalPower)
 				externalPower = otherPower;
@@ -72,7 +72,7 @@ public class WireHandler {
 	
 	public void updateNetwork(IServerWorld world, IBlockPosition pos, IBlockState state) {
 		Direction sourceDir = Direction.HORIZONTAL[0];
-		int externalPower = world.getPower(pos, EXTERNAL_POWER_FLAGS);
+		int externalPower = world.getSignal(pos, SignalType.ANY);
 		
 		buildAndUpdateNetwork(world, pos, state, sourceDir, externalPower);
 	}
@@ -259,7 +259,7 @@ public class WireHandler {
 		for (int i = 1; i < nodeCount; i++) {
 			WireNode node = nodes[i];
 			
-			int externalPower = world.getPower(node.pos, EXTERNAL_POWER_FLAGS);
+			int externalPower = world.getSignal(node.pos, SignalType.ANY);
 			int wirePower = findWirePower(world, node);
 			
 			node.power = Math.max(externalPower, wirePower);
@@ -371,7 +371,7 @@ public class WireHandler {
 			if (state != node.state) {
 				node.state = state;
 				
-				world.setBlockState(node.pos, state, false);
+				world.setBlockState(node.pos, state, SetBlockFlags.NONE);
 			}
 		}
 	}

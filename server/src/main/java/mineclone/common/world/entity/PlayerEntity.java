@@ -6,7 +6,7 @@ import java.util.List;
 import mineclone.common.math.LinMath;
 import mineclone.common.world.EntityHitbox;
 import mineclone.common.world.IWorld;
-import mineclone.common.world.block.Block;
+import mineclone.common.world.block.IBlock;
 import mineclone.common.world.block.IBlockPosition;
 import mineclone.common.world.block.state.IBlockState;
 import mineclone.common.world.chunk.IWorldChunk;
@@ -26,7 +26,7 @@ public class PlayerEntity extends Entity {
 	}
 	
 	protected boolean isBlockInsidePlayer(IBlockState state, IBlockPosition pos) {
-		Block block = state.getBlock();
+		IBlock block = state.getBlock();
 
 		List<EntityHitbox> hitboxes = new ArrayList<>();
 		block.getEntityHitboxes(world, pos, state, hitboxes);

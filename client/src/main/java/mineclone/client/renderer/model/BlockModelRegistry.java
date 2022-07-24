@@ -21,7 +21,7 @@ import static mineclone.client.renderer.world.BlockTextures.WIRE_HLINE_TEXTURE;
 import static mineclone.client.renderer.world.BlockTextures.WIRE_VLINE_TEXTURE;
 
 import mineclone.common.util.DebugUtil;
-import mineclone.common.world.block.Block;
+import mineclone.common.world.block.IBlock;
 import mineclone.common.world.block.Blocks;
 import mineclone.common.world.block.PlantBlock;
 import mineclone.common.world.block.PlantType;
@@ -63,6 +63,7 @@ public final class BlockModelRegistry {
 		register(Blocks.LOG_BLOCK, new BasicBlockModel(OAK_LOG_TOP_TEXTURE, OAK_LOG_TOP_TEXTURE, OAK_LOG_SIDE_TEXTURE));
 		register(Blocks.REDSTONE_WIRE_BLOCK, new WireBlockModel(WIRE_CROSS_TEXTURE, WIRE_VLINE_TEXTURE, WIRE_HLINE_TEXTURE));
 		register(Blocks.REDSTONE_BLOCK, new BasicBlockModel(REDSTONE_BLOCK_TEXTURE));
+		register(Blocks.BLUESTONE_BLOCK, new BasicBlockModel(REDSTONE_BLOCK_TEXTURE));
 		
 		// Models for StoneSlabBlock
 		IBlockState stoneSlab = Blocks.STONE_SLAB_BLOCK.getDefaultState();
@@ -86,7 +87,7 @@ public final class BlockModelRegistry {
 	private BlockModelRegistry() {
 	}
 
-	private static void register(Block block, IBlockModel model) {
+	private static void register(IBlock block, IBlockModel model) {
 		IBlockState state = block.getDefaultState();
 		do {
 			register(state, model);

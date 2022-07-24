@@ -41,7 +41,7 @@ public class ServerPacketHandler extends AbstractPacketHandler implements IServe
 	
 	@Override
 	public void onStateChange(StateChangeUPacket packet) {
-		server.getWorld().setBlockState(packet.getPos(), packet.getState(), true);
+		server.getWorld().setBlockState(packet.getPos(), packet.getState());
 	}
 	
 	@Override

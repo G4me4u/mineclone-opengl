@@ -21,7 +21,7 @@ public final class EmptyWorldChunk implements IWorldChunk {
 	}
 	
 	@Override
-	public boolean hasRandomUpdates() {
+	public boolean hasRandomTickingBlocks() {
 		return false;
 	}
 	

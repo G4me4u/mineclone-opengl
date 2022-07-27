@@ -67,6 +67,8 @@ public class MinecloneClient implements DisplayListener, IKeyboardListener, INet
 	}
 	
 	private void start() {
+		Thread.currentThread().setName("Client Thread");
+		
 		display = new Display();
 		display.initDisplay(TITLE, DEFAULT_WIDTH, DEFAULT_HEIGHT);
 

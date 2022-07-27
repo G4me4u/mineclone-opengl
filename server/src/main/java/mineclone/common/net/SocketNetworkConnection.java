@@ -21,7 +21,7 @@ public class SocketNetworkConnection implements INetworkConnection {
 	}
 	
 	@Override
-	public boolean isConnected() {
+	public boolean isOpen() {
 		return channel.isActive();
 	}
 	

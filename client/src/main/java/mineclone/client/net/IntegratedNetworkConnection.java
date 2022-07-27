@@ -7,6 +7,7 @@ import mineclone.common.net.packet.IPacket;
 public class IntegratedNetworkConnection implements INetworkConnection {
 
 	private IPacketHandler endpoint;
+	private boolean closed;
 	
 	public IntegratedNetworkConnection() {
 		this(null);
@@ -14,11 +15,14 @@ public class IntegratedNetworkConnection implements INetworkConnection {
 
 	public IntegratedNetworkConnection(IPacketHandler endpoint) {
 		this.endpoint = endpoint;
+		closed = false;
 	}
 	
 	public void setEndpoint(IPacketHandler endpoint) {
 		if (this.endpoint != null)
 			throw new IllegalStateException("Endpoint is already set!");
+		if (closed)
+			throw new IllegalStateException("Connection is closed!");
 
 		this.endpoint = endpoint;
 	}
@@ -30,12 +34,13 @@ public class IntegratedNetworkConnection implements INetworkConnection {
 	}
 
 	@Override
-	public boolean isConnected() {
-		return (endpoint != null);
+	public boolean isOpen() {
+		return !closed;
 	}
 
 	@Override
 	public void close() {
 		endpoint = null;
+		closed = true;
 	}
 }

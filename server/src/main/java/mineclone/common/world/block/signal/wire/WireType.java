@@ -69,12 +69,12 @@ public abstract class WireType {
 	/**
 	 * Override only! Call {@link WireType#areCompatible WireType.areCompatible} instead.
 	 */
-	protected boolean isCompatible(WireType type) {
+	protected boolean canInteractWith(WireType type) {
 		return signal.is(type.signal);
 	}
 
 	public static boolean areCompatible(WireType a, WireType b) {
-		return a.isCompatible(b) && b.isCompatible(a);
+		return a.canInteractWith(b) && b.canInteractWith(a);
 	}
 
 	public void findConnections(IWorld world, IBlockPosition pos, ConnectionConsumer consumer) {

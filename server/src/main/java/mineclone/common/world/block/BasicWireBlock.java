@@ -223,10 +223,10 @@ public class BasicWireBlock extends Block implements IWire {
 	@Override
 	protected IBlockState createDefaultState() {
 		return BlockState.createStateTree(this, POWER,
-				                                NORTH_CONNECTION,
-				                                SOUTH_CONNECTION,
-				                                WEST_CONNECTION,
-				                                EAST_CONNECTION);
+		                                        NORTH_CONNECTION,
+		                                        SOUTH_CONNECTION,
+		                                        WEST_CONNECTION,
+		                                        EAST_CONNECTION);
 	}
 
 	public static WireSide getConnection(IBlockState state, Direction dir) {

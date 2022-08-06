@@ -35,7 +35,7 @@ public class PlayerController implements IMouseListener {
 		this.player = player;
 	}
 	
-	public void update() {
+	public void tick() {
 		if (player != null) {
 			moveVec.set(0.0f);
 			

@@ -53,10 +53,10 @@ public interface IBlock {
 	default void updateShape(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir, IBlockPosition neighborPos, IBlockState neighborState) {
 	}
 
-	default void randomTick(IServerWorld world, IBlockPosition pos, IBlockState state, Random random) {
+	default void randomUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Random random) {
 	}
 
-	default boolean doesRandomTicks(IBlockState state) {
+	default boolean doesRandomUpdates(IBlockState state) {
 		return false;
 	}
 

@@ -91,9 +91,9 @@ public abstract class MinecloneServer implements INetworkListener {
 	}
 	
 	protected void tick() {
-		networkManager.update();
+		networkManager.tick();
 		
-		world.update();
+		world.tick();
 	}
 	
 	public void sendToAll(IPacket packet) {

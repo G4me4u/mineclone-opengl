@@ -56,8 +56,8 @@ public abstract class World implements IWorld {
 	}
 	
 	@Override
-	public void update() {
-		updateEntities();
+	public void tick() {
+		tickEntities();
 	}
 	
 	public void addEntity(Entity entity) {
@@ -68,9 +68,9 @@ public abstract class World implements IWorld {
 		entities.remove(entity);
 	}
 	
-	private void updateEntities() {
+	private void tickEntities() {
 		for (Entity entity : entities) {
-			entity.update();
+			entity.tick();
 		}
 	}
 	

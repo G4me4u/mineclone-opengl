@@ -38,8 +38,8 @@ public class ClientPlayerEntity extends PlayerEntity {
 	}
 	
 	@Override
-	public void update() {
-		hotbar.update();
+	public void tick() {
+		hotbar.tick();
 		
 		boolean remove = Mouse.isHeld(Mouse.BUTTON_LEFT);
 		boolean place = Mouse.isHeld(Mouse.BUTTON_RIGHT);
@@ -91,8 +91,8 @@ public class ClientPlayerEntity extends PlayerEntity {
 			}
 		}
 		
-		controller.update();
+		controller.tick();
 		
-		super.update();
+		super.tick();
 	}
 }

@@ -295,15 +295,15 @@ public class ServerWorld extends World implements IServerWorld {
 	}
 
 	@Override
-	public void update() {
-		super.update();
+	public void tick() {
+		super.tick();
 
-		doRandomTicks();
+		doRandomUpdates();
 
 		getChunkManager().broadcastDirtyStates();
 	}
 
-	private void doRandomTicks() {
+	private void doRandomUpdates() {
 		MutableBlockPosition pos = new MutableBlockPosition();
 
 		for (Iterator<ChunkEntry<IWorldChunk>> it = chunkManager.chunkIterator(); it.hasNext();) {
@@ -312,7 +312,7 @@ public class ServerWorld extends World implements IServerWorld {
 			IChunkPosition chunkPos = entry.getChunkPos();
 			IWorldChunk chunk = entry.getChunk();
 
-			if (chunk != null && chunk.hasRandomTickingBlocks()) {
+			if (chunk != null && chunk.doesRandomUpdates()) {
 				for (int i = 0; i < RANDOM_TICK_SPEED; i++) {
 					int rx = random.nextInt(IWorldChunk.CHUNK_SIZE);
 					int ry = random.nextInt(IWorldChunk.CHUNK_SIZE);
@@ -324,8 +324,8 @@ public class ServerWorld extends World implements IServerWorld {
 
 					IBlockState state = chunk.getBlockState(rx, ry, rz);
 
-					if (state.doesRandomTicks())
-						state.randomTick(this, pos, random);
+					if (state.doesRandomUpdates())
+						state.randomUpdate(this, pos, random);
 				}
 			}
 		}

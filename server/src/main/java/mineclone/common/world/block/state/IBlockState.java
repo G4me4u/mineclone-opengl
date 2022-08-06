@@ -48,12 +48,12 @@ public interface IBlockState {
 		getBlock().updateShape(world, pos, this, dir, neighborPos, neighborState);
 	}
 
-	default void randomTick(IServerWorld world, MutableBlockPosition pos, Random random) {
-		getBlock().randomTick(world, pos, this, random);
+	default void randomUpdate(IServerWorld world, MutableBlockPosition pos, Random random) {
+		getBlock().randomUpdate(world, pos, this, random);
 	}
 
-	default boolean doesRandomTicks() {
-		return getBlock().doesRandomTicks(this);
+	default boolean doesRandomUpdates() {
+		return getBlock().doesRandomUpdates(this);
 	}
 
 	default void getEntityHitboxes(IWorld world, MutableBlockPosition pos, List<EntityHitbox> hitboxes) {

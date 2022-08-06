@@ -8,7 +8,7 @@ public interface IWorldChunk extends IChunk {
 
 	public boolean setBlockState(int rx, int ry, int rz, IBlockState newState);
 
-	public boolean hasRandomTickingBlocks();
+	public boolean doesRandomUpdates();
 	
 	public boolean isEmpty();
 	

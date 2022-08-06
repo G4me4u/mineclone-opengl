@@ -47,7 +47,7 @@ public class PlayerHotbar {
 		hotbarBlocks[16] = planksSlab.with(WoodPlanksSlabBlock.WOOD_TYPE, WoodType.ACACIA);
 	}
 	
-	public void update() {
+	public void tick() {
 		boolean switchingHotbar = Keyboard.isHeld(Keyboard.KEY_T);
 		
 		if (switchingHotbar && !wasSwitchingHotbar) {

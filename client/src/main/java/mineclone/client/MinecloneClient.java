@@ -204,10 +204,10 @@ public class MinecloneClient implements DisplayListener, IKeyboardListener, INet
 	}
 	
 	private void tick() {
-		networkManager.update();
+		networkManager.tick();
 		
-		world.update();
-		worldRenderer.update();
+		world.tick();
+		worldRenderer.tick();
 	}
 
 	private void render(float dt) {

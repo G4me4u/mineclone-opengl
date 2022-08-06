@@ -32,7 +32,7 @@ public class NetworkManager implements IResource {
 			onConnectionRemoved(connection);
 	}
 	
-	public void update() {
+	public void tick() {
 		synchronized (connections) {
 			Iterator<INetworkConnection> itr = connections.iterator();
 			while (itr.hasNext()) {

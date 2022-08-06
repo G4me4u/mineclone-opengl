@@ -2,12 +2,12 @@ package mineclone.common.world.block.signal.wire;
 
 import mineclone.common.world.IWorld;
 import mineclone.common.world.block.IBlockPosition;
-import mineclone.common.world.block.signal.SignalConsumer;
-import mineclone.common.world.block.signal.SignalSource;
+import mineclone.common.world.block.signal.ISignalConsumer;
+import mineclone.common.world.block.signal.ISignalSource;
 import mineclone.common.world.block.signal.SignalType;
 import mineclone.common.world.block.state.IBlockState;
 
-public interface Wire extends SignalSource, SignalConsumer {
+public interface IWire extends ISignalSource, ISignalConsumer {
 
 	@Override
 	default boolean isWire() {

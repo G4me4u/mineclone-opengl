@@ -3,12 +3,12 @@ package mineclone.common.world.block;
 import mineclone.common.world.Direction;
 import mineclone.common.world.IServerWorld;
 import mineclone.common.world.IWorld;
-import mineclone.common.world.block.signal.SignalSource;
+import mineclone.common.world.block.signal.ISignalSource;
 import mineclone.common.world.block.signal.SignalType;
 import mineclone.common.world.block.signal.wire.ConnectionSide;
 import mineclone.common.world.block.state.IBlockState;
 
-public class PoweredBlock extends Block implements SignalSource {
+public class PoweredBlock extends Block implements ISignalSource {
 
 	private final SignalType type;
 

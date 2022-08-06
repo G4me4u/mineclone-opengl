@@ -5,7 +5,7 @@ import mineclone.common.world.block.IBlock;
 import mineclone.common.world.block.IBlockPosition;
 import mineclone.common.world.block.state.IBlockState;
 
-public interface AnalogSignalSource extends IBlock {
+public interface IAnalogSignalSource extends IBlock {
 
 	@Override
 	default boolean isAnalogSignalSource(SignalType type) {

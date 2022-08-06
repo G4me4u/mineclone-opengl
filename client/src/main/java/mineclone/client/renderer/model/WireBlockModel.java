@@ -2,13 +2,13 @@ package mineclone.client.renderer.model;
 
 import mineclone.common.util.ColorUtil;
 import mineclone.common.world.block.IBlock;
-import mineclone.common.world.block.signal.wire.Wire;
+import mineclone.common.world.block.signal.wire.IWire;
 import mineclone.common.world.block.signal.wire.WireType;
 import mineclone.common.world.block.state.IBlockState;
 
 public abstract class WireBlockModel extends AbstractBlockModel {
 
-	protected final Wire wire;
+	protected final IWire wire;
 	protected final WireType type;
 
 	protected final int[] colorTable;
@@ -18,7 +18,7 @@ public abstract class WireBlockModel extends AbstractBlockModel {
 			throw new IllegalArgumentException(block + " is not a Wire!");
 		}
 
-		this.wire = (Wire)block;
+		this.wire = (IWire)block;
 		this.type = this.wire.getWireType();
 
 		this.colorTable = createColorTable(color);

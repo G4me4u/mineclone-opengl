@@ -11,7 +11,7 @@ import mineclone.common.world.block.IBlockPosition;
 import mineclone.common.world.block.signal.SignalType;
 import mineclone.common.world.block.signal.wire.ConnectionSide;
 import mineclone.common.world.block.signal.wire.IWireHandler;
-import mineclone.common.world.block.signal.wire.Wire;
+import mineclone.common.world.block.signal.wire.IWire;
 import mineclone.common.world.block.signal.wire.WireType;
 import mineclone.common.world.block.state.IBlockState;
 
@@ -491,7 +491,7 @@ public class WireHandler implements IWireHandler {
 		}
 		if (isWire) {
 			WireNode wire = node.asWire();
-			Wire block = wire.block;
+			IWire block = wire.block;
 
 			if (!state.isOf(block)) {
 				return getNextNode(pos, state);

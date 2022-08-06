@@ -115,7 +115,7 @@ public abstract class WireType {
 			return ConnectionType.NONE;
 		}
 
-		Wire neighborWire = (Wire)neighborState.getBlock();
+		IWire neighborWire = (IWire)neighborState.getBlock();
 		WireType neighborType = neighborWire.getWireType();
 
 		if (this == neighborType) {

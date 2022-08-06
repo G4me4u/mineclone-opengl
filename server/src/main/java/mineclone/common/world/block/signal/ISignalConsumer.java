@@ -2,7 +2,7 @@ package mineclone.common.world.block.signal;
 
 import mineclone.common.world.block.IBlock;
 
-public interface SignalConsumer extends IBlock {
+public interface ISignalConsumer extends IBlock {
 
 	@Override
 	default boolean isSignalConsumer(SignalType type) {

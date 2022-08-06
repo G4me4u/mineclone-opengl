@@ -4,7 +4,7 @@ import mineclone.common.world.IServerWorld;
 import mineclone.common.world.block.Blocks;
 import mineclone.common.world.block.IBlockPosition;
 import mineclone.common.world.block.signal.wire.ConnectionSide;
-import mineclone.common.world.block.signal.wire.Wire;
+import mineclone.common.world.block.signal.wire.IWire;
 import mineclone.common.world.block.signal.wire.WireType;
 import mineclone.common.world.block.state.IBlockState;
 import mineclone.common.world.flags.SetBlockFlags;
@@ -19,7 +19,7 @@ import mineclone.common.world.flags.SetBlockFlags;
 public class WireNode extends Node {
 
 	final WireConnectionManager connections;
-	final Wire block;
+	final IWire block;
 	final WireType type;
 
 	/** The power level this wire currently holds in the world. */
@@ -55,7 +55,7 @@ public class WireNode extends Node {
 		this.state = state;
 
 		this.connections = new WireConnectionManager(this);
-		this.block = (Wire)state.getBlock();
+		this.block = (IWire)state.getBlock();
 		this.type = this.block.getWireType();
 
 		this.virtualPower = this.currentPower = this.block.getSignal(this.state);

@@ -8,7 +8,7 @@ import mineclone.common.world.IServerWorld;
 import mineclone.common.world.IWorld;
 import mineclone.common.world.block.signal.wire.ConnectionSide;
 import mineclone.common.world.block.signal.wire.ConnectionType;
-import mineclone.common.world.block.signal.wire.Wire;
+import mineclone.common.world.block.signal.wire.IWire;
 import mineclone.common.world.block.signal.wire.WireType;
 import mineclone.common.world.block.state.BlockState;
 import mineclone.common.world.block.state.EnumBlockProperty;
@@ -18,7 +18,7 @@ import mineclone.common.world.block.state.IIndexedValue;
 import mineclone.common.world.block.state.IntBlockProperty;
 import mineclone.common.world.flags.SetBlockFlags;
 
-public class BasicWireBlock extends Block implements Wire {
+public class BasicWireBlock extends Block implements IWire {
 
 	public static final IBlockProperty<Integer> POWER = new IntBlockProperty("power", 16);
 

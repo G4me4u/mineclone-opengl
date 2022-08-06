@@ -9,7 +9,7 @@ import mineclone.common.world.block.signal.wire.ConnectionSide;
 import mineclone.common.world.block.signal.wire.WireType;
 import mineclone.common.world.block.state.IBlockState;
 
-public interface SignalSource extends IBlock {
+public interface ISignalSource extends IBlock {
 
 	@Override
 	default boolean isSignalSource(SignalType type) {

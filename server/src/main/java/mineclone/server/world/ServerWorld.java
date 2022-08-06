@@ -237,14 +237,14 @@ public class ServerWorld extends World implements IServerWorld {
 
 		int signal = neighborState.getSignal(this, neighborPos, opp, type);
 
-		if (signal > type.max()) {
+		if (signal >= type.max()) {
 			return type.max();
 		}
 
 		if (neighborState.isSignalConductor(opp, type)) {
 			signal = Math.max(signal, getDirectSignalExceptFrom(neighborPos, neighborState, dir, type));
 
-			if (signal > type.max()) {
+			if (signal >= type.max()) {
 				return type.max();
 			}
 		}
@@ -264,7 +264,7 @@ public class ServerWorld extends World implements IServerWorld {
 			if (dir != exceptDir && (state == null || state.isSignalConductor(dir.getOpposite(), type))) {
 				signal = Math.max(signal, getDirectSignalFrom(pos, dir, type));
 
-				if (signal > type.max()) {
+				if (signal >= type.max()) {
 					return type.max();
 				}
 			}

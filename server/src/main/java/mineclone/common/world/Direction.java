@@ -14,7 +14,7 @@ public enum Direction implements IIndexedValue {
 	DOWN ("down" , 4, 5, 4, 4, Axis.Y, -1),
 	UP   ("up"   , 5, 4, 5, 5, Axis.Y,  1);
 	
-	public static final Direction[] DIRECTIONS;
+	public static final Direction[] ALL;
 	public static final Direction[] HORIZONTAL;
 	public static final Direction[] VERTICAL;
 	
@@ -23,19 +23,19 @@ public enum Direction implements IIndexedValue {
 	public static final int VERTICAL_FLAGS;
 	
 	static {
-		DIRECTIONS = new Direction[values().length];
+		ALL = new Direction[values().length];
 		for (Direction dir : values())
-			DIRECTIONS[dir.index] = dir;
+			ALL[dir.index] = dir;
 		
-		HORIZONTAL = Arrays.stream(DIRECTIONS)
+		HORIZONTAL = Arrays.stream(ALL)
 				.filter(Direction::isHorizontal)
 				.toArray(Direction[]::new);
 		
-		VERTICAL = Arrays.stream(DIRECTIONS)
+		VERTICAL = Arrays.stream(ALL)
 				.filter(Direction::isVertical)
 				.toArray(Direction[]::new);
 
-		DIRECTIONS_FLAGS = getFlags(DIRECTIONS);
+		DIRECTIONS_FLAGS = getFlags(ALL);
 		HORIZONTAL_FLAGS = getFlags(HORIZONTAL);
 		VERTICAL_FLAGS   = getFlags(VERTICAL);
 	}
@@ -127,17 +127,17 @@ public enum Direction implements IIndexedValue {
 	}
 	
 	public static Direction fromIndex(int index) {
-		if (index < 0 || index >= DIRECTIONS.length)
+		if (index < 0 || index >= ALL.length)
 			throw new IndexOutOfBoundsException("Index out of bounds: " + index);
 		
-		return DIRECTIONS[index];
+		return ALL[index];
 	}
 	
 	public static Direction fromVector(Vec3 vec) {
 		Direction result = Direction.NORTH;
 		float bestValue = Float.NEGATIVE_INFINITY;
 
-		for (Direction dir : DIRECTIONS) {
+		for (Direction dir : ALL) {
 			float v = vec.dot(dir.offsetX, dir.offsetY, dir.offsetZ);
 			
 			if (v > bestValue) {

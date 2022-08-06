@@ -183,8 +183,8 @@ public class WorldRenderer implements IResource {
 		chunks[chunkX + (chunkY + chunkZ * IWorld.CHUNKS_Y) * IWorld.CHUNKS_X].markDirty();
 	}
 	
-	public void update() {
-		selectionRenderer.update();
+	public void tick() {
+		selectionRenderer.tick();
 	}
 	
 	public void render(float dt) {

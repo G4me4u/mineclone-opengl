@@ -63,9 +63,9 @@ public class WorldChunk implements IWorldChunk {
 		if (newState != oldState) {
 			states[index] = newState;
 			
-			if (oldState.hasRandomUpdate())
+			if (oldState.doesRandomUpdates())
 				randomUpdateCount--;
-			if (newState.hasRandomUpdate())
+			if (newState.doesRandomUpdates())
 				randomUpdateCount++;
 
 			if (oldState.isAir())
@@ -80,7 +80,7 @@ public class WorldChunk implements IWorldChunk {
 	}
 
 	@Override
-	public boolean hasRandomUpdates() {
+	public boolean doesRandomUpdates() {
 		return (randomUpdateCount > 0);
 	}
 

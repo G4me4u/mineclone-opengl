@@ -1,56 +1,58 @@
 package mineclone.common.world;
 
-import mineclone.common.world.block.Block;
+import mineclone.common.world.block.IBlock;
 import mineclone.common.world.block.IBlockPosition;
+import mineclone.common.world.block.signal.SignalType;
+import mineclone.common.world.block.signal.wire.IWireHandler;
 import mineclone.common.world.block.state.IBlockState;
 import mineclone.common.world.chunk.IWorldChunkManager;
 
 public interface IServerWorld extends IWorld {
-	
-	public static final int NO_FLAGS = 0;
 
-	/* Flags related to block updates */
-	public static final int STATE_UPDATE_FLAG     = 0b001;
-	public static final int BLOCK_UPDATE_FLAG     = 0b010;
-	public static final int INVENTORY_UPDATE_FLAG = 0b100;
+	void generateWorld();
 
-	public static final int COMMON_UPDATE_FLAGS = STATE_UPDATE_FLAG | BLOCK_UPDATE_FLAG;
-	public static final int ALL_UPDATE_FLAGS    = COMMON_UPDATE_FLAGS | INVENTORY_UPDATE_FLAG;
-	
-	/* Flags related to redstone power levels */
-	public static final int INDIRECT_WEAK_POWER_FLAG   = 0b0001;
-	public static final int INDIRECT_STRONG_POWER_FLAG = 0b0010;
-	public static final int DIRECT_WEAK_POWER_FLAG     = 0b0100;
-	public static final int DIRECT_STRONG_POWER_FLAG   = 0b1000;
+	void growTree(IBlockPosition pos);
 
-	public static final int INDIRECT_POWER_FLAGS     = INDIRECT_WEAK_POWER_FLAG | INDIRECT_STRONG_POWER_FLAG;
-	public static final int DIRECT_POWER_FLAGS       = DIRECT_WEAK_POWER_FLAG | DIRECT_STRONG_POWER_FLAG;
-	
-	public static final int WEAK_POWER_FLAGS         = INDIRECT_WEAK_POWER_FLAG | DIRECT_WEAK_POWER_FLAG;
-	public static final int STRONG_POWER_FLAGS       = INDIRECT_STRONG_POWER_FLAG | DIRECT_STRONG_POWER_FLAG;
-	
-	public static final int ALL_POWER_FLAGS          = INDIRECT_POWER_FLAGS | DIRECT_POWER_FLAGS;
-	
-	public void generateWorld();
-	
-	public void growTree(IBlockPosition pos);
-	
-	public boolean setBlockState(IBlockPosition pos, IBlockState newState, boolean updateNeighbors);
-	
-	default public boolean setBlock(IBlockPosition pos, Block newBlock, boolean updateNeighbors) {
-		return setBlockState(pos, newBlock.getDefaultState(), updateNeighbors);
+	boolean setBlockState(IBlockPosition pos, IBlockState newState, int flags);
+
+	default boolean setBlock(IBlockPosition pos, IBlock newBlock, int flags) {
+		return setBlockState(pos, newBlock.getDefaultState(), flags);
 	}
-	
-	public void updateNeighbors(IBlockPosition pos, int updateFlags);
-	
-	public void updateNeighbor(IBlockPosition pos, Direction fromDir, IBlockState neighborState, int updateFlags);
 
-	public int getPower(IBlockPosition pos, int powerFlags);
+	default void updateNeighbors(IBlockPosition pos) {
+		updateNeighborsExceptFrom(pos, null);
+	}
 
-	public int getPowerExceptFrom(IBlockPosition pos, Direction exceptDir, int powerFlags);
+	void updateNeighborsExceptFrom(IBlockPosition pos, Direction exceptDir);
 
-	public int getPowerFrom(IBlockPosition pos, Direction dir, int powerFlags);
+	void updateNeighbor(IBlockPosition pos);
 
-	public IWorldChunkManager getChunkManager();
+	default void updateNeighborShapes(IBlockPosition pos, IBlockState state) {
+		updateNeighborShapesExceptFrom(pos, state, null);
+	}
+
+	void updateNeighborShapesExceptFrom(IBlockPosition pos, IBlockState state, Direction exceptDir);
+
+	void updateNeighborShape(IBlockPosition pos, Direction dir, IBlockPosition neighborPos, IBlockState neighborState);
+
+	default int getSignal(IBlockPosition pos, SignalType type) {
+		return getSignalExceptFrom(pos, null, type);
+	}
+
+	int getSignalExceptFrom(IBlockPosition pos, Direction exceptDir, SignalType type);
+
+	int getSignalFrom(IBlockPosition pos, Direction dir, SignalType type);
+
+	default int getDirectSignal(IBlockPosition pos, SignalType type) {
+		return getDirectSignalExceptFrom(pos, null, type);
+	}
+
+	int getDirectSignalExceptFrom(IBlockPosition pos, Direction exceptDir, SignalType type);
+
+	int getDirectSignalFrom(IBlockPosition pos, Direction dir, SignalType type);
+
+	IWireHandler getWireHandler();
+
+	IWorldChunkManager getChunkManager();
 
 }

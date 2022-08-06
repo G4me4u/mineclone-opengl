@@ -5,7 +5,7 @@ import mineclone.client.renderer.world.WorldRenderer;
 import mineclone.client.renderer.world.entity.ClientPlayerEntity;
 import mineclone.common.world.IClientWorld;
 import mineclone.common.world.World;
-import mineclone.common.world.block.Block;
+import mineclone.common.world.block.IBlock;
 import mineclone.common.world.block.IBlockPosition;
 import mineclone.common.world.block.ImmutableBlockPosition;
 import mineclone.common.world.block.state.IBlockState;
@@ -64,8 +64,8 @@ public class ClientWorld extends World implements IClientWorld {
 				markRangeDirty(new ImmutableBlockPosition(x, oldHighestPoint, z), 
 				               new ImmutableBlockPosition(x,    highestPoint, z), true);
 			} else {
-				Block oldBlock = oldState.getBlock();
-				Block newBlock = state.getBlock();
+				IBlock oldBlock = oldState.getBlock();
+				IBlock newBlock = state.getBlock();
 				
 				if (oldBlock.isSolid() || newBlock.isSolid()) {
 					markDirty(pos, (oldBlock != newBlock));
@@ -89,8 +89,8 @@ public class ClientWorld extends World implements IClientWorld {
 	}
 	
 	@Override
-	public void update() {
-		super.update();
+	public void tick() {
+		super.tick();
 	}
 	
 	@Override

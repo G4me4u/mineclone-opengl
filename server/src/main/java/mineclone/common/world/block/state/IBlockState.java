@@ -7,85 +7,115 @@ import mineclone.common.world.Direction;
 import mineclone.common.world.EntityHitbox;
 import mineclone.common.world.IServerWorld;
 import mineclone.common.world.IWorld;
-import mineclone.common.world.block.Block;
-import mineclone.common.world.block.Blocks;
+import mineclone.common.world.block.IBlock;
 import mineclone.common.world.block.IBlockPosition;
 import mineclone.common.world.block.MutableBlockPosition;
+import mineclone.common.world.block.signal.SignalType;
+import mineclone.common.world.block.signal.wire.ConnectionSide;
+import mineclone.common.world.block.signal.wire.WireType;
 
 public interface IBlockState {
 
-	default public IBlockState getPlacementState(IWorld world, IBlockPosition pos) {
-		return getBlock().getPlacementState(world, pos, this);
-	}
-	
-	default public void onStateUpdate(IServerWorld world, IBlockPosition pos, Direction fromDir, IBlockState fromState) {
-		getBlock().onStateUpdate(world, pos, this, fromDir, fromState);
-	}
-	
-	default public void onBlockUpdate(IServerWorld world, IBlockPosition pos, Direction fromDir, IBlockState fromState) {
-		getBlock().onBlockUpdate(world, pos, this, fromDir, fromState);
-	}
-	
-	default public void onInventoryUpdate(IServerWorld world, IBlockPosition pos, Direction fromDir, IBlockState fromState) {
-		getBlock().onInventoryUpdate(world, pos, this, fromDir, fromState);
-	}
-	
-	default public void onRandomUpdate(IServerWorld world, MutableBlockPosition pos, Random random) {
-		getBlock().onRandomUpdate(world, pos, this, random);
-	}
-	
-	default public boolean hasRandomUpdate() {
-		return getBlock().hasRandomUpdate(this);
-	}
-	
-	default public void getEntityHitboxes(IWorld world, MutableBlockPosition pos, List<EntityHitbox> hitboxes) {
-		getBlock().getEntityHitboxes(world, pos, this, hitboxes);
-	}
-
-	default public boolean canGrowVegetation() {
-		return getBlock().canGrowVegetation(this);
-	}
-	
-	default public boolean isAligned(Direction dir) {
-		return getBlock().isAligned(this, dir);
-	}
-	
-	default public boolean canPowerIndirectly(Direction dir) {
-		return getBlock().canPowerIndirectly(this, dir);
-	}
-	
-	default public boolean canConnectToWire(Direction dir) {
-		return getBlock().canConnectToWire(this, dir);
-	}
-	
-	default public int getOutputPowerFlags(Direction dir) {
-		return getBlock().getOutputPowerFlags(this, dir);
-	}
-
-	default public int getPowerTo(IServerWorld world, IBlockPosition pos, Direction dir, int powerFlags) {
-		return getBlock().getPowerTo(world, pos, this, dir, powerFlags);
-	}
-	
-	default public boolean isAir() {
-		return isOf(Blocks.AIR_BLOCK);
-	}
-	
-	default public boolean isOf(Block block) {
+	default boolean isOf(IBlock block) {
 		return getBlock() == block;
 	}
 
-	public Block getBlock();
-	
-	public <T> T get(IBlockProperty<T> property);
+	default boolean isAir() {
+		return getBlock().isAir();
+	}
 
-	public <T> IBlockState with(IBlockProperty<T> property, T value);
-	
-	public <T> IBlockState increment(IBlockProperty<T> property);
+	default IBlockState getPlacementState(IWorld world, IBlockPosition pos) {
+		return getBlock().getPlacementState(world, pos, this);
+	}
 
-	public <T> IBlockState decrement(IBlockProperty<T> property);
-	
-	public IBlockState next();
+	default boolean canExist(IWorld world, IBlockPosition pos) {
+		return getBlock().canExist(world, pos, this);
+	}
 
-	public IBlockState prev();
+	default void updateNeighbors(IServerWorld world, IBlockPosition pos) {
+		getBlock().updateNeighbors(world, pos, this);
+	}
+
+	default void updateNeighborShapes(IServerWorld world, IBlockPosition pos) {
+		getBlock().updateNeighborShapes(world, pos, this);
+	}
+
+	default void update(IServerWorld world, IBlockPosition pos) {
+		getBlock().update(world, pos, this);
+	}
+
+	default void updateShape(IServerWorld world, IBlockPosition pos, Direction dir, IBlockPosition neighborPos, IBlockState neighborState) {
+		getBlock().updateShape(world, pos, this, dir, neighborPos, neighborState);
+	}
+
+	default void randomUpdate(IServerWorld world, MutableBlockPosition pos, Random random) {
+		getBlock().randomUpdate(world, pos, this, random);
+	}
+
+	default boolean doesRandomUpdates() {
+		return getBlock().doesRandomUpdates(this);
+	}
+
+	default void getEntityHitboxes(IWorld world, MutableBlockPosition pos, List<EntityHitbox> hitboxes) {
+		getBlock().getEntityHitboxes(world, pos, this, hitboxes);
+	}
+
+	default boolean canGrowVegetation() {
+		return getBlock().canGrowVegetation(this);
+	}
+
+	default boolean isAligned(Direction dir) {
+		return getBlock().isAligned(this, dir);
+	}
+
+	default boolean isSignalSource(SignalType type) {
+		return getBlock().isSignalSource(type);
+	}
+
+	default int getSignal(IServerWorld world, IBlockPosition pos, Direction dir, SignalType type) {
+		return getBlock().getSignal(world, pos, this, dir, type);
+	}
+
+	default int getDirectSignal(IServerWorld world, IBlockPosition pos, Direction dir, SignalType type) {
+		return getBlock().getDirectSignal(world, pos, this, dir, type);
+	}
+
+	default boolean isWire() {
+		return getBlock().isWire();
+	}
+
+	default boolean isWire(SignalType type) {
+		return getBlock().isWire(type);
+	}
+
+	default boolean isWire(WireType type) {
+		return getBlock().isWire(type);
+	}
+
+	default boolean shouldWireConnect(IWorld world, IBlockPosition pos, ConnectionSide side, WireType type) {
+		return getBlock().shouldWireConnect(world, pos, this, side, type);
+	}
+
+	default boolean isSignalConsumer(SignalType type) {
+		return getBlock().isSignalConsumer(type);
+	}
+
+	default boolean isSignalConductor(Direction dir, SignalType type) {
+		return getBlock().isSignalConductor(this, dir, type);
+	}
+
+	IBlock getBlock();
+
+	<T> T get(IBlockProperty<T> property);
+
+	<T> IBlockState with(IBlockProperty<T> property, T value);
+
+	<T> IBlockState increment(IBlockProperty<T> property);
+
+	<T> IBlockState decrement(IBlockProperty<T> property);
+
+	IBlockState next();
+
+	IBlockState prev();
 
 }

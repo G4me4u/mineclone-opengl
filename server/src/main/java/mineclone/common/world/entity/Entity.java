@@ -42,7 +42,7 @@ public abstract class Entity {
 		return hitbox;
 	}
 
-	public void update() {
+	public void tick() {
 		this.prevEyeX = eyeX;
 		this.prevEyeY = eyeY;
 		this.prevEyeZ = eyeZ;

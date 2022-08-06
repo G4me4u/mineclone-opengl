@@ -98,14 +98,6 @@ public interface IBlock {
 		return type.min();
 	}
 
-	default boolean isAnalogSignalSource(SignalType type) {
-		return false;
-	}
-
-	default int getAnalogSignal(IServerWorld world, IBlockPosition pos, IBlockState state, SignalType type) {
-		return type.min();
-	}
-
 	default boolean isWire() {
 		return false;
 	}

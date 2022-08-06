@@ -282,14 +282,6 @@ public class ServerWorld extends World implements IServerWorld {
 	}
 
 	@Override
-	public int getAnalogSignalFrom(IBlockPosition pos, Direction dir, SignalType type) {
-		IBlockPosition neighborPos = pos.offset(dir);
-		IBlockState neighborState = getBlockState(neighborPos);
-
-		return type.clamp(neighborState.getAnalogSignal(this, neighborPos, type));
-	}
-
-	@Override
 	public IWireHandler getWireHandler() {
 		return wireHandler;
 	}
@@ -333,6 +325,6 @@ public class ServerWorld extends World implements IServerWorld {
 
 	@Override
 	public ServerWorldChunkManager getChunkManager() {
-		return (ServerWorldChunkManager) super.getChunkManager();
+		return (ServerWorldChunkManager)super.getChunkManager();
 	}
 }

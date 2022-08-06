@@ -51,8 +51,6 @@ public interface IServerWorld extends IWorld {
 
 	int getDirectSignalFrom(IBlockPosition pos, Direction dir, SignalType type);
 
-	int getAnalogSignalFrom(IBlockPosition pos, Direction dir, SignalType type);
-
 	IWireHandler getWireHandler();
 
 	IWorldChunkManager getChunkManager();

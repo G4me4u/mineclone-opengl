@@ -80,14 +80,6 @@ public interface IBlockState {
 		return getBlock().getDirectSignal(world, pos, this, dir, type);
 	}
 
-	default boolean isAnalogSignalSource(SignalType type) {
-		return getBlock().isAnalogSignalSource(type);
-	}
-
-	default int getAnalogSignal(IServerWorld world, IBlockPosition pos, SignalType type) {
-		return getBlock().getAnalogSignal(world, pos, this, type);
-	}
-
 	default boolean isWire() {
 		return getBlock().isWire();
 	}

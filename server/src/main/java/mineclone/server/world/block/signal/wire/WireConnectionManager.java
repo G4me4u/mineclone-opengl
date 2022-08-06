@@ -3,8 +3,8 @@ package mineclone.server.world.block.signal.wire;
 import java.util.Arrays;
 import java.util.function.Consumer;
 
-import mineclone.common.world.block.signal.SignalType;
-import mineclone.server.world.block.signal.wire.WireHandler.Directions;
+import mineclone.common.world.block.signal.wire.ConnectionSide;
+import mineclone.common.world.block.signal.wire.ConnectionType;
 import mineclone.server.world.block.signal.wire.WireHandler.NodeProvider;
 
 public class WireConnectionManager {
@@ -13,7 +13,7 @@ public class WireConnectionManager {
 	final WireNode owner;
 
 	/** The first connection for each cardinal direction. */
-	private final WireConnection[] heads;
+	private final WireConnection[] all;
 
 	private WireConnection head;
 	private WireConnection tail;
@@ -32,7 +32,7 @@ public class WireConnectionManager {
 	WireConnectionManager(WireNode owner) {
 		this.owner = owner;
 
-		this.heads = new WireConnection[Directions.HORIZONTAL.length];
+		this.all = new WireConnection[ConnectionSide.ALL.length];
 
 		this.total = 0;
 
@@ -45,40 +45,15 @@ public class WireConnectionManager {
 			clear();
 		}
 
-		SignalType signalType = owner.type.signal();
+		owner.type.findConnections(owner.world, owner.pos, (side, pos, state, type) -> {
+			Node node = nodes.get(pos);
 
-		Node below = nodes.getNeighbor(owner, Directions.DOWN);
-		Node above = nodes.getNeighbor(owner, Directions.UP);
-
-		boolean belowIsConductor = below.isConductor(Directions.UP, signalType);
-		boolean aboveIsConductor = above.isConductor(Directions.DOWN, signalType);
-
-		for (int iDir = 0; iDir < Directions.HORIZONTAL.length; iDir++) {
-			Node neighbor = nodes.getNeighbor(owner, iDir);
-
-			if (neighbor.isWire()) {
-				add(neighbor.asWire(), iDir, true, true);
-
-				continue;
+			if (node.isWire()) {
+				add(node.asWire(), side, type);
 			}
 
-			boolean sideIsConductor = neighbor.isConductor(Directions.iOpposite(iDir), signalType);
-
-			if (!sideIsConductor && !neighbor.isConductor(Directions.DOWN, signalType)) {
-				Node node = nodes.getNeighbor(neighbor, Directions.DOWN);
-
-				if (node.isWire()) {
-					add(node.asWire(), iDir, belowIsConductor, true);
-				}
-			}
-			if (!aboveIsConductor && !above.isConductor(iDir, signalType)) {
-				Node node = nodes.getNeighbor(neighbor, Directions.UP);
-
-				if (node.isWire()) {
-					add(node.asWire(), iDir, true, sideIsConductor);
-				}
-			}
-		}
+			return true;
+		});
 
 		if (total > 0) {
 			iFlowDir = WireHandler.FLOW_IN_TO_FLOW_OUT[flowTotal];
@@ -86,7 +61,7 @@ public class WireConnectionManager {
 	}
 
 	private void clear() {
-		Arrays.fill(heads, null);
+		Arrays.fill(all, null);
 
 		head = null;
 		tail = null;
@@ -97,13 +72,13 @@ public class WireConnectionManager {
 		iFlowDir = -1;
 	}
 
-	private void add(WireNode wire, int iDir, boolean offer, boolean accept) {
-		if (owner.type.isCompatible(wire.type)) {
-			add(new WireConnection(wire, iDir, offer, accept));
-		}
+	private void add(WireNode wire, ConnectionSide side, ConnectionType type) {
+		add(new WireConnection(wire, side, type));
 	}
 
 	private void add(WireConnection connection) {
+		all[connection.side.getIndex()] = connection;
+
 		if (head == null) {
 			head = connection;
 			tail = connection;
@@ -114,10 +89,11 @@ public class WireConnectionManager {
 
 		total++;
 
-		if (heads[connection.iDir] == null) {
-			heads[connection.iDir] = connection;
-			flowTotal |= (1 << connection.iDir);
-		}
+		flowTotal |= WireHandler.CONNECTION_SIDE_TO_FLOW_IN[connection.side.getIndex()];
+	}
+
+	WireConnection get(ConnectionSide side) {
+		return all[side.getIndex()];
 	}
 
 	/**
@@ -127,18 +103,6 @@ public class WireConnectionManager {
 	void forEach(Consumer<WireConnection> consumer) {
 		for (WireConnection c = head; c != null; c = c.next) {
 			consumer.accept(c);
-		}
-	}
-
-	/**
-	 * Iterate over all connections. Use this method if the iteration order is
-	 * important.
-	 */
-	void forEach(Consumer<WireConnection> consumer, int iFlowDir) {
-		for (int iDir : WireHandler.CARDINAL_UPDATE_ORDERS[iFlowDir]) {
-			for (WireConnection c = heads[iDir]; c != null && c.iDir == iDir; c = c.next) {
-				consumer.accept(c);
-			}
 		}
 	}
 }

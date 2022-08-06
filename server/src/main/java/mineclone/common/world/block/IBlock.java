@@ -8,6 +8,7 @@ import mineclone.common.world.EntityHitbox;
 import mineclone.common.world.IServerWorld;
 import mineclone.common.world.IWorld;
 import mineclone.common.world.block.signal.SignalType;
+import mineclone.common.world.block.signal.wire.ConnectionSide;
 import mineclone.common.world.block.signal.wire.WireType;
 import mineclone.common.world.block.state.IBlockState;
 
@@ -17,8 +18,16 @@ public interface IBlock {
 
 	IBlockState getDefaultState();
 
+	default boolean isAir() {
+		return false;
+	}
+
 	default IBlockState getPlacementState(IWorld world, IBlockPosition pos, IBlockState state) {
 		return state;
+	}
+
+	default boolean canExist(IWorld world, IBlockPosition pos, IBlockState state) {
+		return true;
 	}
 
 	default void onAdded(IServerWorld world, IBlockPosition pos, IBlockState state) {
@@ -77,7 +86,7 @@ public interface IBlock {
 		return isSolid();
 	}
 
-	default boolean isSignalSource(IBlockState state, SignalType type) {
+	default boolean isSignalSource(SignalType type) {
 		return false;
 	}
 
@@ -89,7 +98,7 @@ public interface IBlock {
 		return type.min();
 	}
 
-	default boolean isAnalogSignalSource(IBlockState state, SignalType type) {
+	default boolean isAnalogSignalSource(SignalType type) {
 		return false;
 	}
 
@@ -97,19 +106,23 @@ public interface IBlock {
 		return type.min();
 	}
 
-	default boolean isWire(IBlockState state) {
+	default boolean isWire() {
 		return false;
 	}
 
-	default boolean isWire(IBlockState state, WireType type) {
+	default boolean isWire(SignalType type) {
 		return false;
 	}
 
-	default boolean connectsToWire(IBlockState state, Direction dir, WireType type) {
+	default boolean isWire(WireType type) {
 		return false;
 	}
 
-	default boolean isSignalConsumer(IBlockState state, SignalType type) {
+	default boolean shouldWireConnect(IWorld world, IBlockPosition pos, IBlockState state, ConnectionSide side, WireType type) {
+		return false;
+	}
+
+	default boolean isSignalConsumer(SignalType type) {
 		return false;
 	}
 

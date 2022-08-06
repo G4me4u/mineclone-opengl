@@ -12,6 +12,7 @@ import mineclone.common.world.block.MutableBlockPosition;
 import mineclone.common.world.block.PlantBlock;
 import mineclone.common.world.block.PlantType;
 import mineclone.common.world.block.signal.SignalType;
+import mineclone.common.world.block.signal.wire.IWireHandler;
 import mineclone.common.world.block.state.IBlockState;
 import mineclone.common.world.chunk.ChunkEntry;
 import mineclone.common.world.chunk.IChunkPosition;
@@ -289,7 +290,7 @@ public class ServerWorld extends World implements IServerWorld {
 	}
 
 	@Override
-	public WireHandler getWireHandler() {
+	public IWireHandler getWireHandler() {
 		return wireHandler;
 	}
 

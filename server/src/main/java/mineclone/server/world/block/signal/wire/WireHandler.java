@@ -9,6 +9,10 @@ import mineclone.common.world.Direction;
 import mineclone.common.world.IServerWorld;
 import mineclone.common.world.block.IBlockPosition;
 import mineclone.common.world.block.signal.SignalType;
+import mineclone.common.world.block.signal.wire.ConnectionSide;
+import mineclone.common.world.block.signal.wire.IWireHandler;
+import mineclone.common.world.block.signal.wire.Wire;
+import mineclone.common.world.block.signal.wire.WireType;
 import mineclone.common.world.block.state.IBlockState;
 
 /**
@@ -126,7 +130,7 @@ import mineclone.common.world.block.state.IBlockState;
  * 
  * @author Space Walker
  */
-public class WireHandler {
+public class WireHandler implements IWireHandler {
 
 	public static class Directions {
 
@@ -221,6 +225,26 @@ public class WireHandler {
 		Directions.EAST,  // 0b1110: north/east/south      -> east
 		-1,               // 0b1111: west/north/east/south -> x
 	};
+	static final int[] CONNECTION_SIDE_TO_FLOW_IN = {
+		0,      // down
+		0,      // up
+		0b0010, // north
+		0b1000, // south
+		0b0001, // west
+		0b0100, // east
+		0b0010, // down/north
+		0b1000, // up/south
+		0b1000, // down/south
+		0b0010, // up/north
+		0b0001, // down/west
+		0b0100, // up/east
+		0b0100, // down/east
+		0b0001, // up/west
+		0b0011, // north/west
+		0b1100, // south/east
+		0b0110, // north/east
+		0b1001  // south/west
+	};
 	/**
 	 * Update orders of all directions. Given that the index encodes the direction
 	 * that is to be considered 'forward', the resulting update order is
@@ -252,6 +276,92 @@ public class WireHandler {
 	 * The default update order of all cardinal directions.
 	 */
 	static final int[] DEFAULT_CARDINAL_UPDATE_ORDER = CARDINAL_UPDATE_ORDERS[0];
+	/**
+	 * Update orders of connections. The index encodes the direction that is to be
+	 * considered 'forward'.
+	 */
+	static final ConnectionSide[][] CONNECTION_UPDATE_ORDERS = {
+		{
+			ConnectionSide.WEST,
+			ConnectionSide.EAST,
+			ConnectionSide.NORTH,
+			ConnectionSide.SOUTH,
+			ConnectionSide.DOWN,
+			ConnectionSide.UP,
+			ConnectionSide.NORTH_WEST,
+			ConnectionSide.SOUTH_EAST,
+			ConnectionSide.SOUTH_WEST,
+			ConnectionSide.NORTH_EAST,
+			ConnectionSide.WEST_DOWN,
+			ConnectionSide.EAST_UP,
+			ConnectionSide.WEST_UP,
+			ConnectionSide.EAST_DOWN,
+			ConnectionSide.NORTH_DOWN,
+			ConnectionSide.SOUTH_UP,
+			ConnectionSide.NORTH_UP,
+			ConnectionSide.SOUTH_DOWN
+		},
+		{
+			ConnectionSide.NORTH,
+			ConnectionSide.SOUTH,
+			ConnectionSide.EAST,
+			ConnectionSide.WEST,
+			ConnectionSide.DOWN,
+			ConnectionSide.UP,
+			ConnectionSide.NORTH_EAST,
+			ConnectionSide.SOUTH_WEST,
+			ConnectionSide.NORTH_WEST,
+			ConnectionSide.SOUTH_EAST,
+			ConnectionSide.NORTH_DOWN,
+			ConnectionSide.SOUTH_UP,
+			ConnectionSide.NORTH_UP,
+			ConnectionSide.SOUTH_DOWN,
+			ConnectionSide.EAST_DOWN,
+			ConnectionSide.WEST_UP,
+			ConnectionSide.EAST_UP,
+			ConnectionSide.WEST_DOWN
+		},
+		{
+			ConnectionSide.EAST,
+			ConnectionSide.WEST,
+			ConnectionSide.SOUTH,
+			ConnectionSide.NORTH,
+			ConnectionSide.DOWN,
+			ConnectionSide.UP,
+			ConnectionSide.SOUTH_EAST,
+			ConnectionSide.NORTH_WEST,
+			ConnectionSide.NORTH_EAST,
+			ConnectionSide.SOUTH_WEST,
+			ConnectionSide.EAST_DOWN,
+			ConnectionSide.WEST_UP,
+			ConnectionSide.EAST_UP,
+			ConnectionSide.WEST_DOWN,
+			ConnectionSide.SOUTH_DOWN,
+			ConnectionSide.NORTH_UP,
+			ConnectionSide.SOUTH_UP,
+			ConnectionSide.NORTH_DOWN
+		},
+		{
+			ConnectionSide.SOUTH,
+			ConnectionSide.NORTH,
+			ConnectionSide.WEST,
+			ConnectionSide.EAST,
+			ConnectionSide.DOWN,
+			ConnectionSide.UP,
+			ConnectionSide.SOUTH_WEST,
+			ConnectionSide.NORTH_EAST,
+			ConnectionSide.SOUTH_EAST,
+			ConnectionSide.NORTH_WEST,
+			ConnectionSide.SOUTH_DOWN,
+			ConnectionSide.NORTH_UP,
+			ConnectionSide.SOUTH_UP,
+			ConnectionSide.NORTH_DOWN,
+			ConnectionSide.WEST_DOWN,
+			ConnectionSide.EAST_UP,
+			ConnectionSide.WEST_UP,
+			ConnectionSide.EAST_DOWN
+		}
+	};
 
 	// If Vanilla will ever multi-thread the ticking of levels, there should
 	// be only one WireHandler per level, in case redstone updates in multiple
@@ -286,7 +396,7 @@ public class WireHandler {
 	}
 
 	/**
-	 * Retrieve the {@link alternate.current.wire.Node Node} that represents the
+	 * Retrieve the {@link alternate.signal.wire.Node Node} that represents the
 	 * block at the given position in the level.
 	 */
 	private Node getOrAddNode(IBlockPosition pos) {
@@ -305,7 +415,7 @@ public class WireHandler {
 	}
 
 	/**
-	 * Remove and return the {@link alternate.current.wire.Node Node} at the given
+	 * Remove and return the {@link alternate.signal.wire.Node Node} at the given
 	 * position.
 	 */
 	private Node removeNode(IBlockPosition pos) {
@@ -313,7 +423,7 @@ public class WireHandler {
 	}
 
 	/**
-	 * Return a {@link alternate.current.wire.Node Node} that represents the block
+	 * Return a {@link alternate.signal.wire.Node Node} that represents the block
 	 * at the given position.
 	 */
 	private Node getNextNode(IBlockPosition pos) {
@@ -322,8 +432,8 @@ public class WireHandler {
 
 	/**
 	 * Return a node that represents the given position and block state. If it is a
-	 * wire, then create a new {@link alternate.current.wire.WireNode WireNode}.
-	 * Otherwise, grab the next {@link alternate.current.wire.Node Node} from the
+	 * wire, then create a new {@link alternate.signal.wire.WireNode WireNode}.
+	 * Otherwise, grab the next {@link alternate.signal.wire.Node Node} from the
 	 * cache and update it.
 	 */
 	private Node getNextNode(IBlockPosition pos, IBlockState state) {
@@ -366,6 +476,10 @@ public class WireHandler {
 	 * Otherwise, the node can be quickly revalidated with the new block state.
 	 */
 	private Node revalidateNode(Node node) {
+		if (!node.invalid) {
+			return node;
+		}
+
 		IBlockPosition pos = node.pos;
 		IBlockState state = world.getBlockState(pos);
 
@@ -374,6 +488,14 @@ public class WireHandler {
 
 		if (wasWire != isWire) {
 			return getNextNode(pos, state);
+		}
+		if (isWire) {
+			WireNode wire = node.asWire();
+			Wire block = wire.block;
+
+			if (!state.isOf(block)) {
+				return getNextNode(pos, state);
+			}
 		}
 
 		node.invalid = false;
@@ -494,17 +616,27 @@ public class WireHandler {
 	}
 
 	/**
-	 * This method should be called whenever a wire receives a block update.
+	 * Iterate over all connections of the given wire. The iteration order is
+	 * consistent with the neighbor iteration order from the method above.
 	 */
+	private void forEachConnection(WireNode wire, Consumer<WireConnection> consumer) {
+		for (ConnectionSide side : CONNECTION_UPDATE_ORDERS[wire.iFlowDir]) {
+			WireConnection connection = wire.connections.get(side);
+
+			if (connection != null) {
+				consumer.accept(connection);
+			}
+		}
+	}
+
+	@Override
 	public void onWireUpdated(IBlockPosition pos) {
 		invalidate();
 		findRoots(pos);
 		tryUpdate();
 	}
 
-	/**
-	 * This method should be called whenever a wire is placed.
-	 */
+	@Override
 	public void onWireAdded(IBlockPosition pos) {
 		Node node = getOrAddNode(pos);
 
@@ -521,9 +653,7 @@ public class WireHandler {
 		tryUpdate();
 	}
 
-	/**
-	 * This method should be called whenever a wire is removed.
-	 */
+	@Override
 	public void onWireRemoved(IBlockPosition pos, IBlockState state) {
 		Node node = removeNode(pos);
 		WireNode wire;
@@ -607,12 +737,11 @@ public class WireHandler {
 			return;
 		}
 
-		SignalType signalType = wire.type.signal();
-
 		for (int iDir : FULL_UPDATE_ORDERS[wire.iFlowDir]) {
 			Node neighbor = getNeighbor(wire, iDir);
+			Direction opp = Directions.ALL[Directions.iOpposite(iDir)];
 
-			if (neighbor.isConductor(Directions.iOpposite(iDir), signalType) || neighbor.isSignalSource(signalType)) {
+			if (neighbor.state.isSignalConductor(opp, SignalType.ANY) || neighbor.state.isSignalSource(SignalType.ANY)) {
 				findRootsAround(neighbor, Directions.iOpposite(iDir));
 			}
 		}
@@ -643,7 +772,16 @@ public class WireHandler {
 
 		discover(wire);
 		findExternalPower(wire);
-		findPower(wire, false);
+
+		// To stop wires with power step 0 from perpetually powering themselves,
+		// those wires initially ignore power from neighboring wires. Only if
+		// power from non-wires matches their current power, is power from
+		// neighboring wires considered. This makes sure the wires still update
+		// their power correctly if they are in an invalid state within their
+		// network, e.g. when placed in an already powered network.
+		if (wire.type.step() != 0 || !needsUpdate(wire)) {
+			findPower(wire, false);
+		}
 
 		if (needsUpdate(wire)) {
 			searchRoot(wire);
@@ -667,15 +805,15 @@ public class WireHandler {
 
 		wire.discovered = true;
 		wire.searched = false;
-// TODO: integrate wires breaking
-//		if (!wire.removed && !wire.shouldBreak && !wire.state.canSurvive(world, wire.pos)) {
-//			wire.shouldBreak = true;
-//		}
+
+		if (!wire.removed && !wire.shouldBreak && !wire.state.canExist(world, wire.pos)) {
+			wire.shouldBreak = true;
+		}
 
 		wire.virtualPower = wire.currentPower;
 		wire.externalPower = wire.type.min() - 1;
 
-		wire.connections.set(this::getNeighbor);
+		wire.connections.set(this::getOrAddNode);
 	}
 
 	/**
@@ -710,7 +848,7 @@ public class WireHandler {
 	 */
 	private void findWirePower(WireNode wire, boolean ignoreSearched) {
 		wire.connections.forEach(connection -> {
-			if (!connection.accept) {
+			if (!connection.type.in()) {
 				return;
 			}
 
@@ -719,9 +857,9 @@ public class WireHandler {
 			if (!ignoreSearched || !neighbor.searched) {
 				int step = Math.max(wire.type.step(), neighbor.type.step());
 				int power = Math.max(wire.type.min(), neighbor.virtualPower - step);
-				int iOpp = Directions.iOpposite(connection.iDir);
+				ConnectionSide side = connection.side.getOpposite();
 
-				wire.offerPower(power, iOpp);
+				wire.offerPower(power, side);
 			}
 		});
 	}
@@ -750,9 +888,10 @@ public class WireHandler {
 	 * components.
 	 */
 	private int getExternalPower(WireNode wire) {
-		int power = wire.type.min();
+		WireType type = wire.type;
+		SignalType signal = type.signal();
 
-		SignalType signalType = wire.type.signal();
+		int power = type.min();
 
 		for (int iDir = 0; iDir < Directions.ALL.length; iDir++) {
 			Node neighbor = getNeighbor(wire, iDir);
@@ -762,17 +901,19 @@ public class WireHandler {
 				continue;
 			}
 
+			Direction opp = Directions.ALL[Directions.iOpposite(iDir)];
+
 			// Since 1.16 there is a block that is both a conductor and a signal
 			// source: the target block!
-			if (neighbor.isConductor(Directions.iOpposite(iDir), signalType)) {
+			if (neighbor.state.isSignalConductor(opp, signal)) {
 				power = Math.max(power, getDirectSignalTo(wire, neighbor, Directions.iOpposite(iDir)));
 			}
-			if (neighbor.isSignalSource(wire.type.signal())) {
-				power = Math.max(power, neighbor.state.getSignal(world, neighbor.pos, Directions.ALL[iDir], signalType));
+			if (neighbor.state.isSignalSource(signal)) {
+				power = Math.max(power, neighbor.state.getSignal(world, neighbor.pos, Directions.ALL[iDir], signal));
 			}
 
-			if (power >= wire.type.max()) {
-				return wire.type.max();
+			if (power >= type.max()) {
+				return type.max();
 			}
 		}
 
@@ -784,20 +925,19 @@ public class WireHandler {
 	 * through the given conductor node.
 	 */
 	private int getDirectSignalTo(WireNode wire, Node node, int except) {
-		int power = wire.type.min();
+		WireType type = wire.type;
+		SignalType signal = type.signal();
 
-		SignalType signalType = wire.type.signal();
+		int power = type.min();
 
 		for (int iDir : Directions.I_EXCEPT[except]) {
-			if (node.isConductor(iDir, signalType)) {
-				Node neighbor = getNeighbor(node, iDir);
+			Node neighbor = getNeighbor(node, iDir);
 
-				if (neighbor.isSignalSource(signalType)) {
-					power = Math.max(power, neighbor.state.getDirectSignal(world, neighbor.pos, Directions.ALL[iDir], signalType));
+			if (neighbor.state.isSignalSource(signal)) {
+				power = Math.max(power, neighbor.state.getDirectSignal(world, neighbor.pos, Directions.ALL[iDir], signal));
 
-					if (power >= wire.type.max()) {
-						return wire.type.max();
-					}
+				if (power >= type.max()) {
+					return type.max();
 				}
 			}
 		}
@@ -880,7 +1020,7 @@ public class WireHandler {
 	private void update() {
 		// The profiler keeps track of how long various parts of the algorithm take.
 		// It is only here for debugging purposes, and is commented out in production.
-//		Profiler profiler = AlternateCurrentMod.createProfiler();
+//		Profiler profiler = AlternateSignalMod.createProfiler();
 //		profiler.start();
 
 		// Search through the network for wires that need power changes. This includes
@@ -919,8 +1059,8 @@ public class WireHandler {
 		for (WireNode wire : search) {
 			// The order in which wires are searched will influence the order in
 			// which they update their power levels.
-			wire.connections.forEach(connection -> {
-				if (!connection.offer) {
+			forEachConnection(wire, connection -> {
+				if (!connection.type.out()) {
 					return;
 				}
 
@@ -931,7 +1071,13 @@ public class WireHandler {
 				}
 
 				discover(neighbor);
-				findPower(neighbor, false);
+
+				// These checks stop wires with power step 0 from perpetually
+				// powering themselves. See the comment in the tryAddRoot method
+				// for more information.
+				if (neighbor.type.step() != 0 || !needsUpdate(neighbor)) {
+					findPower(neighbor, false);
+				}
 
 				// If power from neighboring wires has decreased, check for power
 				// from non-wire components so as to determine how low power can
@@ -941,9 +1087,16 @@ public class WireHandler {
 				}
 
 				if (needsUpdate(neighbor)) {
-					search(neighbor, false, connection.iDir);
+					int flowIn = CONNECTION_SIDE_TO_FLOW_IN[connection.side.getIndex()];
+					int iFlowDir = FLOW_IN_TO_FLOW_OUT[flowIn];
+
+					if (iFlowDir < 0) {
+						iFlowDir = 0;
+					}
+
+					search(neighbor, false, iFlowDir);
 				}
-			}, wire.iFlowDir);
+			});
 		}
 	}
 
@@ -1008,11 +1161,7 @@ public class WireHandler {
 					updateNeighborShapes(wire);
 				}
 			} else {
-				WireNode neighborWire = node.neighborWire;
-
-				if (neighborWire != null) {
-					updateBlock(node);
-				}
+				updateBlock(node);
 			}
 		}
 
@@ -1041,8 +1190,8 @@ public class WireHandler {
 	 * those wires.
 	 */
 	private void transmitPower(WireNode wire) {
-		wire.connections.forEach(connection -> {
-			if (!connection.offer) {
+		forEachConnection(wire, connection -> {
+			if (!connection.type.out()) {
 				return;
 			}
 
@@ -1050,12 +1199,12 @@ public class WireHandler {
 
 			int step = Math.max(wire.type.step(), neighbor.type.step());
 			int power = Math.max(neighbor.type.min(), wire.virtualPower - step);
-			int iDir = connection.iDir;
+			ConnectionSide side = connection.side;
 
-			if (neighbor.offerPower(power, iDir)) {
+			if (neighbor.offerPower(power, side)) {
 				queueWire(neighbor);
 			}
-		}, wire.iFlowDir);
+		});
 	}
 
 	/**
@@ -1146,7 +1295,7 @@ public class WireHandler {
 	@FunctionalInterface
 	public static interface NodeProvider {
 
-		public Node getNeighbor(Node node, int iDir);
+		public Node get(IBlockPosition pos);
 
 	}
 }

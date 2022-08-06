@@ -3,7 +3,7 @@ package mineclone.server.world.block.signal.wire;
 import mineclone.common.world.IServerWorld;
 import mineclone.common.world.block.Blocks;
 import mineclone.common.world.block.IBlockPosition;
-import mineclone.common.world.block.signal.SignalType;
+import mineclone.common.world.block.signal.wire.ConnectionSide;
 import mineclone.common.world.block.signal.wire.Wire;
 import mineclone.common.world.block.signal.wire.WireType;
 import mineclone.common.world.block.state.IBlockState;
@@ -55,7 +55,7 @@ public class WireNode extends Node {
 		this.state = state;
 
 		this.connections = new WireConnectionManager(this);
-		this.block = (Wire)this.state.getBlock();
+		this.block = (Wire)state.getBlock();
 		this.type = this.block.getWireType();
 
 		this.virtualPower = this.currentPower = this.block.getSignal(this.state);
@@ -88,31 +88,21 @@ public class WireNode extends Node {
 	}
 
 	@Override
-	public boolean isConductor(int iDir, SignalType type) {
-		return false;
-	}
-
-	@Override
-	public boolean isSignalSource(SignalType type) {
-		return false;
-	}
-
-	@Override
 	public WireNode asWire() {
 		return this;
 	}
 
-	boolean offerPower(int power, int iDir) {
+	boolean offerPower(int power, ConnectionSide side) {
 		if (removed || shouldBreak) {
 			return false;
 		}
 		if (power == virtualPower) {
-			flowIn |= (1 << iDir);
+			flowIn |= WireHandler.CONNECTION_SIDE_TO_FLOW_IN[side.getIndex()];
 			return false;
 		}
 		if (power > virtualPower) {
 			virtualPower = power;
-			flowIn = (1 << iDir);
+			flowIn = WireHandler.CONNECTION_SIDE_TO_FLOW_IN[side.getIndex()];
 
 			return true;
 		}
@@ -132,7 +122,7 @@ public class WireNode extends Node {
 		}
 
 		if (shouldBreak) {
-			return world.setBlock(pos, Blocks.AIR_BLOCK, SetBlockFlags.NONE);
+			return world.setBlock(pos, Blocks.AIR_BLOCK);
 		}
 
 		currentPower = type.clamp(virtualPower);

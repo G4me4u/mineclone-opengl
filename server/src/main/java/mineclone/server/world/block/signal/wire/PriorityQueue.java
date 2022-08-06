@@ -7,7 +7,7 @@ import mineclone.common.world.block.signal.wire.WireType;
 
 public class PriorityQueue extends AbstractQueue<Node> {
 
-	private static final int DEFAULT_TAILS_CAPACITY = (WireType.REDSTONE.max() - WireType.REDSTONE.min()) + 1;
+	private static final int DEFAULT_TAILS_CAPACITY = WireType.REDSTONE.max() - WireType.REDSTONE.min();
 
 	/** The last node for each priority value. */
 	private Node[] tails;

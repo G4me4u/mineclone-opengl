@@ -2,10 +2,8 @@ package mineclone.server.world.block.signal.wire;
 
 import java.util.Arrays;
 
-import mineclone.common.world.Direction;
 import mineclone.common.world.IServerWorld;
 import mineclone.common.world.block.IBlockPosition;
-import mineclone.common.world.block.signal.SignalType;
 import mineclone.common.world.block.signal.wire.WireType;
 import mineclone.common.world.block.state.IBlockState;
 import mineclone.server.world.block.signal.wire.WireHandler.Directions;
@@ -20,7 +18,6 @@ public class Node {
 
 	final IServerWorld world;
 	final Node[] neighbors;
-	final Boolean[] conductiveSides;
 
 	IBlockPosition pos;
 	IBlockState state;
@@ -38,7 +35,6 @@ public class Node {
 	Node(IServerWorld world) {
 		this.world = world;
 		this.neighbors = new Node[Directions.ALL.length];
-		this.conductiveSides = new Boolean[Directions.ALL.length];
 	}
 
 	@Override
@@ -69,8 +65,6 @@ public class Node {
 			Arrays.fill(neighbors, null);
 		}
 
-		Arrays.fill(conductiveSides, null);
-
 		this.pos = pos.toImmutable();
 		this.state = state;
 		this.invalid = false;
@@ -98,23 +92,6 @@ public class Node {
 
 	public boolean isWire(WireType type) {
 		return false;
-	}
-
-	public boolean isConductor(int iDir, SignalType type) {
-		Boolean conductive = conductiveSides[iDir];
-
-		if (conductive == null) {
-			Direction dir = Directions.ALL[iDir];
-			conductive = state.isSignalConductor(dir, type);
-
-			conductiveSides[iDir] = conductive;
-		}
-
-		return conductive;
-	}
-
-	public boolean isSignalSource(SignalType type) {
-		return state.isSignalSource(type);
 	}
 
 	public WireNode asWire() {

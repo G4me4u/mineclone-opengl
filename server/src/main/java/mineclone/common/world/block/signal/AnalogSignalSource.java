@@ -8,17 +8,17 @@ import mineclone.common.world.block.state.IBlockState;
 public interface AnalogSignalSource extends IBlock {
 
 	@Override
-	default boolean isAnalogSignalSource(IBlockState state, SignalType type) {
+	default boolean isAnalogSignalSource(SignalType type) {
 		return getAnalogSignalType().is(type);
 	}
 
 	@Override
 	default int getAnalogSignal(IServerWorld world, IBlockPosition pos, IBlockState state, SignalType type) {
-		return isAnalogSignalSource(state, type) ? getAnalogSignal(world, pos, state) : type.min();
+		return isAnalogSignalSource(type) ? getAnalogSignal(world, pos, state, type.min(), type.max()) : type.min();
 	}
 
 	SignalType getAnalogSignalType();
 
-	int getAnalogSignal(IServerWorld world, IBlockPosition pos, IBlockState state);
+	int getAnalogSignal(IServerWorld world, IBlockPosition pos, IBlockState state, int min, int max);
 
 }

@@ -11,27 +11,31 @@ public enum SignalType {
 	private final int max;
 
 	private SignalType(int min, int max) {
+		if (max < min) {
+			throw new IllegalArgumentException("max cannot be less than min");
+		}
+
 		this.min = min;
 		this.max = max;
 	}
 
-	public boolean isAny() {
-		return this == ANY;
-	}
-
-	public boolean is(SignalType type) {
-		return isAny() || type.isAny() || this == type;
-	}
-
-	public int min() {
+	public final int min() {
 		return min;
 	}
 
-	public int max() {
+	public final int max() {
 		return max;
 	}
 
-	public int clamp(int signal) {
+	public final int clamp(int signal) {
 		return signal >= max ? max : (signal <= min ? min : signal);
+	}
+
+	public final boolean isAny() {
+		return this == ANY;
+	}
+
+	public final boolean is(SignalType type) {
+		return isAny() || type.isAny() || this == type;
 	}
 }

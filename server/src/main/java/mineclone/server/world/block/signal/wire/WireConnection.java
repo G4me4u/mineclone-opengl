@@ -1,5 +1,8 @@
 package mineclone.server.world.block.signal.wire;
 
+import mineclone.common.world.block.signal.wire.ConnectionSide;
+import mineclone.common.world.block.signal.wire.ConnectionType;
+
 /**
  * This class represents a connection between some WireNode (the 'owner') and a
  * neighboring WireNode. Two wires are considered to be connected if power can
@@ -11,20 +14,15 @@ public class WireConnection {
 
 	/** The connected wire. */
 	final WireNode wire;
-	/** Cardinal direction to the connected wire. */
-	final int iDir;
-	/** True if the owner of the connection can provide power to the connected wire. */
-	final boolean offer;
-	/** True if the connected wire can provide power to the owner of the connection. */
-	final boolean accept;
+	final ConnectionSide side;
+	final ConnectionType type;
 
 	/** The next connection in the sequence. */
 	WireConnection next;
 
-	WireConnection(WireNode wire, int iDir, boolean offer, boolean accept) {
+	WireConnection(WireNode wire, ConnectionSide side, ConnectionType type) {
 		this.wire = wire;
-		this.iDir = iDir;
-		this.offer = offer;
-		this.accept = accept;
+		this.side = side;
+		this.type = type;
 	}
 }

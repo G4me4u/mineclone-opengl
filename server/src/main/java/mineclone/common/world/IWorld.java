@@ -35,7 +35,7 @@ public interface IWorld {
 
 	boolean isLoadedChunk(IChunkPosition chunkPos);
 
-	void update();
+	void tick();
 
 	List<EntityHitbox> getBlockHitboxes(EntityHitbox hitbox);
 

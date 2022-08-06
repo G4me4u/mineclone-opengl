@@ -2,8 +2,10 @@ package mineclone.common.world.block;
 
 import mineclone.common.world.Direction;
 import mineclone.common.world.IServerWorld;
+import mineclone.common.world.IWorld;
 import mineclone.common.world.block.signal.SignalSource;
 import mineclone.common.world.block.signal.SignalType;
+import mineclone.common.world.block.signal.wire.ConnectionSide;
 import mineclone.common.world.block.state.IBlockState;
 
 public class PoweredBlock extends Block implements SignalSource {
@@ -32,5 +34,10 @@ public class PoweredBlock extends Block implements SignalSource {
 	@Override
 	public int getDirectSignal(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir) {
 		return type.min();
+	}
+
+	@Override
+	public boolean shouldWireConnect(IWorld world, IBlockPosition pos, IBlockState state, ConnectionSide side) {
+		return side.isAligned();
 	}
 }

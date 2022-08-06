@@ -12,6 +12,7 @@ import mineclone.common.world.block.MutableBlockPosition;
 import mineclone.common.world.block.PlantBlock;
 import mineclone.common.world.block.PlantType;
 import mineclone.common.world.block.signal.SignalType;
+import mineclone.common.world.block.signal.wire.IWireHandler;
 import mineclone.common.world.block.state.IBlockState;
 import mineclone.common.world.chunk.ChunkEntry;
 import mineclone.common.world.chunk.IChunkPosition;
@@ -19,13 +20,18 @@ import mineclone.common.world.chunk.IWorldChunk;
 import mineclone.common.world.flags.SetBlockFlags;
 import mineclone.common.world.gen.DiamondNoise;
 import mineclone.server.MinecloneServer;
+import mineclone.server.world.block.signal.wire.WireHandler;
 
 public class ServerWorld extends World implements IServerWorld {
 
 	private static final int RANDOM_TICK_SPEED = 3;
 
+	private final WireHandler wireHandler;
+
 	public ServerWorld(MinecloneServer server) {
 		super(new ServerWorldChunkManager(server));
+
+		this.wireHandler = new WireHandler(this);
 
 		generateWorld();
 	}
@@ -284,15 +290,20 @@ public class ServerWorld extends World implements IServerWorld {
 	}
 
 	@Override
-	public void update() {
-		super.update();
+	public IWireHandler getWireHandler() {
+		return wireHandler;
+	}
 
-		doRandomTicks();
+	@Override
+	public void tick() {
+		super.tick();
+
+		doRandomUpdates();
 
 		getChunkManager().broadcastDirtyStates();
 	}
 
-	private void doRandomTicks() {
+	private void doRandomUpdates() {
 		MutableBlockPosition pos = new MutableBlockPosition();
 
 		for (Iterator<ChunkEntry<IWorldChunk>> it = chunkManager.chunkIterator(); it.hasNext();) {
@@ -301,7 +312,7 @@ public class ServerWorld extends World implements IServerWorld {
 			IChunkPosition chunkPos = entry.getChunkPos();
 			IWorldChunk chunk = entry.getChunk();
 
-			if (chunk != null && chunk.hasRandomTickingBlocks()) {
+			if (chunk != null && chunk.doesRandomUpdates()) {
 				for (int i = 0; i < RANDOM_TICK_SPEED; i++) {
 					int rx = random.nextInt(IWorldChunk.CHUNK_SIZE);
 					int ry = random.nextInt(IWorldChunk.CHUNK_SIZE);
@@ -313,8 +324,8 @@ public class ServerWorld extends World implements IServerWorld {
 
 					IBlockState state = chunk.getBlockState(rx, ry, rz);
 
-					if (state.doesRandomTicks())
-						state.randomTick(this, pos, random);
+					if (state.doesRandomUpdates())
+						state.randomUpdate(this, pos, random);
 				}
 			}
 		}

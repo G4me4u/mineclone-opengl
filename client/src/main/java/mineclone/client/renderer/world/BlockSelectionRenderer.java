@@ -126,7 +126,7 @@ public class BlockSelectionRenderer implements IResource {
 		return cubeBuffer;
 	}
 	
-	public void update() {
+	public void tick() {
 		if (time > 2.0f * (float)Math.PI)
 			time -= 2.0f * (float)Math.PI;
 

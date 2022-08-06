@@ -8,6 +8,7 @@ import mineclone.common.world.EntityHitbox;
 import mineclone.common.world.IServerWorld;
 import mineclone.common.world.IWorld;
 import mineclone.common.world.block.signal.SignalType;
+import mineclone.common.world.block.signal.wire.ConnectionSide;
 import mineclone.common.world.block.signal.wire.WireType;
 import mineclone.common.world.block.state.IBlockState;
 
@@ -17,52 +18,115 @@ public interface IBlock {
 
 	IBlockState getDefaultState();
 
-	IBlockState getPlacementState(IWorld world, IBlockPosition pos, IBlockState state);
+	default boolean isAir() {
+		return false;
+	}
 
-	void onAdded(IServerWorld world, IBlockPosition pos, IBlockState state);
+	default IBlockState getPlacementState(IWorld world, IBlockPosition pos, IBlockState state) {
+		return state;
+	}
 
-	void onRemoved(IServerWorld world, IBlockPosition pos, IBlockState state);
+	default boolean canExist(IWorld world, IBlockPosition pos, IBlockState state) {
+		return true;
+	}
 
-	void onChanged(IServerWorld world, IBlockPosition pos, IBlockState oldState, IBlockState newState);
+	default void onAdded(IServerWorld world, IBlockPosition pos, IBlockState state) {
+	}
 
-	void updateNeighbors(IServerWorld world, IBlockPosition pos, IBlockState state);
+	default void onRemoved(IServerWorld world, IBlockPosition pos, IBlockState state) {
+	}
 
-	void updateNeighborShapes(IServerWorld world, IBlockPosition pos, IBlockState state);
+	default void onChanged(IServerWorld world, IBlockPosition pos, IBlockState oldState, IBlockState newState) {
+	}
 
-	void update(IServerWorld world, IBlockPosition pos, IBlockState state);
+	default void updateNeighbors(IServerWorld world, IBlockPosition pos, IBlockState state) {
+		world.updateNeighbors(pos);
+	}
 
-	void updateShape(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir, IBlockPosition neighborPos, IBlockState neighborState);
+	default void updateNeighborShapes(IServerWorld world, IBlockPosition pos, IBlockState state) {
+		world.updateNeighborShapes(pos, state);
+	}
 
-	void randomTick(IServerWorld world, IBlockPosition pos, IBlockState state, Random random);
+	default void update(IServerWorld world, IBlockPosition pos, IBlockState state) {
+	}
 
-	boolean doesRandomTicks(IBlockState state);
+	default void updateShape(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir, IBlockPosition neighborPos, IBlockState neighborState) {
+	}
 
-	void getEntityHitboxes(IWorld world, IBlockPosition pos, IBlockState state, List<EntityHitbox> hitboxes);
+	default void randomUpdate(IServerWorld world, IBlockPosition pos, IBlockState state, Random random) {
+	}
 
-	boolean isSolid();
+	default boolean doesRandomUpdates(IBlockState state) {
+		return false;
+	}
 
-	boolean canGrowVegetation(IBlockState state);
+	default void getEntityHitboxes(IWorld world, IBlockPosition pos, IBlockState state, List<EntityHitbox> hitboxes) {
+		if (hasEntityHitbox(world, pos, state)) {
+			float x = pos.getX();
+			float y = pos.getY();
+			float z = pos.getZ();
 
-	boolean isAligned(IBlockState state, Direction dir);
+			hitboxes.add(new EntityHitbox(x, y, z, x + 1.0f, y + 1.0f, z + 1.0f));
+		}
+	}
 
-	boolean isSignalSource(IBlockState state, SignalType type);
+	default boolean hasEntityHitbox(IWorld world, IBlockPosition pos, IBlockState state) {
+		return isSolid();
+	}
 
-	int getSignal(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir, SignalType type);
+	default boolean isSolid() {
+		return false;
+	}
 
-	int getDirectSignal(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir, SignalType type);
+	default boolean canGrowVegetation(IBlockState state) {
+		return false;
+	}
 
-	boolean isAnalogSignalSource(IBlockState state, SignalType type);
+	default boolean isAligned(IBlockState state, Direction dir) {
+		return isSolid();
+	}
 
-	int getAnalogSignal(IServerWorld world, IBlockPosition pos, IBlockState state, SignalType type);
+	default boolean isSignalSource(SignalType type) {
+		return false;
+	}
 
-	boolean isWire(IBlockState state);
+	default int getSignal(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir, SignalType type) {
+		return type.min();
+	}
 
-	boolean isWire(IBlockState state, WireType type);
+	default int getDirectSignal(IServerWorld world, IBlockPosition pos, IBlockState state, Direction dir, SignalType type) {
+		return type.min();
+	}
 
-	boolean connectsToWire(IBlockState state, Direction dir);
+	default boolean isAnalogSignalSource(SignalType type) {
+		return false;
+	}
 
-	boolean isSignalConsumer(IBlockState state, SignalType type);
+	default int getAnalogSignal(IServerWorld world, IBlockPosition pos, IBlockState state, SignalType type) {
+		return type.min();
+	}
 
-	boolean isSignalConductor(IBlockState state, Direction face, SignalType type);
+	default boolean isWire() {
+		return false;
+	}
 
+	default boolean isWire(SignalType type) {
+		return false;
+	}
+
+	default boolean isWire(WireType type) {
+		return false;
+	}
+
+	default boolean shouldWireConnect(IWorld world, IBlockPosition pos, IBlockState state, ConnectionSide side, WireType type) {
+		return false;
+	}
+
+	default boolean isSignalConsumer(SignalType type) {
+		return false;
+	}
+
+	default boolean isSignalConductor(IBlockState state, Direction dir, SignalType type) {
+		return isAligned(state, dir);
+	}
 }

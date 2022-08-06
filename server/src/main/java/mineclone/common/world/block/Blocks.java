@@ -23,6 +23,7 @@ public class Blocks {
 	public static final IBlock LEAVES_BLOCK;
 	public static final IBlock LOG_BLOCK;
 	public static final IBlock REDSTONE_WIRE_BLOCK;
+	public static final IBlock BLUESTONE_WIRE_BLOCK;
 	public static final IBlock REDSTONE_BLOCK;
 	public static final IBlock BLUESTONE_BLOCK;
 	public static final IBlock STONE_SLAB_BLOCK;
@@ -74,19 +75,20 @@ public class Blocks {
 		blockRegistry = new ReferenceRegsitry<>();
 		stateRegistry = new ReferenceRegsitry<>();
 		
-		AIR_BLOCK             = register("air"            , new Block());
-		DIRT_BLOCK            = register("dirt"           , new DirtBlock());
-		GRASS_BLOCK           = register("grass"          , new GrassBlock());
-		PLANKS_BLOCK          = register("planks"         , new WoodPlanksBlock());
-		STONE_BLOCK           = register("stone"          , new BasicSolidBlock());
-		COBBLESTONE_BLOCK     = register("cobblestone"    , new BasicSolidBlock());
-		PLANT_BLOCK           = register("plant"          , new PlantBlock());
-		LEAVES_BLOCK          = register("leaves"         , new LeavesBlock());
-		LOG_BLOCK             = register("log"            , new WoodLogBlock());
-		REDSTONE_WIRE_BLOCK   = register("redstone_wire"  , new WireBlock(WireType.REDSTONE));
-		REDSTONE_BLOCK        = register("redstone_block" , new PoweredBlock(SignalType.REDSTONE));
-		BLUESTONE_BLOCK       = register("bluestone_block", new PoweredBlock(SignalType.BLUESTONE));
-		STONE_SLAB_BLOCK      = register("stone_slab"     , new StoneSlabBlock());
-		PLANKS_SLAB_BLOCK     = register("planks_slab"    , new WoodPlanksSlabBlock());
+		AIR_BLOCK             = register("air"             , new AirBlock());
+		DIRT_BLOCK            = register("dirt"            , new DirtBlock());
+		GRASS_BLOCK           = register("grass"           , new GrassBlock());
+		PLANKS_BLOCK          = register("planks"          , new WoodPlanksBlock());
+		STONE_BLOCK           = register("stone"           , new BasicSolidBlock());
+		COBBLESTONE_BLOCK     = register("cobblestone"     , new BasicSolidBlock());
+		PLANT_BLOCK           = register("plant"           , new PlantBlock());
+		LEAVES_BLOCK          = register("leaves"          , new LeavesBlock());
+		LOG_BLOCK             = register("log"             , new WoodLogBlock());
+		REDSTONE_WIRE_BLOCK   = register("redstone_wire"   , new BasicWireBlock(WireType.REDSTONE));
+		BLUESTONE_WIRE_BLOCK  = register("bluestone_wire"  , new BasicWireBlock(WireType.BLUESTONE));
+		REDSTONE_BLOCK        = register("redstone_block"  , new PoweredBlock(SignalType.REDSTONE));
+		BLUESTONE_BLOCK       = register("bluestone_block" , new PoweredBlock(SignalType.BLUESTONE));
+		STONE_SLAB_BLOCK      = register("stone_slab"      , new StoneSlabBlock());
+		PLANKS_SLAB_BLOCK     = register("planks_slab"     , new WoodPlanksSlabBlock());
 	}
 }

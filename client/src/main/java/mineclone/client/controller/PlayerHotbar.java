@@ -18,7 +18,7 @@ public class PlayerHotbar {
 	private boolean wasSwitchingHotbar;
 	
 	public PlayerHotbar() {
-		hotbarBlocks = new IBlockState[15];
+		hotbarBlocks = new IBlockState[17];
 		hotbarIndex = 0;
 		
 		hotbarBlocks[0] = Blocks.DIRT_BLOCK.getDefaultState();
@@ -33,19 +33,21 @@ public class PlayerHotbar {
 		hotbarBlocks[6] = Blocks.COBBLESTONE_BLOCK.getDefaultState();
 		hotbarBlocks[7] = Blocks.LEAVES_BLOCK.getDefaultState();
 		hotbarBlocks[8] = Blocks.REDSTONE_BLOCK.getDefaultState();
-		hotbarBlocks[9] = Blocks.REDSTONE_WIRE_BLOCK.getDefaultState();
+		hotbarBlocks[9] = Blocks.BLUESTONE_BLOCK.getDefaultState();
+		hotbarBlocks[10] = Blocks.REDSTONE_WIRE_BLOCK.getDefaultState();
+		hotbarBlocks[11] = Blocks.BLUESTONE_WIRE_BLOCK.getDefaultState();
 		
 		IBlockState stoneSlab = Blocks.STONE_SLAB_BLOCK.getDefaultState().with(StoneSlabBlock.PLACEMENT, SlabPlacement.TOP);
-		hotbarBlocks[10] = stoneSlab.with(StoneSlabBlock.STONE_TYPE, StoneType.STONE);
-		hotbarBlocks[11] = stoneSlab.with(StoneSlabBlock.STONE_TYPE, StoneType.COBBLESTONE);
+		hotbarBlocks[12] = stoneSlab.with(StoneSlabBlock.STONE_TYPE, StoneType.STONE);
+		hotbarBlocks[13] = stoneSlab.with(StoneSlabBlock.STONE_TYPE, StoneType.COBBLESTONE);
 		
 		IBlockState planksSlab = Blocks.PLANKS_SLAB_BLOCK.getDefaultState().with(StoneSlabBlock.PLACEMENT, SlabPlacement.BOTTOM);
-		hotbarBlocks[12] = planksSlab.with(WoodPlanksSlabBlock.WOOD_TYPE, WoodType.OAK);
-		hotbarBlocks[13] = planksSlab.with(WoodPlanksSlabBlock.WOOD_TYPE, WoodType.BIRCH);
-		hotbarBlocks[14] = planksSlab.with(WoodPlanksSlabBlock.WOOD_TYPE, WoodType.ACACIA);
+		hotbarBlocks[14] = planksSlab.with(WoodPlanksSlabBlock.WOOD_TYPE, WoodType.OAK);
+		hotbarBlocks[15] = planksSlab.with(WoodPlanksSlabBlock.WOOD_TYPE, WoodType.BIRCH);
+		hotbarBlocks[16] = planksSlab.with(WoodPlanksSlabBlock.WOOD_TYPE, WoodType.ACACIA);
 	}
 	
-	public void update() {
+	public void tick() {
 		boolean switchingHotbar = Keyboard.isHeld(Keyboard.KEY_T);
 		
 		if (switchingHotbar && !wasSwitchingHotbar) {

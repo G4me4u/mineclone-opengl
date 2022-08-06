@@ -1018,35 +1018,26 @@ public class WireHandler implements IWireHandler {
 	 * will emit shape updates and queue updates for neighboring wires and blocks.
 	 */
 	private void update() {
-		// The profiler keeps track of how long various parts of the algorithm take.
-		// It is only here for debugging purposes, and is commented out in production.
-//		Profiler profiler = AlternateSignalMod.createProfiler();
-//		profiler.start();
-
 		// Search through the network for wires that need power changes. This includes
 		// the roots as well as any wires that will be affected by power changes to
 		// those roots.
-//		profiler.push("search network");
 		searchNetwork();
 
 		// Depower all the wires in the network.
-//		profiler.swap("depower network");
 		depowerNetwork();
 
 		// Bring each wire up to its new power level and update neighboring blocks.
-//		profiler.swap("power network");
-		try {
-			powerNetwork();
-		} catch (Throwable t) {
-			// If anything goes wrong while carrying out power changes, this field must
-			// be reset to 'false', or the wire handler will be locked out of carrying
-			// out power changes until the world is reloaded.
-			updating = false;
+		if (!updating) {
+			updating = true;
 
-			throw t;
-//		} finally {
-//			profiler.pop();
-//			profiler.end();
+			try {
+				powerNetwork();
+			} finally {
+				// If anything goes wrong while carrying out power changes, this field must
+				// be reset to 'false', or the wire handler will be locked out of carrying
+				// out power changes until the world is reloaded.
+				updating = false;
+			}
 		}
 	}
 
@@ -1127,16 +1118,6 @@ public class WireHandler implements IWireHandler {
 	 * queueing updates to connected wires and neighboring blocks.
 	 */
 	private void powerNetwork() {
-		// If an instantaneous update chain causes updates to another network
-		// (or the same network in another place), new power changes will be
-		// integrated into the already ongoing power queue, so we can exit early
-		// here.
-		if (updating) {
-			return;
-		}
-
-		updating = true;
-
 		while (!updates.isEmpty()) {
 			Node node = updates.poll();
 
@@ -1164,8 +1145,6 @@ public class WireHandler implements IWireHandler {
 				updateBlock(node);
 			}
 		}
-
-		updating = false;
 	}
 
 	/**

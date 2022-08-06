@@ -26,7 +26,7 @@ public class BasicWireType extends WireType {
 		Lazy<IBlockState> belowState = new Lazy<>(() -> world.getBlockState(pos.down()));
 		Lazy<IBlockState> aboveState = new Lazy<>(() -> world.getBlockState(pos.up()));
 
-		Lazy<Boolean> aboveIsConductor = new Lazy<>(() -> aboveState.get().isSignalConductor(Direction.DOWN, signal));
+		Lazy<Boolean> aboveIsAligned = new Lazy<>(() -> aboveState.get().isAligned(Direction.DOWN));
 
 		for (Direction dir : Direction.HORIZONTAL) {
 			IBlockPosition adjacent = pos.offset(dir);
@@ -35,19 +35,19 @@ public class BasicWireType extends WireType {
 			if (adjacentState.isWire()) {
 				consumer.accept(ConnectionSide.fromDirection(dir), adjacent, adjacentState, ConnectionType.BOTH);
 			} else {
-				boolean adjacentIsConductor = adjacentState.isSignalConductor(dir.getOpposite(), signal);
+				boolean adjacentIsAligned = adjacentState.isAligned(dir.getOpposite());
 
-				if (!adjacentIsConductor && !adjacentState.isSignalConductor(Direction.DOWN, signal)) {
-					boolean belowIsConductor = belowState.get().isSignalConductor(dir, signal);
+				if (!adjacentIsAligned && !adjacentState.isAligned(Direction.DOWN)) {
+					boolean belowIsAligned = belowState.get().isAligned(dir);
 
 					ConnectionSide side = ConnectionSide.fromDirection(dir).withDown();
-					ConnectionType connection = belowIsConductor ? ConnectionType.BOTH : ConnectionType.IN;
+					ConnectionType connection = belowIsAligned ? ConnectionType.BOTH : ConnectionType.IN;
 
 					consumer.accept(world, pos, side, connection);
 				}
-				if (!aboveIsConductor.get() && !aboveState.get().isSignalConductor(dir, signal)) {
+				if (!aboveIsAligned.get() && !aboveState.get().isAligned(dir)) {
 					ConnectionSide side = ConnectionSide.fromDirection(dir).withUp();
-					ConnectionType connection = adjacentIsConductor ? ConnectionType.BOTH : ConnectionType.OUT;
+					ConnectionType connection = adjacentIsAligned ? ConnectionType.BOTH : ConnectionType.OUT;
 
 					consumer.accept(world, pos, side, connection);
 				}
@@ -87,7 +87,7 @@ public class BasicWireType extends WireType {
 			IBlockPosition below = pos.down();
 			IBlockState belowState = world.getBlockState(below);
 
-			return belowState.isSignalConductor(dir, signal) ? ConnectionType.BOTH : ConnectionType.IN;
+			return belowState.isAligned(dir) ? ConnectionType.BOTH : ConnectionType.IN;
 		}
 		if (ver == ConnectionSide.UP) {
 			IBlockPosition above = pos.up();
@@ -100,7 +100,7 @@ public class BasicWireType extends WireType {
 			IBlockPosition adjacent = pos.offset(dir);
 			IBlockState adjacentState = world.getBlockState(adjacent);
 
-			return adjacentState.isSignalConductor(dir.getOpposite(), signal) ? ConnectionType.BOTH : ConnectionType.OUT;
+			return adjacentState.isAligned(dir.getOpposite()) ? ConnectionType.BOTH : ConnectionType.OUT;
 		}
 
 		return ConnectionType.NONE;

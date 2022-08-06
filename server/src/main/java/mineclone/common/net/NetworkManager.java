@@ -37,7 +37,7 @@ public class NetworkManager implements IResource {
 			Iterator<INetworkConnection> itr = connections.iterator();
 			while (itr.hasNext()) {
 				INetworkConnection connection = itr.next();
-				if (!connection.isConnected()) {
+				if (!connection.isOpen()) {
 					itr.remove();
 					onConnectionRemoved(connection);
 				}

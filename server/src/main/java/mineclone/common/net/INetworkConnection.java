@@ -5,8 +5,8 @@ import mineclone.common.net.packet.IPacket;
 
 public interface INetworkConnection extends IResource {
 
-	public void send(IPacket packet);
+	void send(IPacket packet);
 	
-	public boolean isConnected();
+	boolean isOpen();
 	
 }

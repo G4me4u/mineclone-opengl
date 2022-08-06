@@ -630,7 +630,7 @@ public class WireHandler implements IWireHandler {
 	}
 
 	@Override
-	public void onWireUpdated(IBlockPosition pos) {
+	public void onWireUpdate(IBlockPosition pos) {
 		invalidate();
 		findRoots(pos);
 		tryUpdate();

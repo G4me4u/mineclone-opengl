@@ -89,7 +89,7 @@ public class BasicWireBlock extends Block implements IWire {
 
 	@Override
 	public void update(IServerWorld world, IBlockPosition pos, IBlockState state) {
-		world.getWireHandler().onWireUpdated(pos);
+		world.getWireHandler().onWireUpdate(pos);
 	}
 
 	@Override

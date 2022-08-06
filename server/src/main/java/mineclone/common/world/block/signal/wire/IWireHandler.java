@@ -8,7 +8,7 @@ public interface IWireHandler {
 	/**
 	 * This method should be called whenever a wire receives a block update.
 	 */
-	void onWireUpdated(IBlockPosition pos);
+	void onWireUpdate(IBlockPosition pos);
 
 	/**
 	 * This method should be called whenever a wire is placed.

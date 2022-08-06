@@ -5,7 +5,7 @@ import java.util.Iterator;
 
 import mineclone.common.world.block.signal.wire.WireType;
 
-public class PriorityQueue extends AbstractQueue<Node> {
+public class NodePriorityQueue extends AbstractQueue<Node> {
 
 	private static final int DEFAULT_TAILS_CAPACITY = WireType.REDSTONE.max() - WireType.REDSTONE.min();
 
@@ -18,7 +18,7 @@ public class PriorityQueue extends AbstractQueue<Node> {
 	private int offset;
 	private int size;
 
-	PriorityQueue() {
+	NodePriorityQueue() {
 		clear();
 	}
 

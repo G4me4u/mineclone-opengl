@@ -389,7 +389,7 @@ public class WireHandler implements IWireHandler {
 
 		this.nodes = new HashMap<>();
 		this.search = new SimpleQueue();
-		this.updates = new PriorityQueue();
+		this.updates = new NodePriorityQueue();
 
 		this.nodeCache = new Node[16];
 		this.fillNodeCache(0, 16);

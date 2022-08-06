@@ -23,7 +23,7 @@ public class SimpleQueue extends AbstractQueue<WireNode> {
 		if (tail == null) {
 			head = tail = node;
 		} else {
-			tail.next_wire = node;
+			tail.simpleQueue_next = node;
 			tail = node;
 		}
 
@@ -39,12 +39,12 @@ public class SimpleQueue extends AbstractQueue<WireNode> {
 		}
 
 		WireNode node = head;
-		WireNode next = node.next_wire;
+		WireNode next = node.simpleQueue_next;
 
 		if (next == null) {
 			head = tail = null;
 		} else {
-			node.next_wire = null;
+			node.simpleQueue_next = null;
 			head = next;
 		}
 
@@ -62,9 +62,9 @@ public class SimpleQueue extends AbstractQueue<WireNode> {
 	public void clear() {
 		for (WireNode node = head; node != null; ) {
 			WireNode n = node;
-			node = node.next_wire;
+			node = node.simpleQueue_next;
 
-			n.next_wire = null;
+			n.simpleQueue_next = null;
 		}
 
 		head = null;
@@ -95,7 +95,7 @@ public class SimpleQueue extends AbstractQueue<WireNode> {
 		@Override
 		public boolean hasNext() {
 			if (next == null && curr != null) {
-				next = curr.next_wire;
+				next = curr.simpleQueue_next;
 			}
 
 			return next != null;
@@ -104,7 +104,7 @@ public class SimpleQueue extends AbstractQueue<WireNode> {
 		@Override
 		public WireNode next() {
 			curr = next;
-			next = curr.next_wire;
+			next = curr.simpleQueue_next;
 
 			return curr;
 		}

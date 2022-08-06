@@ -52,7 +52,7 @@ public class PriorityQueue extends AbstractQueue<Node> {
 		}
 
 		Node node = head;
-		Node next = node.next_node;
+		Node next = node.priorityQueue_next;
 
 		if (next == null) {
 			clear(); // reset the tails array
@@ -64,8 +64,8 @@ public class PriorityQueue extends AbstractQueue<Node> {
 				tails[node.priority + offset] = null;
 			}
 
-			node.next_node = null;
-			next.prev_node = null;
+			node.priorityQueue_next = null;
+			next.priorityQueue_prev = null;
 			head = next;
 
 			size--;
@@ -83,10 +83,10 @@ public class PriorityQueue extends AbstractQueue<Node> {
 	public void clear() {
 		for (Node node = head; node != null; ) {
 			Node n = node;
-			node = node.next_node;
+			node = node.priorityQueue_next;
 
-			n.prev_node = null;
-			n.next_node = null;
+			n.priorityQueue_prev = null;
+			n.priorityQueue_next = null;
 		}
 
 		tails = new Node[DEFAULT_TAILS_CAPACITY];
@@ -108,7 +108,7 @@ public class PriorityQueue extends AbstractQueue<Node> {
 	}
 
 	public boolean contains(Node node) {
-		return node == head || node.prev_node != null;
+		return node == head || node.priorityQueue_prev != null;
 	}
 
 	private void move(Node node, int priority) {
@@ -117,8 +117,8 @@ public class PriorityQueue extends AbstractQueue<Node> {
 	}
 
 	private void remove(Node node) {
-		Node prev = node.prev_node;
-		Node next = node.next_node;
+		Node prev = node.priorityQueue_prev;
+		Node next = node.priorityQueue_next;
 
 		if (node == tail || node.priority != next.priority) {
 			// assign a new tail for this node's priority
@@ -134,16 +134,16 @@ public class PriorityQueue extends AbstractQueue<Node> {
 		if (node == head) {
 			head = next;
 		} else {
-			prev.next_node = next;
+			prev.priorityQueue_next = next;
 		}
 		if (node == tail) {
 			tail = prev;
 		} else {
-			next.prev_node = prev;
+			next.priorityQueue_prev = prev;
 		}
 
-		node.prev_node = null;
-		node.next_node = null;
+		node.priorityQueue_prev = null;
+		node.priorityQueue_next = null;
 
 		size--;
 	}
@@ -209,27 +209,27 @@ public class PriorityQueue extends AbstractQueue<Node> {
 	}
 
 	private void linkHead(Node node) {
-		node.next_node = head;
-		head.prev_node = node;
+		node.priorityQueue_next = head;
+		head.priorityQueue_prev = node;
 		head = node;
 	}
 
 	private void linkTail(Node node) {
-		tail.next_node = node;
-		node.prev_node = tail;
+		tail.priorityQueue_next = node;
+		node.priorityQueue_prev = tail;
 		tail = node;
 	}
 
 	private void linkAfter(Node prev, Node node) {
-		linkBetween(prev, node, prev.next_node);
+		linkBetween(prev, node, prev.priorityQueue_next);
 	}
 
 	private void linkBetween(Node prev, Node node, Node next) {
-		prev.next_node = node;
-		node.prev_node = prev;
+		prev.priorityQueue_next = node;
+		node.priorityQueue_prev = prev;
 
-		node.next_node = next;
-		next.prev_node = node;
+		node.priorityQueue_next = next;
+		next.priorityQueue_prev = node;
 	}
 
 	private Node findPrev(Node node) {

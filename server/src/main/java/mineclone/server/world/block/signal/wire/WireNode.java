@@ -46,7 +46,7 @@ public class WireNode extends Node {
 	boolean searched;
 
 	/** The next wire in the simple queue. */
-	WireNode next_wire;
+	WireNode simpleQueue_next;
 
 	WireNode(IServerWorld world, IBlockPosition pos, IBlockState state) {
 		super(world);

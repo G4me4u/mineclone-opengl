@@ -24,9 +24,9 @@ public class Node {
 	boolean invalid;
 
 	/** The previous node in the priority queue. */
-	Node prev_node;
+	Node priorityQueue_prev;
 	/** The next node in the priority queue. */
-	Node next_node;
+	Node priorityQueue_next;
 	/** The priority with which this node was queued. */
 	int priority;
 	/** The wire that queued this node for an update. */
